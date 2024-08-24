@@ -14,7 +14,7 @@ public class Debug : MonoBehaviour
     public TextMeshProUGUI debugText;
 
     private Vector2 mousePos;
-    public InputAction pointPositionAction;
+    //public InputAction pointPositionAction;
 
     private Vector3Int tilePos;
     private TileBase hoveredTile; //change this to standing tile at some point.
@@ -23,10 +23,11 @@ public class Debug : MonoBehaviour
     {
         if(chunkManager.gate)
         {
-            mousePos = pointPositionAction.ReadValue<Vector2>();
+            //mousePos = pointPositionAction.ReadValue<Vector2>();
+            mousePos = Utility.GetMousePosition();
             Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
             //UnityEngine.Debug.Log("Game Object: " + chunkManager.GetChunkTilemap(mousePos).name);
-            tilemap = chunkManager.GetChunkTilemap(mouseWorldPos).GetComponent<Tilemap>();
+            tilemap = chunkManager.GetChunkTilemap().GetComponent<Tilemap>();
 
 
             tilePos = tilemap.WorldToCell(mouseWorldPos);
@@ -67,16 +68,5 @@ public class Debug : MonoBehaviour
         }
 
         return $"Chunk {chunkPosX}, {chunkPosY} in {inChunkX}, {inChunkY}";
-    }
-
-
-    void OnEnable()
-    {
-        pointPositionAction.Enable();
-    }
-
-    void OnDisable()
-    {
-        pointPositionAction.Disable();
     }
 }

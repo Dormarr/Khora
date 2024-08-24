@@ -26,20 +26,21 @@ public class ChunkLoader : MonoBehaviour
     public float padding;
 
     private Vector3Int playerChunkPosition;
-    private Dictionary<Vector3Int, GameObject> loadedChunks = new Dictionary<Vector3Int, GameObject>();
-
+    private Vector2 playerPosition;
     private GameObject player;
 
     public void Init()
     {
         player = GameObject.FindWithTag("Player");
-        playerChunkPosition = GetPlayerChunkPosition();
+        playerPosition = player.transform.position;
+        playerChunkPosition = Utility.GetVariableChunkPosition(playerPosition);
         LoadChunksAroundPlayer();
     }
     
     void Update()
     {
-        Vector3Int newPlayerChunkPos = GetPlayerChunkPosition();
+        playerPosition = player.transform.position;
+        Vector3Int newPlayerChunkPos = Utility.GetVariableChunkPosition(playerPosition);
 
         if(newPlayerChunkPos != playerChunkPosition)
         {
@@ -48,20 +49,9 @@ public class ChunkLoader : MonoBehaviour
         }
     }
 
-    public Vector3Int GetPlayerChunkPosition()
-    {
-        Vector3 playerPosition = player.transform.position;
-        return new Vector3Int(Mathf.FloorToInt(playerPosition.x / chunkSize), Mathf.FloorToInt(playerPosition.y / chunkSize), 0);
-    }
-
-    public Vector3Int GetMouseChunkPosition(Vector2 mousePos)
-    {
-        return new Vector3Int(Mathf.FloorToInt(mousePos.x / chunkSize), Mathf.FloorToInt(mousePos.y / chunkSize), 0);
-    }
-
     void LoadChunksAroundPlayer()
     {
-        HashSet<Vector3Int> chunksToLoad = new HashSet<Vector3Int>();
+        List<Vector3Int> chunksToLoad = new List<Vector3Int>();
 
         Vector3 bottomLeft = camera.ViewportToWorldPoint(new Vector3(0, 0, camera.nearClipPlane));
         Vector3 topRight = camera.ViewportToWorldPoint(new Vector3(1, 1, camera.nearClipPlane));
@@ -86,7 +76,6 @@ public class ChunkLoader : MonoBehaviour
                 chunksToLoad.Add(chunkPosition);
             }
         }
-
 
 
         List<Vector3Int> chunksToUnload = new List<Vector3Int>();
@@ -119,7 +108,6 @@ public class ChunkLoader : MonoBehaviour
         float[,] noiseMap = Noise.GenerateChunkNoiseMap(chunkPosition, chunkSize, chunkSize, seed, noiseScale, octaves, persistance, lacunarity, offset);
         DrawNoiseMap(noiseMap, chunkTilemap, chunkPosition);
 
-        //loadedChunks.Add(chunkPosition, chunk);
         chunkManager.AddChunk(chunkPosition, chunk);
     }
 
@@ -128,7 +116,7 @@ public class ChunkLoader : MonoBehaviour
         if(chunkManager.chunkCache.TryGetValue(chunkPosition, out GameObject chunk))
         {
             Destroy(chunk);//will this screw up saving? Is this gonna bite me in the arse??
-            //loadedChunks.Remove(chunkPosition);
+
             chunkManager.RemoveChunk(chunkPosition, chunk);
         }
     }
@@ -145,7 +133,6 @@ public class ChunkLoader : MonoBehaviour
             for (int x = 0; x < width; x++)
             {
                 Tile selectedTile = SelectTile(noiseMap[x, y]);
-                //Vector3Int tilePosition = new Vector3Int(chunkPosition.x * chunkSize + x - (chunkSize/2), chunkPosition.y * chunkSize + y - (chunkSize / 2), 0);
                 Vector3Int tilePosition = new Vector3Int(chunkPosition.x * width + x, chunkPosition.y * height + y, 0);
                 
                 chunkTilemap.SetTile(tilePosition, selectedTile);

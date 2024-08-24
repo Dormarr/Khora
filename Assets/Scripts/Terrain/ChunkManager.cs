@@ -73,9 +73,10 @@ public class ChunkManager : MonoBehaviour
         return null;
     }
 
-    public GameObject GetChunkTilemap(Vector2 mousePos)
+    public GameObject GetChunkTilemap()
     {
-        Vector3Int chunkPosition = chunkLoader.GetMouseChunkPosition(mousePos);
+        //Vector3Int chunkPosition = chunkLoader.GetMouseChunkPosition();
+        Vector3Int chunkPosition = Utility.GetVariableChunkPosition(Utility.GetMouseWorldPosition());
 
         if (chunkCache.ContainsKey(chunkPosition))
         {
