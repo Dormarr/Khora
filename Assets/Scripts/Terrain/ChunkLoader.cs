@@ -48,10 +48,15 @@ public class ChunkLoader : MonoBehaviour
         }
     }
 
-    Vector3Int GetPlayerChunkPosition()
+    public Vector3Int GetPlayerChunkPosition()
     {
         Vector3 playerPosition = player.transform.position;
         return new Vector3Int(Mathf.FloorToInt(playerPosition.x / chunkSize), Mathf.FloorToInt(playerPosition.y / chunkSize), 0);
+    }
+
+    public Vector3Int GetMouseChunkPosition(Vector2 mousePos)
+    {
+        return new Vector3Int(Mathf.FloorToInt(mousePos.x / chunkSize), Mathf.FloorToInt(mousePos.y / chunkSize), 0);
     }
 
     void LoadChunksAroundPlayer()

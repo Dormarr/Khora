@@ -7,6 +7,7 @@ public class ChunkManager : MonoBehaviour
 {
     //this is where I'll keep all the loaded/unloaded chunk info.
     //Cache memory for faster performance at the expense of memory, but chunks aren't that intensive so it's all good.
+    public bool gate = false;
 
     [SerializeField] private ChunkLoader chunkLoader;
 
@@ -23,7 +24,10 @@ public class ChunkManager : MonoBehaviour
         //add each chunk to the chunkCache.
 
         chunkLoader.Init();
-
+        if(chunkCache.Count > 0 )
+        {
+            gate = true;
+        }
 
     }
 
@@ -67,6 +71,20 @@ public class ChunkManager : MonoBehaviour
         }
 
         return null;
+    }
+
+    public GameObject GetChunkTilemap(Vector2 mousePos)
+    {
+        Vector3Int chunkPosition = chunkLoader.GetMouseChunkPosition(mousePos);
+
+        if (chunkCache.ContainsKey(chunkPosition))
+        {
+            return chunkCache[chunkPosition];
+        }
+
+        UnityEngine.Debug.Log("Oopsie, No Chunk Position Found!");
+        return null;
+
     }
 
 

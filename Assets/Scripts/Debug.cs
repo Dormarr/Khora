@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,7 @@ using UnityEngine.InputSystem;
 public class Debug : MonoBehaviour
 {
     public ChunkManager chunkManager;
+    
     public Tilemap tilemap; //this needs to be dynamically updated based on the current chunk the player is on.
     public TextMeshProUGUI debugText;
 
@@ -19,29 +21,35 @@ public class Debug : MonoBehaviour
 
     void Update()
     {
-
-        mousePos = pointPositionAction.ReadValue<Vector2>();
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
-
-        tilePos = tilemap.WorldToCell(mouseWorldPos);
-        hoveredTile = tilemap.GetTile(tilePos);
-
-        if(hoveredTile != null)
+        if(chunkManager.gate)
         {
-            debugText.text = "Coordinates" + 
-                $"\nGlobal: {tilePos.x}, {tilePos.y}" + 
-                $"\n{ChunkPositionDebug()}" + 
-                //$"\nTile Name: {hoveredTile.name}" + 
-                $"\nTile Identity: {chunkManager.IdentifyTile(mouseWorldPos).name}" + 
-                $"\nChunk Cache: {chunkManager.chunkCache.Count}" +
-                $"\nMouse Pos: {mousePos.x}, {mousePos.y}";
+            mousePos = pointPositionAction.ReadValue<Vector2>();
+            Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
+            //UnityEngine.Debug.Log("Game Object: " + chunkManager.GetChunkTilemap(mousePos).name);
+            tilemap = chunkManager.GetChunkTilemap(mouseWorldPos).GetComponent<Tilemap>();
+
+
+            tilePos = tilemap.WorldToCell(mouseWorldPos);
+            hoveredTile = tilemap.GetTile(tilePos);
+            //UnityEngine.Debug.Log("Hovered Tile Pos: " + hoveredTile.name);
+
+            if(hoveredTile != null)
+            {
+                debugText.text = "Coordinates" + 
+                    $"\nGlobal: {tilePos.x}, {tilePos.y}" + 
+                    $"\n{ChunkPositionDebug()}" + 
+                    //$"\nTile Name: {hoveredTile.name}" + 
+                    $"\nTile Identity: {chunkManager.IdentifyTile(mouseWorldPos).name}" + 
+                    $"\nChunk Cache: {chunkManager.chunkCache.Count}" +
+                    $"\nMouse Pos: {mousePos.x}, {mousePos.y}";
+            }
         }
     }
 
     string ChunkPositionDebug()
     {
-        int inChunkX = Mathf.FloorToInt(tilePos.x / Config.chunkSize);
-        int inChunkY = Mathf.FloorToInt(tilePos.y / Config.chunkSize);
+        int inChunkX = Mathf.FloorToInt((float)tilePos.x / Config.chunkSize); //fix 0,0 issue
+        int inChunkY = Mathf.FloorToInt((float)tilePos.y / Config.chunkSize);
 
         int chunkPosX = tilePos.x - (inChunkX * Config.chunkSize);
         int chunkPosY = tilePos.y - (inChunkY * Config.chunkSize);
