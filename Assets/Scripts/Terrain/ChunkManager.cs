@@ -20,9 +20,6 @@ public class ChunkManager : MonoBehaviour
 
     void InitializeChunks()
     {
-        //load chunks through chunkloader.
-        //add each chunk to the chunkCache.
-
         chunkLoader.Init();
         if(chunkCache.Count > 0 )
         {
@@ -30,7 +27,6 @@ public class ChunkManager : MonoBehaviour
         }
 
     }
-
 
     public void AddChunk(Vector3Int chunkPosition, GameObject chunk)
     {
@@ -46,15 +42,11 @@ public class ChunkManager : MonoBehaviour
 
     public void RemoveChunk(Vector3Int chunkPosition, GameObject chunk)
     {
-        //remove chunk.
-
         if(chunkCache.ContainsKey(chunkPosition))
         {
             chunkCache.Remove(chunkPosition);
         }
     }
-
-    //Add an IdentifyTile method next, so you can identify the tile based on coordinates? IDK, figure it out.
 
     public TileBase IdentifyTile(Vector3 position)
     {
@@ -75,7 +67,6 @@ public class ChunkManager : MonoBehaviour
 
     public GameObject GetChunkTilemap()
     {
-        //Vector3Int chunkPosition = chunkLoader.GetMouseChunkPosition();
         Vector3Int chunkPosition = Utility.GetVariableChunkPosition(Utility.GetMouseWorldPosition());
 
         if (chunkCache.ContainsKey(chunkPosition))

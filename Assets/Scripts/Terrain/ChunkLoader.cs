@@ -77,7 +77,6 @@ public class ChunkLoader : MonoBehaviour
             }
         }
 
-
         List<Vector3Int> chunksToUnload = new List<Vector3Int>();
 
         foreach(var chunk in chunkManager.chunkCache.Keys)
@@ -105,6 +104,10 @@ public class ChunkLoader : MonoBehaviour
 
         chunkTilemap.tileAnchor = new Vector3(0.5f, 0.5f, 0);
 
+        //Add extra terrain generation here.
+        //Assess noise map along side other perlin maps.
+
+
         float[,] noiseMap = Noise.GenerateChunkNoiseMap(chunkPosition, chunkSize, chunkSize, seed, noiseScale, octaves, persistance, lacunarity, offset);
         DrawNoiseMap(noiseMap, chunkTilemap, chunkPosition);
 
@@ -116,11 +119,9 @@ public class ChunkLoader : MonoBehaviour
         if(chunkManager.chunkCache.TryGetValue(chunkPosition, out GameObject chunk))
         {
             Destroy(chunk);//will this screw up saving? Is this gonna bite me in the arse??
-
             chunkManager.RemoveChunk(chunkPosition, chunk);
         }
     }
-
 
     void DrawNoiseMap(float[,] noiseMap, Tilemap chunkTilemap, Vector3Int chunkPosition)
     {

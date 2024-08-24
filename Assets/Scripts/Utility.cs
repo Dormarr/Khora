@@ -27,6 +27,4 @@ public static class Utility
     {
         return new Vector3Int(Mathf.FloorToInt(focus.x / Config.chunkSize), Mathf.FloorToInt(focus.y / Config.chunkSize), 0);
     }
-
-
 }

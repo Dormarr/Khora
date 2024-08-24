@@ -11,38 +11,37 @@ public class Debug : MonoBehaviour
     public ChunkManager chunkManager;
     
     public Tilemap tilemap; //this needs to be dynamically updated based on the current chunk the player is on.
-    public TextMeshProUGUI debugText;
+    public TextMeshProUGUI cursorDebugText;
+    public TextMeshProUGUI worldGenDebugText;
 
     private Vector2 mousePos;
-    //public InputAction pointPositionAction;
-
     private Vector3Int tilePos;
-    private TileBase hoveredTile; //change this to standing tile at some point.
 
     void Update()
     {
         if(chunkManager.gate)
         {
-            //mousePos = pointPositionAction.ReadValue<Vector2>();
             mousePos = Utility.GetMousePosition();
             Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
-            //UnityEngine.Debug.Log("Game Object: " + chunkManager.GetChunkTilemap(mousePos).name);
             tilemap = chunkManager.GetChunkTilemap().GetComponent<Tilemap>();
 
-
             tilePos = tilemap.WorldToCell(mouseWorldPos);
-            hoveredTile = tilemap.GetTile(tilePos);
-            //UnityEngine.Debug.Log("Hovered Tile Pos: " + hoveredTile.name);
+            TileBase hoveredTile = chunkManager.IdentifyTile(mouseWorldPos);
 
             if(hoveredTile != null)
             {
-                debugText.text = "Coordinates" + 
+                cursorDebugText.text = "Cursor Coordinates" + 
                     $"\nGlobal: {tilePos.x}, {tilePos.y}" + 
                     $"\n{ChunkPositionDebug()}" + 
-                    //$"\nTile Name: {hoveredTile.name}" + 
-                    $"\nTile Identity: {chunkManager.IdentifyTile(mouseWorldPos).name}" + 
+                    $"\nTile Identity: {hoveredTile.name}" + 
                     $"\nChunk Cache: {chunkManager.chunkCache.Count}" +
                     $"\nMouse Pos: {mousePos.x}, {mousePos.y}";
+                worldGenDebugText.text = "Tile Debug" +
+                    $"\nTemperate: x" +
+                    $"\nHumidity: x" +
+                    $"\nElevation: {hoveredTile.name}" + //Change the determining variable once WorldEngine is working.
+                    $"\nErosion: x";
+
             }
         }
     }
