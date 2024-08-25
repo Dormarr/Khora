@@ -17,14 +17,21 @@ public class PerlinGenerator : MonoBehaviour
 
     public Tile[] tiles;
 
-    [SerializeField] private int octaves;
-    [SerializeField] private float persistance;
-    [SerializeField] private float lacunarity;
-    [SerializeField] private float noiseScale;
-    [SerializeField] private Vector2 offset;
+    [SerializeField] public float noiseScale;
+    [SerializeField] public int octaves;
+    [SerializeField] public float persistance;
+    [SerializeField] public float lacunarity;
+    [SerializeField] public Vector2 offset;
 
+    private int chunkSize => Config.chunkSize;
 
     //I'm not sure what should be passed into this, because I'm not sure what needs to be generated.
     //It should probably be done chunk by chunk, right? Or does this exist just to return perlin noise based on coord data?
     //public void GenerateNoiseMap()
+
+    public float[,] GenerateChunkPerlin(Vector3Int chunkPosition)
+    {
+        return Noise.GenerateChunkNoiseMap(chunkPosition, chunkSize, seed, noiseScale, octaves, persistance, lacunarity, offset);
+    }
+
 }

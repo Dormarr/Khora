@@ -6,11 +6,15 @@ using UnityEngine.Tilemaps;
 public class ChunkLoader : MonoBehaviour
 {
     public ChunkManager chunkManager;
+    public WorldEngine worldEngine;
+    public BiomeManager biomeManager;
 
     public Camera camera;
     public GameObject grid;
 
     public Tile[] tiles; //I'd like to use scriptable objects instead of tiles.
+
+    public Tile blankTile;
 
     public float noiseScale;
 
@@ -108,8 +112,13 @@ public class ChunkLoader : MonoBehaviour
         //Assess noise map along side other perlin maps.
 
 
-        float[,] noiseMap = Noise.GenerateChunkNoiseMap(chunkPosition, chunkSize, chunkSize, seed, noiseScale, octaves, persistance, lacunarity, offset);
-        DrawNoiseMap(noiseMap, chunkTilemap, chunkPosition);
+        //float[,] noiseMap = Noise.GenerateChunkNoiseMap(chunkPosition, chunkSize, seed, noiseScale, octaves, persistance, lacunarity, offset);
+        //DrawNoiseMap(noiseMap, chunkTilemap, chunkPosition);
+
+        //call a method that pulls the biomeData and creates a tile with the tint of the associated colour. At least until I have a set tile to fill the tilemap with.
+
+        Biome[,] biomeMap = worldEngine.GenerateBiomeForChunk(chunkPosition);
+        DrawBiomeMap(biomeMap, chunkTilemap, chunkPosition);
 
         chunkManager.AddChunk(chunkPosition, chunk);
     }
@@ -120,6 +129,30 @@ public class ChunkLoader : MonoBehaviour
         {
             Destroy(chunk);//will this screw up saving? Is this gonna bite me in the arse??
             chunkManager.RemoveChunk(chunkPosition, chunk);
+        }
+    }
+
+    void DrawBiomeMap(Biome[,] biomeMap, Tilemap chunkTilemap, Vector3Int chunkPosition)
+    {
+        int width = biomeMap.GetLength(0);
+        int height = biomeMap.GetLength(1);
+
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                //Tile selectedTile = SelectTile(noiseMap[x, y]);
+                Biome tileBiome = biomeMap[x, y];
+                //Color tileColour = biomeManager.GetColourFromBiome(tileBiome);
+                TileBase selectedTile = biomeManager.GetTileFromBiome(tileBiome);
+                Vector3Int tilePosition = new Vector3Int(chunkPosition.x * width + x, chunkPosition.y * height + y, 0);
+
+                chunkTilemap.SetTile(tilePosition, selectedTile);
+                //chunkTilemap.SetColor(tilePosition, tileColour);
+                //chunkTilemap.RefreshTile(tilePosition);
+
+                //chunkTilemap.SetTile(tilePosition, selectedTile);
+            }
         }
     }
 

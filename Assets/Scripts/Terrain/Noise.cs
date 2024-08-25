@@ -69,12 +69,12 @@ public static class Noise
         return noiseMap;
     }
 
-    public static float[,] GenerateChunkNoiseMap(Vector3Int chunkPosition, int chunkWidth, int chunkHeight, int seed, float scale, int octaves, float persistance, float lacunarity, Vector2 offset)
+    public static float[,] GenerateChunkNoiseMap(Vector3Int chunkPosition, int chunkSize, int seed, float scale, int octaves, float persistance, float lacunarity, Vector2 offset)
     {
         //It needs to shift positions to different chunks.
         //Send in and implement chunkPosition.
 
-        float[,] noiseMap = new float[chunkWidth, chunkHeight];
+        float[,] noiseMap = new float[chunkSize, chunkSize];
 
         System.Random prng = new System.Random(seed);
         Vector2[] octaveOffsets = new Vector2[octaves];
@@ -100,30 +100,28 @@ public static class Noise
         float maxNoiseHeight = float.MinValue;
         float minNoiseHeight = float.MaxValue;
 
-        int chunkPosX = chunkPosition.x * chunkWidth;
-        int chunkPosY = chunkPosition.y * chunkHeight;
+        int chunkPosX = chunkPosition.x * chunkSize;
+        int chunkPosY = chunkPosition.y * chunkSize;
 
-        float halfHeight = chunkHeight / 2f;
-        float halfWidth = chunkWidth / 2f;
+        float halfChunkSize = chunkSize / 2f;
+        
 
-        for (int y = 0; y < chunkHeight; y++)
+        for (int y = 0; y < chunkSize; y++)
         {
-            for (int x = 0; x < chunkWidth; x++)
+            for (int x = 0; x < chunkSize; x++)
             {
                 amplitude = 1;
                 float frequency = 1;
                 float noiseHeight = 0;
 
-                float globalX = (x + chunkPosition.x * chunkWidth - halfWidth) / scale;
-                float globalY = (y + chunkPosition.y * chunkHeight - halfHeight) / scale;
+                float globalX = (x + chunkPosition.x * chunkSize - halfChunkSize) / scale;
+                float globalY = (y + chunkPosition.y * chunkSize - halfChunkSize) / scale;
 
                 //float worldX = (chunkPosition.x * chunkWidth + x) / scale;
                 //float worldY = (chunkPosition.y * chunkHeight + y) / scale;
 
                 for (int i = 0; i < octaves; i++)
                 {
-                    //float sampleX = (x + chunkPosX) / scale * frequency + octaveOffsets[i].x;
-                    //float sampleY = (y + chunkPosY) / scale * frequency + octaveOffsets[i].y;
 
                     float sampleX = globalX * frequency + octaveOffsets[i].x;
                     float sampleY = globalY * frequency + octaveOffsets[i].y;
@@ -149,9 +147,9 @@ public static class Noise
 
         }
 
-        for (int y = 0; y < chunkHeight; y++)
+        for (int y = 0; y < chunkSize; y++)
         {
-            for (int x = 0; x < chunkWidth; x++)
+            for (int x = 0; x < chunkSize; x++)
             {
                 float normalizedHeight = (noiseMap[x,y] + maxPossibleHeight) / (2f * maxPossibleHeight);
                 
@@ -161,5 +159,77 @@ public static class Noise
         }
 
         return noiseMap;
+    }
+
+    public static float GenerateCoordinateNoise(Vector3Int coordinate, int seed, float scale, int octaves, float persistance, float lacunarity, Vector2 offset)
+    {
+        // The noise value to return
+        float noiseValue = 0f;
+
+        // Seed-based random number generator
+        System.Random prng = new System.Random(seed);
+        Vector2[] octaveOffsets = new Vector2[octaves];
+
+        float amplitude = 1;
+        float maxPossibleHeight = 0f;
+
+        // Generate octave offsets based on the seed
+        for (int i = 0; i < octaves; i++)
+        {
+            float offsetX = prng.Next(-100000, 100000) + offset.x;
+            float offsetY = prng.Next(-100000, 100000) + offset.y;
+            octaveOffsets[i] = new Vector2(offsetX, offsetY);
+
+            maxPossibleHeight += amplitude;
+            amplitude *= persistance;
+        }
+
+        // Ensure scale is not zero or negative
+        if (scale <= 0)
+        {
+            scale = 0.0001f;
+        }
+
+        // Initial values for tracking noise height
+        float maxNoiseHeight = float.MinValue;
+        float minNoiseHeight = float.MaxValue;
+
+        // Calculate noise for the single coordinate
+        amplitude = 1;
+        float frequency = 1;
+        float noiseHeight = 0;
+
+        float globalX = (coordinate.x) / scale;
+        float globalY = (coordinate.y) / scale;
+
+        // Loop through each octave
+        for (int i = 0; i < octaves; i++)
+        {
+            float sampleX = globalX * frequency + octaveOffsets[i].x;
+            float sampleY = globalY * frequency + octaveOffsets[i].y;
+
+            float perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
+            noiseHeight += perlinValue * amplitude;
+
+            amplitude *= persistance;
+            frequency *= lacunarity;
+        }
+
+        // Track max and min noise height for normalization
+        if (noiseHeight > maxNoiseHeight)
+        {
+            maxNoiseHeight = noiseHeight;
+        }
+        else if (noiseHeight < minNoiseHeight)
+        {
+            minNoiseHeight = noiseHeight;
+        }
+
+        // Normalize noise value
+        float normalizedHeight = (noiseHeight + maxPossibleHeight) / (2f * maxPossibleHeight);
+        noiseValue = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, noiseHeight);
+        noiseValue = Mathf.Clamp01(normalizedHeight);
+
+        return noiseValue;
     }
 }
