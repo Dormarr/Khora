@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb7c7b4a1aa5f36429e79b7b544af898, type: 3}
   m_Name: Glacial
   m_EditorClassIdentifier: 
-  biomeName: 0
-  tile: {fileID: 0}
+  biomeName: 2
+  tile: {fileID: 11400000, guid: bcd5d2ca7ef87ee4ea24c3b32c94a079, type: 2}
   biomeColour: {r: 0.5330188, g: 0.8731463, b: 1, a: 1}
   erosionModifier: 1

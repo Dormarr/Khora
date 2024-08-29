@@ -6,20 +6,6 @@ using UnityEngine;
 //Coords come in, passed over to perlinGenerator, a cluster of info comes back, is assessed and rendered.
 //The rendering should probably be done elsewhere though, because that's a whole other task, especially with connected tiles.
 
-public enum Biome
-{
-    Tundra,
-    BorealForest,
-    Glacial,
-    Shrubland,
-    Forest,
-    Swamp,
-    SandDesert,
-    Grassland,
-    Rainforest,
-    SnowyForest
-}
-
 
 public class WorldEngine : MonoBehaviour
 {
@@ -30,6 +16,7 @@ public class WorldEngine : MonoBehaviour
     //Need to grab chunkPosition.
 
     public float erosionStrength;
+    public int worldSeed;
 
     public PerlinGenerator tempGen;
     public PerlinGenerator precipGen;
@@ -41,18 +28,25 @@ public class WorldEngine : MonoBehaviour
     public float elevation;
     public float erosion;
     
+    void Awake()
+    {
+        worldSeed = Utility.GenerateWorldSeedFromString("temp");
+    }
+
     public Biome GenerateBiomeForCoordinate(Vector3Int coordinate)
     {
-        temperature = Noise.GenerateCoordinateNoise(coordinate, tempGen.seed, tempGen.noiseScale, tempGen.octaves, tempGen.persistance, tempGen.lacunarity, tempGen.offset);
-        precipitation = Noise.GenerateCoordinateNoise(coordinate, precipGen.seed, precipGen.noiseScale, precipGen.octaves, precipGen.persistance, precipGen.lacunarity, precipGen.offset);
+        Vector3Int offset = new Vector3Int(Config.chunkSize / 2, Config.chunkSize / 2, 0);
+
+        temperature = tempGen.GenerateCoordinatePerlin(coordinate - offset, worldSeed);
+        precipitation = precipGen.GenerateCoordinatePerlin(coordinate - offset, worldSeed);
 
         return BiomeGenerator.GetBiome(temperature, precipitation);
     }
 
     public Biome[,] GenerateBiomeForChunk(Vector3Int chunkPosition)
     {
-        float[,] temperatureMap = Noise.GenerateChunkNoiseMap(chunkPosition, Config.chunkSize, tempGen.seed, tempGen.noiseScale, tempGen.octaves, tempGen.persistance, tempGen.lacunarity, tempGen.offset);
-        float[,] precipitationMap = Noise.GenerateChunkNoiseMap(chunkPosition, Config.chunkSize, precipGen.seed, precipGen.noiseScale, precipGen.octaves, precipGen.persistance, precipGen.lacunarity, precipGen.offset);
+        float[,] temperatureMap = tempGen.GenerateChunkPerlin(chunkPosition, worldSeed);
+        float[,] precipitationMap = precipGen.GenerateChunkPerlin(chunkPosition, worldSeed);
 
 
         Biome[,] biomeMap = new Biome[temperatureMap.GetLength(0), precipitationMap.GetLength(1)];
@@ -70,16 +64,16 @@ public class WorldEngine : MonoBehaviour
 
     public float GenerateTopologyForCoordinate(Vector3Int coordinate)
     {
-        elevation = Noise.GenerateCoordinateNoise(coordinate, elevGen.seed, elevGen.noiseScale, elevGen.octaves, elevGen.persistance, elevGen.lacunarity, elevGen.offset);
-        erosion = Noise.GenerateCoordinateNoise(coordinate, erosGen.seed, erosGen.noiseScale, erosGen.octaves, erosGen.persistance, erosGen.lacunarity, erosGen.offset);
+        elevation = elevGen.GenerateCoordinatePerlin(coordinate, worldSeed);
+        erosion = erosGen.GenerateCoordinatePerlin(coordinate, worldSeed);
 
         return TopologyGenerator.GetTopology(elevation, erosion, erosionStrength);
     }
 
     public float[,] GenerateTopologyForChunk(Vector3Int chunkPosition)
     {
-        float[,] elevationMap = Noise.GenerateChunkNoiseMap(chunkPosition, Config.chunkSize, elevGen.seed, elevGen.noiseScale, elevGen.octaves, elevGen.persistance, elevGen.lacunarity, elevGen.offset);
-        float[,] erosionMap = Noise.GenerateChunkNoiseMap(chunkPosition, Config.chunkSize, erosGen.seed, erosGen.noiseScale, erosGen.octaves, erosGen.persistance, erosGen.lacunarity, erosGen.offset);
+        float[,] elevationMap = elevGen.GenerateChunkPerlin(chunkPosition, worldSeed);
+        float[,] erosionMap = erosGen.GenerateChunkPerlin(chunkPosition, worldSeed);
 
         float[,] topologyMap = new float[elevationMap.GetLength(0),erosionMap.GetLength(0)];
 

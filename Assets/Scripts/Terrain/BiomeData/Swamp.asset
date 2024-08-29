@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Swamp
   m_EditorClassIdentifier: 
   biomeName: 5
-  tile: {fileID: 0}
+  tile: {fileID: 11400000, guid: a4c428a876160c84c9c212305492e457, type: 2}
   biomeColour: {r: 0.45686525, g: 0.5660378, b: 0.1254895, a: 1}
   erosionModifier: 1

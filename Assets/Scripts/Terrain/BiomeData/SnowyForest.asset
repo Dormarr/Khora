@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb7c7b4a1aa5f36429e79b7b544af898, type: 3}
   m_Name: SnowyForest
   m_EditorClassIdentifier: 
-  biomeName: 0
-  tile: {fileID: 0}
-  biomeColour: {r: 0, g: 0, b: 0, a: 0}
+  biomeName: 9
+  tile: {fileID: 11400000, guid: 2afdfb18f9b094845a17e5b28b5a8e50, type: 2}
+  biomeColour: {r: 0.656402, g: 0.8679245, b: 0.64275545, a: 1}
   erosionModifier: 1

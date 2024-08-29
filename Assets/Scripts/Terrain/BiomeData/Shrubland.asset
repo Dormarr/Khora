@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Shrubland
   m_EditorClassIdentifier: 
   biomeName: 3
-  tile: {fileID: 0}
+  tile: {fileID: 11400000, guid: fa74cfc1fbbf1024fa9d9c389543b853, type: 2}
   biomeColour: {r: 0.5849056, g: 0.5508876, b: 0.43867922, a: 1}
   erosionModifier: 1

@@ -71,9 +71,6 @@ public static class Noise
 
     public static float[,] GenerateChunkNoiseMap(Vector3Int chunkPosition, int chunkSize, int seed, float scale, int octaves, float persistance, float lacunarity, Vector2 offset)
     {
-        //It needs to shift positions to different chunks.
-        //Send in and implement chunkPosition.
-
         float[,] noiseMap = new float[chunkSize, chunkSize];
 
         System.Random prng = new System.Random(seed);
@@ -163,15 +160,11 @@ public static class Noise
 
     public static float GenerateCoordinateNoise(Vector3Int coordinate, int seed, float scale, int octaves, float persistance, float lacunarity, Vector2 offset)
     {
-        // The noise value to return
-        float noiseValue = 0f;
-
-        // Seed-based random number generator
-        System.Random prng = new System.Random(seed);
+        System.Random prng = new System.Random(seed); //implement seed.
         Vector2[] octaveOffsets = new Vector2[octaves];
 
         float amplitude = 1;
-        float maxPossibleHeight = 0f;
+        float maxPossibleHeight = -1f;
 
         // Generate octave offsets based on the seed
         for (int i = 0; i < octaves; i++)
@@ -199,8 +192,8 @@ public static class Noise
         float frequency = 1;
         float noiseHeight = 0;
 
-        float globalX = (coordinate.x) / scale;
-        float globalY = (coordinate.y) / scale;
+        float globalX = coordinate.x / scale;
+        float globalY = coordinate.y / scale;
 
         // Loop through each octave
         for (int i = 0; i < octaves; i++)
@@ -208,7 +201,7 @@ public static class Noise
             float sampleX = globalX * frequency + octaveOffsets[i].x;
             float sampleY = globalY * frequency + octaveOffsets[i].y;
 
-            float perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
+            float perlinValue = Mathf.PerlinNoise((float)sampleX, (float)sampleY) * 2 - 1;
             noiseHeight += perlinValue * amplitude;
 
             amplitude *= persistance;
@@ -227,7 +220,7 @@ public static class Noise
 
         // Normalize noise value
         float normalizedHeight = (noiseHeight + maxPossibleHeight) / (2f * maxPossibleHeight);
-        noiseValue = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, noiseHeight);
+        float noiseValue = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, noiseHeight);
         noiseValue = Mathf.Clamp01(normalizedHeight);
 
         return noiseValue;

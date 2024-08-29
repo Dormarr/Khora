@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: SandDesert
   m_EditorClassIdentifier: 
   biomeName: 6
-  tile: {fileID: 0}
+  tile: {fileID: 11400000, guid: bc11a8616b627ae449dc7e7f27c9ded1, type: 2}
   biomeColour: {r: 0.990566, g: 0.9259412, b: 0.4719206, a: 1}
   erosionModifier: 1

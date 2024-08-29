@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Grassland
   m_EditorClassIdentifier: 
   biomeName: 7
-  tile: {fileID: 0}
+  tile: {fileID: 11400000, guid: 652ed2bdfed42334c813653a73e9e415, type: 2}
   biomeColour: {r: 0.49153724, g: 0.6698113, b: 0.47708258, a: 1}
   erosionModifier: 1

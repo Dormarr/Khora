@@ -11,7 +11,7 @@ public class Debug : MonoBehaviour
     public ChunkManager chunkManager;
     public WorldEngine worldEngine;
 
-    public Tilemap tilemap; //this needs to be dynamically updated based on the current chunk the player is on.
+    public Tilemap tilemap;
     public TextMeshProUGUI cursorDebugText;
     public TextMeshProUGUI worldGenDebugText;
 
@@ -34,12 +34,12 @@ public class Debug : MonoBehaviour
                 cursorDebugText.text = "Cursor Coordinates" + 
                     $"\nGlobal: {tilePos.x}, {tilePos.y}" + 
                     $"\n{ChunkPositionDebug()}" + 
-                    $"\nTile Identity: {hoveredTile.name}" + //this is accurate.
                     $"\nChunk Cache: {chunkManager.chunkCache.Count}" +
                     $"\nMouse Pos: {mousePos.x}, {mousePos.y}";
                 worldGenDebugText.text = "Tile Debug" +
                     $"\n<b>Biome: {worldEngine.GenerateBiomeForCoordinate(tilePos)}</b>" + //this is wrong and I have no idea why. Will fix later.
-                    $"\nTemperature: {worldEngine.temperature}" +
+                    $"\nTile Identity: {hoveredTile.name}" + //this is accurate.
+                    $"\n\nTemperature: {worldEngine.temperature}" +
                     $"\nHumidity: {worldEngine.precipitation}" +
                     $"\n<b>Topology: {worldEngine.GenerateTopologyForCoordinate(tilePos)}</b>" +
                     $"\nElevation: {worldEngine.elevation}" +

@@ -7,9 +7,14 @@ using UnityEngine.Tilemaps;
 public class BiomeData : ScriptableObject
 {
     public Biome biomeName;
-    public TileBase tile;
+    public TileBase tile; //expand once dual grid system in place.
 
     public Color biomeColour; //temp for visualization
+
+    public float minTemperature;
+    public float maxTemperature;
+    public float minHumidity;
+    public float maxHumidity;
 
     public float erosionModifier = 1f; //use later for 3rd wave terrain gen.
 }

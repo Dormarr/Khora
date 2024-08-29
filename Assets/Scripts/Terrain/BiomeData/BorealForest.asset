@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: BorealForest
   m_EditorClassIdentifier: 
   biomeName: 1
-  tile: {fileID: 0}
+  tile: {fileID: 11400000, guid: a480fdc0b60402246ab6732f7b3765bb, type: 2}
   biomeColour: {r: 0.05513528, g: 0.5566038, b: 0.39281756, a: 1}
   erosionModifier: 1

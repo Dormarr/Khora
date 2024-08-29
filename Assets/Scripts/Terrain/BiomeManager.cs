@@ -3,6 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+
+public enum Biome
+{
+    Tundra,
+    BorealForest,
+    Glacial,
+    Shrubland,
+    Forest,
+    Swamp,
+    SandDesert,
+    Grassland,
+    Rainforest,
+    SnowyForest
+}
+
 public class BiomeManager : MonoBehaviour
 {
     public List<BiomeData> biomes;

@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Rainforest
   m_EditorClassIdentifier: 
   biomeName: 8
-  tile: {fileID: 0}
+  tile: {fileID: 11400000, guid: 3fbe4f1f57e81ae4bab7701f2b046e0a, type: 2}
   biomeColour: {r: 0.15806337, g: 0.3018868, b: 0.15907459, a: 0}
   erosionModifier: 1

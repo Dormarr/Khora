@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Tundra
   m_EditorClassIdentifier: 
   biomeName: 0
-  tile: {fileID: 0}
+  tile: {fileID: 11400000, guid: 4994a8390bb39c345bd6a71db51204fb, type: 2}
   biomeColour: {r: 0.76557493, g: 0.84360033, b: 0.8679245, a: 1}
   erosionModifier: 1

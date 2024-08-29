@@ -13,8 +13,6 @@ using UnityEngine.Tilemaps;
 
 public class PerlinGenerator : MonoBehaviour
 {
-    public int seed; //this need to come from the seed generation script.
-
     public Tile[] tiles;
 
     [SerializeField] public float noiseScale;
@@ -25,13 +23,15 @@ public class PerlinGenerator : MonoBehaviour
 
     private int chunkSize => Config.chunkSize;
 
-    //I'm not sure what should be passed into this, because I'm not sure what needs to be generated.
-    //It should probably be done chunk by chunk, right? Or does this exist just to return perlin noise based on coord data?
-    //public void GenerateNoiseMap()
 
-    public float[,] GenerateChunkPerlin(Vector3Int chunkPosition)
+    public float[,] GenerateChunkPerlin(Vector3Int chunkPosition, int seed)
     {
         return Noise.GenerateChunkNoiseMap(chunkPosition, chunkSize, seed, noiseScale, octaves, persistance, lacunarity, offset);
+    }
+
+    public float GenerateCoordinatePerlin(Vector3Int coordinate, int seed)
+    {
+        return Noise.GenerateCoordinateNoise(coordinate, seed,  noiseScale, octaves, persistance,lacunarity, offset);
     }
 
 }
