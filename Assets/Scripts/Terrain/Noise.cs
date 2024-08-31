@@ -6,6 +6,8 @@ public static class Noise
 {
     public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, int seed, float scale, int octaves, float persistance, float lacunarity, Vector2 offset)
     {
+        //Still used for editor preview tilemap for testing perlin settings.
+
         float[,] noiseMap = new float[mapWidth, mapHeight];
 
         System.Random prng = new System.Random(seed);
@@ -89,10 +91,7 @@ public static class Noise
             amplitude *= persistance;
         }
 
-        if (scale <= 0)
-        {
-            scale = 0.0001f;
-        }
+        if (scale <= 0) scale = 0.0001f;
 
         float maxNoiseHeight = float.MinValue;
         float minNoiseHeight = float.MaxValue;
@@ -130,14 +129,8 @@ public static class Noise
                     frequency *= lacunarity;
                 }
 
-                if (noiseHeight > maxNoiseHeight)
-                {
-                    maxNoiseHeight = noiseHeight;
-                }
-                else if (noiseHeight < minNoiseHeight)
-                {
-                    minNoiseHeight = noiseHeight;
-                }
+                if (noiseHeight > maxNoiseHeight) maxNoiseHeight = noiseHeight;
+                else if (noiseHeight < minNoiseHeight) minNoiseHeight = noiseHeight;
 
                 noiseMap[x, y] = noiseHeight;
             }
@@ -177,17 +170,10 @@ public static class Noise
             amplitude *= persistance;
         }
 
-        // Ensure scale is not zero or negative
-        if (scale <= 0)
-        {
-            scale = 0.0001f;
-        }
+        if (scale <= 0) scale = 0.0001f;
 
-        // Initial values for tracking noise height
-        float maxNoiseHeight = float.MinValue;
-        float minNoiseHeight = float.MaxValue;
+        float maxNoiseHeight = float.MinValue, minNoiseHeight = float.MaxValue;
 
-        // Calculate noise for the single coordinate
         amplitude = 1;
         float frequency = 1;
         float noiseHeight = 0;
@@ -209,14 +195,8 @@ public static class Noise
         }
 
         // Track max and min noise height for normalization
-        if (noiseHeight > maxNoiseHeight)
-        {
-            maxNoiseHeight = noiseHeight;
-        }
-        else if (noiseHeight < minNoiseHeight)
-        {
-            minNoiseHeight = noiseHeight;
-        }
+        if (noiseHeight > maxNoiseHeight) maxNoiseHeight = noiseHeight;
+        else if (noiseHeight < minNoiseHeight) minNoiseHeight = noiseHeight;
 
         // Normalize noise value
         float normalizedHeight = (noiseHeight + maxPossibleHeight) / (2f * maxPossibleHeight);

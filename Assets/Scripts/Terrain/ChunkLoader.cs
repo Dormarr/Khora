@@ -108,9 +108,6 @@ public class ChunkLoader : MonoBehaviour
 
         chunkTilemap.tileAnchor = new Vector3(0.5f, 0.5f, 0);
 
-        //float[,] noiseMap = Noise.GenerateChunkNoiseMap(chunkPosition, chunkSize, seed, noiseScale, octaves, persistance, lacunarity, offset);
-        //DrawNoiseMap(noiseMap, chunkTilemap, chunkPosition);
-
         Biome[,] biomeMap = worldEngine.GenerateBiomeForChunk(chunkPosition);
         DrawBiomeMap(biomeMap, chunkTilemap, chunkPosition);
 
@@ -121,7 +118,7 @@ public class ChunkLoader : MonoBehaviour
     {
         if(chunkManager.chunkCache.TryGetValue(chunkPosition, out GameObject chunk))
         {
-            Destroy(chunk);//will this screw up saving? Is this gonna bite me in the arse??
+            Destroy(chunk);
             chunkManager.RemoveChunk(chunkPosition, chunk);
         }
     }

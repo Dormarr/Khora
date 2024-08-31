@@ -21,23 +21,15 @@ public class ChunkManager : MonoBehaviour
     void InitializeChunks()
     {
         chunkLoader.Init();
-        if(chunkCache.Count > 0 )
-        {
-            gate = true;
-        }
-
+        if(chunkCache.Count > 0 ) gate = true;
     }
 
     public void AddChunk(Vector3Int chunkPosition, GameObject chunk)
     {
-        //add chunk based on chunkPosition to chunkCache.
-
         if(!chunkCache.ContainsKey(chunkPosition))
         {
             chunkCache[chunkPosition] = chunk;
         }
-
-
     }
 
     public void RemoveChunk(Vector3Int chunkPosition, GameObject chunk)

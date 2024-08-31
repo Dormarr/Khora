@@ -13,8 +13,6 @@ using UnityEngine.Tilemaps;
 
 public class PerlinGenerator : MonoBehaviour
 {
-    public Tile[] tiles;
-
     [SerializeField] public float noiseScale;
     [SerializeField] public int octaves;
     [SerializeField] public float persistance;

@@ -14,6 +14,7 @@ public class Debug : MonoBehaviour
     public Tilemap tilemap;
     public TextMeshProUGUI cursorDebugText;
     public TextMeshProUGUI worldGenDebugText;
+    public TextMeshProUGUI tickTimeDebugText;
 
     private Vector2 mousePos;
     private Vector3Int tilePos;
@@ -24,26 +25,36 @@ public class Debug : MonoBehaviour
         {
             mousePos = Utility.GetMousePosition();
             Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
-            tilemap = chunkManager.GetChunkTilemap().GetComponent<Tilemap>();
+            try{
+                tilemap = chunkManager.GetChunkTilemap().GetComponent<Tilemap>();
+            }
+            catch(Exception e){
+               Log($"{e}"); 
+            }
 
             tilePos = tilemap.WorldToCell(mouseWorldPos);
             TileBase hoveredTile = chunkManager.IdentifyTile(mouseWorldPos);
 
             if(hoveredTile != null)
             {
-                cursorDebugText.text = "Cursor Coordinates" + 
+                cursorDebugText.text = "<b>Cursor Coordinates</b>" + 
                     $"\nGlobal: {tilePos.x}, {tilePos.y}" + 
                     $"\n{ChunkPositionDebug()}" + 
                     $"\nChunk Cache: {chunkManager.chunkCache.Count}" +
                     $"\nMouse Pos: {mousePos.x}, {mousePos.y}";
-                worldGenDebugText.text = "Tile Debug" +
-                    $"\n<b>Biome: {worldEngine.GenerateBiomeForCoordinate(tilePos)}</b>" + //this is wrong and I have no idea why. Will fix later.
-                    $"\nTile Identity: {hoveredTile.name}" + //this is accurate.
+                worldGenDebugText.text = "<b>Tile Debug</b>" +
+                    $"\nBiome: {worldEngine.GenerateBiomeForCoordinate(tilePos)}" +
+                    $"\nTile Identity: {hoveredTile.name}" +
                     $"\n\nTemperature: {worldEngine.temperature}" +
                     $"\nHumidity: {worldEngine.precipitation}" +
-                    $"\n<b>Topology: {worldEngine.GenerateTopologyForCoordinate(tilePos)}</b>" +
+                    $"\nTopology: {worldEngine.GenerateTopologyForCoordinate(tilePos)}" +
                     $"\nElevation: {worldEngine.elevation}" +
                     $"\nErosion: {worldEngine.erosion}";
+                tickTimeDebugText.text = "<b>Tick Debug</b>" +
+                    $"\nCurrent Time: {TickManager.Instance.GetCurrentTick()}" +
+                    $"\nTick Rate: {TickManager.Instance.GetTickRate()}" +
+                    $"\nActual Tick Rate: {TickManager.Instance.GetActualTickRate()}" +
+                    $"\nElapsed Time: {TickManager.Instance.GetActualElapsedTime()}";
 
             }
         }

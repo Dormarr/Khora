@@ -15,9 +15,6 @@ public class MapDisplay : MonoBehaviour
         int width = noiseMap.GetLength(0);
         int height = noiseMap.GetLength(1);
 
-        //set tiles according to proportional decimal to tile.
-        
-        //perlin value * tile.count, rounded to nearest int, and assign tile[int] as the tile. That should keep it all in check.
 
         for(int y = 0; y < height; y++)
         {
@@ -28,16 +25,13 @@ public class MapDisplay : MonoBehaviour
                 
             }
         }
-
-        //also need to fix coordinates to ensure it's all centered. So x = x - (width.Length / 2); dont for x and y should center around 0,0;
-        //Need to consider the implications on chunks doing this though.
     }
 
 
     Tile SelectTile(float perlinValue)
     {
         int i = Mathf.RoundToInt(perlinValue * tiles.Length);
-        int tileIndex = Mathf.Clamp(i, 0, 5);
+        int tileIndex = Mathf.Clamp(i, 0, tiles.Length-1);
         return tiles[tileIndex];
     }
 
