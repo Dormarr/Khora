@@ -48,6 +48,8 @@ public class WorldEngine : MonoBehaviour
         float[,] temperatureMap = tempGen.GenerateChunkPerlin(chunkPosition, worldSeed);
         float[,] precipitationMap = precipGen.GenerateChunkPerlin(chunkPosition, worldSeed);
 
+        //redefine to use a range for precipitation and temperature rather than a table.
+
 
         Biome[,] biomeMap = new Biome[temperatureMap.GetLength(0), precipitationMap.GetLength(1)];
 
