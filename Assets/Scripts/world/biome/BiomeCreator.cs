@@ -1,21 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
-public class BiomeCreator : MonoBehaviour
+public class BiomeCreator
 {
-    //Create biomes based on established variables in a biome registry.
-    //Eliminate the need for biome data solution, challenge yourself to do it all in code. Including tiles.
-
-    // Start is called before the first frame update
-    void Start()
-    {
+    public static void CreateBiome(){
         
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+    public static void CreateBiome_Plains(){
+        //pass in specific variables for plains and the types of plains you will generate.
+        //Then send that info to CreateBiome.
     }
 }

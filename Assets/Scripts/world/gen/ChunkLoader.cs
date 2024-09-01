@@ -9,7 +9,7 @@ public class ChunkLoader : MonoBehaviour
     public WorldEngine worldEngine;
     public BiomeManager biomeManager;
 
-    public Camera camera;
+    public Camera mainCamera;
     public GameObject grid;
 
     public Tile[] tiles; //I'd like to use scriptable objects instead of tiles.
@@ -57,8 +57,8 @@ public class ChunkLoader : MonoBehaviour
     {
         List<Vector3Int> chunksToLoad = new List<Vector3Int>();
 
-        Vector3 bottomLeft = camera.ViewportToWorldPoint(new Vector3(0, 0, camera.nearClipPlane));
-        Vector3 topRight = camera.ViewportToWorldPoint(new Vector3(1, 1, camera.nearClipPlane));
+        Vector3 bottomLeft = mainCamera.ViewportToWorldPoint(new Vector3(0, 0, mainCamera.nearClipPlane));
+        Vector3 topRight = mainCamera.ViewportToWorldPoint(new Vector3(1, 1, mainCamera.nearClipPlane));
 
         // Calculate chunk coordinates covered by the camera view with padding
         int minX = Mathf.FloorToInt((bottomLeft.x - padding) / chunkSize);
@@ -108,7 +108,7 @@ public class ChunkLoader : MonoBehaviour
 
         chunkTilemap.tileAnchor = new Vector3(0.5f, 0.5f, 0);
 
-        Biome[,] biomeMap = worldEngine.GenerateBiomeForChunk(chunkPosition);
+        BiomeEnum[,] biomeMap = worldEngine.GenerateBiomeForChunk(chunkPosition);
         DrawBiomeMap(biomeMap, chunkTilemap, chunkPosition);
 
         chunkManager.AddChunk(chunkPosition, chunk);
@@ -123,7 +123,7 @@ public class ChunkLoader : MonoBehaviour
         }
     }
 
-    void DrawBiomeMap(Biome[,] biomeMap, Tilemap chunkTilemap, Vector3Int chunkPosition)
+    void DrawBiomeMap(BiomeEnum[,] biomeMap, Tilemap chunkTilemap, Vector3Int chunkPosition)
     {
         int width = biomeMap.GetLength(0);
         int height = biomeMap.GetLength(1);
@@ -132,7 +132,7 @@ public class ChunkLoader : MonoBehaviour
         {
             for (int x = 0; x < width; x++)
             {
-                Biome tileBiome = biomeMap[x, y];
+                BiomeEnum tileBiome = biomeMap[x, y];
                 TileBase selectedTile = biomeManager.GetTileFromBiome(tileBiome);
                 Vector3Int tilePosition = new Vector3Int(chunkPosition.x * width + x, chunkPosition.y * height + y, 0);
 

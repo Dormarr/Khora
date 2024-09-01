@@ -8,6 +8,7 @@ using System;
 
 public static class Utility
 {
+    //I'll separate these into more appropriate scripts at some other point.
     public static InputAction mousePosition;
 
     //Get raw mouse input.
@@ -29,19 +30,5 @@ public static class Utility
     public static Vector3Int GetVariableChunkPosition(Vector2 focus)
     {
         return new Vector3Int(Mathf.FloorToInt(focus.x / Config.chunkSize), Mathf.FloorToInt(focus.y / Config.chunkSize), 0);
-    }
-
-    public static int GenerateWorldSeedFromString(string input)
-    {
-        using (var sha256 = SHA256.Create())
-        {
-            byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(input));
-
-            int seed = BitConverter.ToInt32(hashBytes, 0);
-
-            seed = Mathf.Abs(seed);
-
-            return seed;
-        }
     }
 }

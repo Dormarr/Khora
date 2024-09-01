@@ -83,7 +83,7 @@ public class Debug : MonoBehaviour
         return $"Chunk {chunkPosX}, {chunkPosY} in {inChunkX}, {inChunkY}";
     }
 
-    public void Log(string msg)
+    public static void Log(string msg)
     {
         UnityEngine.Debug.Log(msg);
     }

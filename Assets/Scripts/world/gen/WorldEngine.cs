@@ -9,19 +9,13 @@ using UnityEngine;
 
 public class WorldEngine : MonoBehaviour
 {
-    //this will probably need it's own cache, or assign a cache to the chunk it generate to?
-    //Assign by coordinate values, and attach to the chunk gameobject to be drawn on later by other stuff.
-    //Maybe create a scriptable object that contains the 4 values, and give each chunk their 32x32 share to store.
-
-    //Need to grab chunkPosition.
-
     public float erosionStrength;
     public int worldSeed;
 
-    public PerlinGenerator tempGen;
-    public PerlinGenerator precipGen;
-    public PerlinGenerator elevGen;
-    public PerlinGenerator erosGen;
+    public PerlinGenerator temperatureGenerator;
+    public PerlinGenerator precipitationGenerator;
+    public PerlinGenerator elevationGenerator;
+    public PerlinGenerator erosionGenerator;
 
     public float temperature;
     public float precipitation;
@@ -30,28 +24,28 @@ public class WorldEngine : MonoBehaviour
     
     void Awake()
     {
-        worldSeed = Utility.GenerateWorldSeedFromString("temp");
+        worldSeed = Seed.GenerateSeed();
     }
 
-    public Biome GenerateBiomeForCoordinate(Vector3Int coordinate)
+    public BiomeEnum GenerateBiomeForCoordinate(Vector3Int coordinate)
     {
         Vector3Int offset = new Vector3Int(Config.chunkSize / 2, Config.chunkSize / 2, 0);
 
-        temperature = tempGen.GenerateCoordinatePerlin(coordinate - offset, worldSeed);
-        precipitation = precipGen.GenerateCoordinatePerlin(coordinate - offset, worldSeed);
+        temperature = temperatureGenerator.GenerateCoordinatePerlin(coordinate - offset, worldSeed);
+        precipitation = precipitationGenerator.GenerateCoordinatePerlin(coordinate - offset, worldSeed);
 
         return BiomeGenerator.GetBiome(temperature, precipitation);
     }
 
-    public Biome[,] GenerateBiomeForChunk(Vector3Int chunkPosition)
+    public BiomeEnum[,] GenerateBiomeForChunk(Vector3Int chunkPosition)
     {
-        float[,] temperatureMap = tempGen.GenerateChunkPerlin(chunkPosition, worldSeed);
-        float[,] precipitationMap = precipGen.GenerateChunkPerlin(chunkPosition, worldSeed);
+        float[,] temperatureMap = temperatureGenerator.GenerateChunkPerlin(chunkPosition, worldSeed);
+        float[,] precipitationMap = precipitationGenerator.GenerateChunkPerlin(chunkPosition, worldSeed);
 
         //redefine to use a range for precipitation and temperature rather than a table.
 
 
-        Biome[,] biomeMap = new Biome[temperatureMap.GetLength(0), precipitationMap.GetLength(1)];
+        BiomeEnum[,] biomeMap = new BiomeEnum[temperatureMap.GetLength(0), precipitationMap.GetLength(1)];
 
         for(int i = 0; i < temperatureMap.GetLength(0); i++)
         {
@@ -66,16 +60,16 @@ public class WorldEngine : MonoBehaviour
 
     public float GenerateTopologyForCoordinate(Vector3Int coordinate)
     {
-        elevation = elevGen.GenerateCoordinatePerlin(coordinate, worldSeed);
-        erosion = erosGen.GenerateCoordinatePerlin(coordinate, worldSeed);
+        elevation = elevationGenerator.GenerateCoordinatePerlin(coordinate, worldSeed);
+        erosion = erosionGenerator.GenerateCoordinatePerlin(coordinate, worldSeed);
 
         return TopologyGenerator.GetTopology(elevation, erosion, erosionStrength);
     }
 
     public float[,] GenerateTopologyForChunk(Vector3Int chunkPosition)
     {
-        float[,] elevationMap = elevGen.GenerateChunkPerlin(chunkPosition, worldSeed);
-        float[,] erosionMap = erosGen.GenerateChunkPerlin(chunkPosition, worldSeed);
+        float[,] elevationMap = elevationGenerator.GenerateChunkPerlin(chunkPosition, worldSeed);
+        float[,] erosionMap = erosionGenerator.GenerateChunkPerlin(chunkPosition, worldSeed);
 
         float[,] topologyMap = new float[elevationMap.GetLength(0),erosionMap.GetLength(0)];
 
@@ -93,7 +87,7 @@ public class WorldEngine : MonoBehaviour
 
 public static class BiomeGenerator
 {
-    private static Biome[,] biomeTable;
+    private static BiomeEnum[,] biomeTable;
 
     static BiomeGenerator()
     {
@@ -101,18 +95,18 @@ public static class BiomeGenerator
         //I'd like to configure the enums to have temp and precip tags to generate the table with more scalability.
 
 
-        biomeTable = new Biome[,]
+        biomeTable = new BiomeEnum[,]
         {
             //Columns | Precipitation (low to high)
             //Rows | Temperature (low to high)
 
-            {Biome.Tundra, Biome.SnowyForest, Biome.Glacial },
-            {Biome.Shrubland, Biome.Forest, Biome.Swamp },
-            {Biome.SandDesert, Biome.Grassland, Biome.Rainforest }
+            {BiomeEnum.Tundra, BiomeEnum.SnowyForest, BiomeEnum.Glacial },
+            {BiomeEnum.Shrubland, BiomeEnum.Forest, BiomeEnum.Swamp },
+            {BiomeEnum.SandDesert, BiomeEnum.Grassland, BiomeEnum.Rainforest }
         };
     }
 
-    public static Biome GetBiome(float temperature, float precipitation)
+    public static BiomeEnum GetBiome(float temperature, float precipitation)
     {
         int tempIndex = Mathf.Clamp((int)(temperature * biomeTable.GetLength(0)), 0, biomeTable.GetLength(0) - 1);
         int precipIndex = Mathf.Clamp((int)(precipitation * biomeTable.GetLength(1)), 0, biomeTable.GetLength(1) - 1);

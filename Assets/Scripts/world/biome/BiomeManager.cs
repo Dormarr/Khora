@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 
-public enum Biome
+public enum BiomeEnum
 {
     Tundra,
     BorealForest,
@@ -22,11 +22,11 @@ public class BiomeManager : MonoBehaviour
 {
     public List<BiomeData> biomes;
 
-    private Dictionary<Biome, BiomeData> biomeDictionary;
+    private Dictionary<BiomeEnum, BiomeData> biomeDictionary;
 
     private void Awake()
     {
-        biomeDictionary = new Dictionary<Biome, BiomeData>();
+        biomeDictionary = new Dictionary<BiomeEnum, BiomeData>();
 
         foreach (var biome in biomes)
         {
@@ -34,7 +34,7 @@ public class BiomeManager : MonoBehaviour
         }
     }
 
-    public TileBase GetTileFromBiome(Biome biomeType)
+    public TileBase GetTileFromBiome(BiomeEnum biomeType)
     {
         if(biomeDictionary.TryGetValue(biomeType, out BiomeData biomeData))
         {
@@ -43,7 +43,7 @@ public class BiomeManager : MonoBehaviour
         return null;//handle cases where no tile is found.
     }
 
-    public Color GetColourFromBiome(Biome biomeType)
+    public Color GetColourFromBiome(BiomeEnum biomeType)
     {
         if( biomeDictionary.TryGetValue(biomeType, out BiomeData biomeData))
         {
