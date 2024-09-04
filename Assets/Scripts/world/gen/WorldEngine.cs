@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 //This will combine all the generated perlin noise maps and generate a final world based on the return values for coords.
 //Coords come in, passed over to perlinGenerator, a cluster of info comes back, is assessed and rendered.
@@ -29,6 +30,8 @@ public class WorldEngine : MonoBehaviour
 
     public BiomeEnum GenerateBiomeForCoordinate(Vector3Int coordinate)
     {
+        //this should be adjust to account for coordinates previously generated.
+
         Vector3Int offset = new Vector3Int(Config.chunkSize / 2, Config.chunkSize / 2, 0);
 
         temperature = temperatureGenerator.GenerateCoordinatePerlin(coordinate - offset, worldSeed);
@@ -39,6 +42,8 @@ public class WorldEngine : MonoBehaviour
 
     public BiomeEnum[,] GenerateBiomeForChunk(Vector3Int chunkPosition)
     {
+        //this should be adjusted to account for chunks previous generated.
+
         float[,] temperatureMap = temperatureGenerator.GenerateChunkPerlin(chunkPosition, worldSeed);
         float[,] precipitationMap = precipitationGenerator.GenerateChunkPerlin(chunkPosition, worldSeed);
 
@@ -108,11 +113,23 @@ public static class BiomeGenerator
 
     public static BiomeEnum GetBiome(float temperature, float precipitation)
     {
+        //this need to be done by registryLookup and returned as a new class that contains the appropriate info for each tile.
+        //Biome[] biomes = RegistryKeys.BIOME.GetRegistry().GetAllValues();
+
+        //IEnumerable<Biome> biomes = RegistryKeys.BIOME.GetRegistry.GetAllValues();
+        Identifier identifier = RegistryKeys.BIOME.GetValue();
+        // string idName = BiomeRegistry.PLAINS.GetValue().GetName();
+        // string idPath = BiomeRegistry.PLAINS.GetValue().GetPath();
+
+        // Debug.Log($"Biome Reg: {identifier.GetPath()}{identifier.GetName()}, also registered {idName}:{idPath}");
+
         int tempIndex = Mathf.Clamp((int)(temperature * biomeTable.GetLength(0)), 0, biomeTable.GetLength(0) - 1);
         int precipIndex = Mathf.Clamp((int)(precipitation * biomeTable.GetLength(1)), 0, biomeTable.GetLength(1) - 1);
 
         return biomeTable[tempIndex, precipIndex];
     }
+
+    //need a method that determines which biome to pull from the registry.
 }
 
 public static class TopologyGenerator

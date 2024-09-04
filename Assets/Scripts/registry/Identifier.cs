@@ -21,6 +21,7 @@ public class Identifier
 
     public static Identifier of(string name, string path){
         //validate and return.
+        Debug.Log($"Name and Path: {name}, {path}");
         return ofValidated(name, path);
     }
 
@@ -30,6 +31,7 @@ public class Identifier
     }
 
     public static Identifier ofOriginal(string path){
+        Debug.Log("Identifier.ofOriginal() called: " + path);
         return new Identifier(_defaultName, validatePath(_defaultName, path));
     }
 
@@ -37,8 +39,8 @@ public class Identifier
         return new Identifier(validateName(name, path), validatePath(name, path));
     }
 
-    public string getPath(){return this.path;}
-    public string getName(){return this.name;}
+    public string GetPath(){return this.path;}
+    public string GetName(){return this.name;}
 
     public static bool isPathValid(string path){
         //validate path, return true if valid.
@@ -93,8 +95,13 @@ public class Identifier
     public static Identifier splitOn(string id, char delimiter){
         //return name and path.
 
-        string[] returns = id.Split(':');
-        return new Identifier(returns[0], returns[1]);
+        string[] returns = id.Split(delimiter);
+        Debug.Log($"{returns[0]}");
+        try{
+            return new Identifier(returns[0], returns[1]);
+        }catch(Exception e){
+            throw new Exception($"{e}");
+        }
     }
 
     public bool equals(object o){

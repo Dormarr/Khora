@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class Registry<T>
+public abstract class Registry<T>
 {
     private readonly Dictionary<string, T> _registry = new Dictionary<string, T>();
 

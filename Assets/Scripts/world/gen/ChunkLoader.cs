@@ -108,6 +108,7 @@ public class ChunkLoader : MonoBehaviour
 
         chunkTilemap.tileAnchor = new Vector3(0.5f, 0.5f, 0);
 
+        //Reconfig to account for registry system.
         BiomeEnum[,] biomeMap = worldEngine.GenerateBiomeForChunk(chunkPosition);
         DrawBiomeMap(biomeMap, chunkTilemap, chunkPosition);
 

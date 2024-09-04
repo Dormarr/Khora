@@ -6,7 +6,7 @@ using System.IO;
 
 public class BiomeEditorWindow : EditorWindow
 {
-    private Biome newBiome = new Biome();
+    private Biome newBiome;
 
     [MenuItem("Tools/Biome Editor")]
     public static void ShowWindow(){
@@ -16,10 +16,8 @@ public class BiomeEditorWindow : EditorWindow
     private void OnGUI(){
         GUILayout.Label("Create New Biome", EditorStyles.boldLabel);
         newBiome.biomeName = EditorGUILayout.TextField("Biome Name", newBiome.biomeName);
-        newBiome.minTemperature = EditorGUILayout.FloatField("Min Temperature", newBiome.minTemperature);
-        newBiome.maxTemperature = EditorGUILayout.FloatField("Max Temperature", newBiome.maxTemperature);
-        newBiome.minPrecipitation = EditorGUILayout.FloatField("Min Precipitation", newBiome.minPrecipitation);
-        newBiome.maxPrecipitation = EditorGUILayout.FloatField("Max Precipitation", newBiome.maxPrecipitation);
+        newBiome.temperature = EditorGUILayout.FloatField("Temperature", newBiome.temperature);
+        newBiome.precipitation = EditorGUILayout.FloatField("Precipitation", newBiome.precipitation);
 
         if(GUILayout.Button("Save Biome")){
             SaveBiome(newBiome);
