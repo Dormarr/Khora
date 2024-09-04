@@ -9,22 +9,29 @@ using System;
 [System.Serializable]
 public class Biome
 {
-    public string biomeName;//ensure consistency across the board.
-    public float temperature;
-    public float precipitation;
+    public string Name {get; private set;}
+    public float Temperature {get; private set;}
+    public float Precipitation {get; private set;}
+    //add tile with input for texture file path;
 
     //public SpawnSettings spawnSettings;
     //public GenerationSettings generationSettings;
     //public EffectSettings effectSettings;
 
-    Biome(float temperature, float precipitation){
-        this.temperature = temperature;
-        this.precipitation = precipitation;
+    public Biome(string name, float temperature, float precipitation){
+        this.Name = name;
+        this.Temperature = temperature;
+        this.Precipitation = precipitation;
+    }
+
+    public bool Matches(float temperature, float precipitation){
+        float matchRange = 0.35f;
+        return Mathf.Abs(Temperature - temperature) < matchRange && Mathf.Abs(Precipitation - precipitation) < matchRange;
     }
 
     public class Build
     {
-        //something
+        private string name;
         private float temperature;
         private float precipitation; //use as chance of rain.
         //private float downfall;
@@ -50,7 +57,7 @@ public class Biome
 
         public Biome BuildBiome(){
             if(this.temperature != null && this.precipitation != null){
-                return new Biome(this.temperature, this.precipitation);
+                return new Biome(this.name, this.temperature, this.precipitation);
             }else{
                 throw new Exception("Missing Biome parameters in builder\n" + this);
             }

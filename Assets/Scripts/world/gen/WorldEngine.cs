@@ -23,12 +23,13 @@ public class WorldEngine : MonoBehaviour
     public float elevation;
     public float erosion;
     
+
     void Awake()
     {
         worldSeed = Seed.GenerateSeed();
     }
 
-    public BiomeEnum GenerateBiomeForCoordinate(Vector3Int coordinate)
+    public Biome GenerateBiomeForCoordinate(Vector3Int coordinate)
     {
         //this should be adjust to account for coordinates previously generated.
 
@@ -38,9 +39,10 @@ public class WorldEngine : MonoBehaviour
         precipitation = precipitationGenerator.GenerateCoordinatePerlin(coordinate - offset, worldSeed);
 
         return BiomeGenerator.GetBiome(temperature, precipitation);
+        //time to implement a save feature to cache the biomes and optimise the gameplay.
     }
 
-    public BiomeEnum[,] GenerateBiomeForChunk(Vector3Int chunkPosition)
+    public Biome[,] GenerateBiomeForChunk(Vector3Int chunkPosition)
     {
         //this should be adjusted to account for chunks previous generated.
 
@@ -50,7 +52,7 @@ public class WorldEngine : MonoBehaviour
         //redefine to use a range for precipitation and temperature rather than a table.
 
 
-        BiomeEnum[,] biomeMap = new BiomeEnum[temperatureMap.GetLength(0), precipitationMap.GetLength(1)];
+        Biome[,] biomeMap = new Biome[temperatureMap.GetLength(0), precipitationMap.GetLength(1)];
 
         for(int i = 0; i < temperatureMap.GetLength(0); i++)
         {
@@ -92,33 +94,33 @@ public class WorldEngine : MonoBehaviour
 
 public static class BiomeGenerator
 {
-    private static BiomeEnum[,] biomeTable;
-
+    private static BiomeSearcher biomeSearcher;
+    private static BiomeManager biomeManager;
     static BiomeGenerator()
     {
+        var categoryRegistry = new CategoryRegistry();
+        categoryRegistry.RegisterCategory<Biome>("biomes");
+        Registry<Biome> biomeRegistry = categoryRegistry.GetCategoryRegistry<Biome>("biomes");
 
-        //I'd like to configure the enums to have temp and precip tags to generate the table with more scalability.
+        biomeManager = new BiomeManager();
 
-
-        biomeTable = new BiomeEnum[,]
-        {
-            //Columns | Precipitation (low to high)
-            //Rows | Temperature (low to high)
-
-            {BiomeEnum.Tundra, BiomeEnum.SnowyForest, BiomeEnum.Glacial },
-            {BiomeEnum.Shrubland, BiomeEnum.Forest, BiomeEnum.Swamp },
-            {BiomeEnum.SandDesert, BiomeEnum.Grassland, BiomeEnum.Rainforest }
-        };
+        biomeManager.InitializeBiomes(biomeRegistry);
+        
+        biomeSearcher = new BiomeSearcher(categoryRegistry);
     }
 
-    public static BiomeEnum GetBiome(float temperature, float precipitation)
+    public static Biome GetBiome(float temperature, float precipitation)
     {
+        //check whether or not the chunk has been saved.
+        //If chunk has been saved, go through alt method.
+        Biome biome = biomeManager.biomeClimateRegistry.GetBiome(temperature, precipitation);
+        if(biome != null){
+            return biome;
+        }
+        biome = biomeSearcher.SearchBiome("biomes", temperature, precipitation);
+        Debug.Log($"Biome returned: {biome.Name}");
+        return biome;
 
-
-        int tempIndex = Mathf.Clamp((int)(temperature * biomeTable.GetLength(0)), 0, biomeTable.GetLength(0) - 1);
-        int precipIndex = Mathf.Clamp((int)(precipitation * biomeTable.GetLength(1)), 0, biomeTable.GetLength(1) - 1);
-
-        return biomeTable[tempIndex, precipIndex];
     }
 }
 

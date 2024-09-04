@@ -15,9 +15,10 @@ public class BiomeEditorWindow : EditorWindow
 
     private void OnGUI(){
         GUILayout.Label("Create New Biome", EditorStyles.boldLabel);
-        newBiome.biomeName = EditorGUILayout.TextField("Biome Name", newBiome.biomeName);
-        newBiome.temperature = EditorGUILayout.FloatField("Temperature", newBiome.temperature);
-        newBiome.precipitation = EditorGUILayout.FloatField("Precipitation", newBiome.precipitation);
+        //FIX THIS
+        // newBiome.Name = EditorGUILayout.TextField("Biome Name", newBiome.Name);
+        // newBiome.Temperature = EditorGUILayout.FloatField("Temperature", newBiome.Temperature);
+        // newBiome.Precipitation = EditorGUILayout.FloatField("Precipitation", newBiome.Precipitation);
 
         if(GUILayout.Button("Save Biome")){
             SaveBiome(newBiome);
@@ -30,7 +31,7 @@ public class BiomeEditorWindow : EditorWindow
             Directory.CreateDirectory(directoryPath);
         }
 
-        string filePath = Path.Combine(directoryPath, newBiome.biomeName + ".json");
+        string filePath = Path.Combine(directoryPath, newBiome.Name + ".json");
         string json = JsonUtility.ToJson(newBiome, true);
         File.WriteAllText(filePath, json);
         Debug.Log("Biome saved to " + filePath + " || From BiomeCreator");

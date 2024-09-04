@@ -38,6 +38,7 @@ public class ChunkLoader : MonoBehaviour
         player = GameObject.FindWithTag("Player");
         playerPosition = player.transform.position;
         playerChunkPosition = Utility.GetVariableChunkPosition(playerPosition);
+        biomeManager = new BiomeManager();
         LoadChunksAroundPlayer();
     }
     
@@ -109,7 +110,7 @@ public class ChunkLoader : MonoBehaviour
         chunkTilemap.tileAnchor = new Vector3(0.5f, 0.5f, 0);
 
         //Reconfig to account for registry system.
-        BiomeEnum[,] biomeMap = worldEngine.GenerateBiomeForChunk(chunkPosition);
+        Biome[,] biomeMap = worldEngine.GenerateBiomeForChunk(chunkPosition);
         DrawBiomeMap(biomeMap, chunkTilemap, chunkPosition);
 
         chunkManager.AddChunk(chunkPosition, chunk);
@@ -124,7 +125,7 @@ public class ChunkLoader : MonoBehaviour
         }
     }
 
-    void DrawBiomeMap(BiomeEnum[,] biomeMap, Tilemap chunkTilemap, Vector3Int chunkPosition)
+    void DrawBiomeMap(Biome[,] biomeMap, Tilemap chunkTilemap, Vector3Int chunkPosition)
     {
         int width = biomeMap.GetLength(0);
         int height = biomeMap.GetLength(1);
@@ -133,8 +134,11 @@ public class ChunkLoader : MonoBehaviour
         {
             for (int x = 0; x < width; x++)
             {
-                BiomeEnum tileBiome = biomeMap[x, y];
-                TileBase selectedTile = biomeManager.GetTileFromBiome(tileBiome);
+                Biome tileBiome = biomeMap[x, y];
+                TileBase selectedTile = Utility.GetTileFromBiome(tileBiome);
+                if(selectedTile == null){
+                    selectedTile = blankTile;
+                }
                 Vector3Int tilePosition = new Vector3Int(chunkPosition.x * width + x, chunkPosition.y * height + y, 0);
 
                 chunkTilemap.SetTile(tilePosition, selectedTile);
