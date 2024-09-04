@@ -113,23 +113,13 @@ public static class BiomeGenerator
 
     public static BiomeEnum GetBiome(float temperature, float precipitation)
     {
-        //this need to be done by registryLookup and returned as a new class that contains the appropriate info for each tile.
-        //Biome[] biomes = RegistryKeys.BIOME.GetRegistry().GetAllValues();
 
-        //IEnumerable<Biome> biomes = RegistryKeys.BIOME.GetRegistry.GetAllValues();
-        Identifier identifier = RegistryKeys.BIOME.GetValue();
-        // string idName = BiomeRegistry.PLAINS.GetValue().GetName();
-        // string idPath = BiomeRegistry.PLAINS.GetValue().GetPath();
-
-        // Debug.Log($"Biome Reg: {identifier.GetPath()}{identifier.GetName()}, also registered {idName}:{idPath}");
 
         int tempIndex = Mathf.Clamp((int)(temperature * biomeTable.GetLength(0)), 0, biomeTable.GetLength(0) - 1);
         int precipIndex = Mathf.Clamp((int)(precipitation * biomeTable.GetLength(1)), 0, biomeTable.GetLength(1) - 1);
 
         return biomeTable[tempIndex, precipIndex];
     }
-
-    //need a method that determines which biome to pull from the registry.
 }
 
 public static class TopologyGenerator
