@@ -2,15 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BiomeClimateRegistry
+public static class BiomeClimateRegistry
 {
-    private Dictionary<ClimateRange, Biome> biomeDictionary = new Dictionary<ClimateRange, Biome>();
+    private static Dictionary<ClimateRange, Biome> biomeDictionary = new Dictionary<ClimateRange, Biome>();
 
-    public void RegisterBiome(ClimateRange range, Biome biome){
+    public static void RegisterBiome(ClimateRange range, Biome biome){
         biomeDictionary[range] = biome;
     }
 
-    public Biome GetBiome(float temperature, float precipitation){
+    public static Biome GetBiome(float temperature, float precipitation){
         foreach(var entry in biomeDictionary){
             if(entry.Key.Contains(temperature, precipitation)){
                 return entry.Value;

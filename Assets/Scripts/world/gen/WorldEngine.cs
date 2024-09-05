@@ -29,6 +29,10 @@ public class WorldEngine : MonoBehaviour
         worldSeed = Seed.GenerateSeed();
     }
 
+    public ChunkData GenerateChunk(Vector3Int chunkPosition){
+        return new ChunkData.Build().Name("placeholder").ChunkPosition(chunkPosition).BiomeMapList(BiomeUtility.BiomeArrayToList(GenerateBiomeForChunk(chunkPosition))).BuildChunkData();
+    }
+
     public Biome GenerateBiomeForCoordinate(Vector3Int coordinate)
     {
         //this should be adjust to account for coordinates previously generated.
@@ -94,32 +98,22 @@ public class WorldEngine : MonoBehaviour
 
 public static class BiomeGenerator
 {
-    private static BiomeSearcher biomeSearcher;
-    private static BiomeManager biomeManager;
+    //private static BiomeSearcher biomeSearcher;
     static BiomeGenerator()
-    {
-        var categoryRegistry = new CategoryRegistry();
-        categoryRegistry.RegisterCategory<Biome>("biomes");
-        Registry<Biome> biomeRegistry = categoryRegistry.GetCategoryRegistry<Biome>("biomes");
-
-        biomeManager = new BiomeManager();
-
-        biomeManager.InitializeBiomes(biomeRegistry);
-        
-        biomeSearcher = new BiomeSearcher(categoryRegistry);
+    {  
+        //biomeSearcher = new BiomeSearcher(categoryRegistry);
     }
 
     public static Biome GetBiome(float temperature, float precipitation)
     {
-        //check whether or not the chunk has been saved.
-        //If chunk has been saved, go through alt method.
-        Biome biome = biomeManager.biomeClimateRegistry.GetBiome(temperature, precipitation);
+        Biome biome = BiomeClimateRegistry.GetBiome(temperature, precipitation);
         if(biome != null){
+            Debug.Log($"Biome returned: {biome.Name}");
             return biome;
         }
-        biome = biomeSearcher.SearchBiome("biomes", temperature, precipitation);
-        Debug.Log($"Biome returned: {biome.Name}");
-        return biome;
+        //biome = biomeSearcher.SearchBiome("biomes", temperature, precipitation);
+        
+        throw new Exception("Big whoops, unable to get biome in WorldEngine.GetBiome()");
 
     }
 }

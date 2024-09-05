@@ -12,7 +12,6 @@ public class Biome
     public string Name {get; private set;}
     public float Temperature {get; private set;}
     public float Precipitation {get; private set;}
-    //add tile with input for texture file path;
 
     //public SpawnSettings spawnSettings;
     //public GenerationSettings generationSettings;
@@ -25,7 +24,7 @@ public class Biome
     }
 
     public bool Matches(float temperature, float precipitation){
-        float matchRange = 0.35f;
+        float matchRange = 0.1f;
         return Mathf.Abs(Temperature - temperature) < matchRange && Mathf.Abs(Precipitation - precipitation) < matchRange;
     }
 
@@ -39,6 +38,11 @@ public class Biome
         //private SpawnSettings spawnSettings;
         //private GenerationSettings generationSettings; //add features to this.
         //private EffectSettings effectSettings; //to make adjustments to fundamental tile data after biome generation.
+
+        private Biome.Build Name(string name){
+            this.name = name;
+            return this;
+        }
 
         public Biome.Build Temperature(float temperature){
             this.temperature = temperature;
@@ -56,7 +60,7 @@ public class Biome
         // }
 
         public Biome BuildBiome(){
-            if(this.temperature != null && this.precipitation != null){
+            if(this.name != null && this.temperature != null && this.precipitation != null){
                 return new Biome(this.name, this.temperature, this.precipitation);
             }else{
                 throw new Exception("Missing Biome parameters in builder\n" + this);

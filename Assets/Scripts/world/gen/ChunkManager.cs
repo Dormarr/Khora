@@ -13,6 +13,11 @@ public class ChunkManager : MonoBehaviour
 
     public Dictionary<Vector3Int, GameObject> chunkCache = new Dictionary<Vector3Int, GameObject>();
 
+    void Awake(){
+        GlobalRegistry.Initialize();
+        chunkCache.Clear();
+    }
+
     void Start()
     {
         InitializeChunks();
@@ -59,7 +64,7 @@ public class ChunkManager : MonoBehaviour
 
     public GameObject GetChunkTilemap()
     {
-        Vector3Int chunkPosition = Utility.GetVariableChunkPosition(Utility.GetMouseWorldPosition());
+        Vector3Int chunkPosition = BiomeUtility.GetVariableChunkPosition(Utility.GetMouseWorldPosition());
 
         if (chunkCache.ContainsKey(chunkPosition))
         {
@@ -71,6 +76,14 @@ public class ChunkManager : MonoBehaviour
 
     }
 
+    public ChunkData LoadChunk(Vector3Int chunkPosition){
+        string filePath = ChunkSerializer.GetChunkFilePath(chunkPosition);        
+        return ChunkSerializer.LoadChunk(filePath);
+    }
 
-
+    public void SaveChunk(Vector3Int chunkPosition, ChunkData chunkData){
+        string filePath = ChunkSerializer.GetChunkFilePath(chunkPosition);
+        Debug.Log("Saved Chunk: " + chunkPosition);
+        ChunkSerializer.SaveChunk(chunkData, filePath);
+    }
 }

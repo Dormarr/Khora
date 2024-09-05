@@ -7,7 +7,6 @@ public class ChunkLoader : MonoBehaviour
 {
     public ChunkManager chunkManager;
     public WorldEngine worldEngine;
-    public BiomeManager biomeManager;
 
     public Camera mainCamera;
     public GameObject grid;
@@ -37,15 +36,14 @@ public class ChunkLoader : MonoBehaviour
     {
         player = GameObject.FindWithTag("Player");
         playerPosition = player.transform.position;
-        playerChunkPosition = Utility.GetVariableChunkPosition(playerPosition);
-        biomeManager = new BiomeManager();
+        playerChunkPosition = BiomeUtility.GetVariableChunkPosition(playerPosition);
         LoadChunksAroundPlayer();
     }
     
     void Update()
     {
         playerPosition = player.transform.position;
-        Vector3Int newPlayerChunkPos = Utility.GetVariableChunkPosition(playerPosition);
+        Vector3Int newPlayerChunkPos = BiomeUtility.GetVariableChunkPosition(playerPosition);
 
         if(newPlayerChunkPos != playerChunkPosition)
         {
@@ -106,11 +104,27 @@ public class ChunkLoader : MonoBehaviour
         Tilemap chunkTilemap = chunk.AddComponent<Tilemap>();
         TilemapRenderer chunkRenderer = chunk.AddComponent<TilemapRenderer>();
 
-
         chunkTilemap.tileAnchor = new Vector3(0.5f, 0.5f, 0);
 
-        //Reconfig to account for registry system.
-        Biome[,] biomeMap = worldEngine.GenerateBiomeForChunk(chunkPosition);
+//This might be the source of the issue.
+        if(chunkManager.chunkCache.ContainsKey(chunkPosition)){
+            Debug.LogWarning($"Chunk at position {chunkPosition} already exists.");
+            return;
+        }
+
+        ChunkData chunkData = chunkManager.LoadChunk(chunkPosition);
+
+        if(chunkData == null){
+            Debug.Log("Generating chunk from scratch.");
+            chunkData = worldEngine.GenerateChunk(chunkPosition);
+            if(chunkData != null){
+                chunkManager.SaveChunk(chunkPosition, chunkData);
+            }else{
+                Debug.LogWarning($"Failed to generate chunk at {chunkPosition}");
+            }
+        }
+        Biome[,] biomeMap = BiomeUtility.ListToBiomeArray(chunkData.biomeMapList, chunkSize, chunkSize);
+
         DrawBiomeMap(biomeMap, chunkTilemap, chunkPosition);
 
         chunkManager.AddChunk(chunkPosition, chunk);
@@ -120,8 +134,8 @@ public class ChunkLoader : MonoBehaviour
     {
         if(chunkManager.chunkCache.TryGetValue(chunkPosition, out GameObject chunk))
         {
-            Destroy(chunk);
             chunkManager.RemoveChunk(chunkPosition, chunk);
+            Destroy(chunk);
         }
     }
 
@@ -135,7 +149,7 @@ public class ChunkLoader : MonoBehaviour
             for (int x = 0; x < width; x++)
             {
                 Biome tileBiome = biomeMap[x, y];
-                TileBase selectedTile = Utility.GetTileFromBiome(tileBiome);
+                TileBase selectedTile = BiomeUtility.GetTileFromBiome(tileBiome);
                 if(selectedTile == null){
                     selectedTile = blankTile;
                 }
