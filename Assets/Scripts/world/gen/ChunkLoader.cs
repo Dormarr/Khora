@@ -101,6 +101,7 @@ public class ChunkLoader : MonoBehaviour
         GameObject chunk = new GameObject("Chunk_" + chunkPosition);
         chunk.transform.parent = grid.transform;
 
+        //Need to work out how to double up on the tilemaps to allow for features.
         Tilemap chunkTilemap = chunk.AddComponent<Tilemap>();
         TilemapRenderer chunkRenderer = chunk.AddComponent<TilemapRenderer>();
 

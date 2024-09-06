@@ -11,19 +11,21 @@ public static class BiomeManager
 
     public static void InitializeBiomes(Registry<Biome> registry){
 
+        //Temperature and Precipitation variables are redundant here I think.
         biomeRegistry = registry;
-        biomeRegistry.Register("plains",        new Biome("plains", 0.5f, 0.5f));
-        biomeRegistry.Register("desert",        new Biome("desert", 1.0f, 0.1f));
-        biomeRegistry.Register("borealForest",  new Biome("borealForest", 0.2f, 0.1f));
-        biomeRegistry.Register("forest",        new Biome("forest", 0.65f, 0.4f));
-        biomeRegistry.Register("glacial",       new Biome("glacial", 0.1f, 0.8f));
-        biomeRegistry.Register("rainforest",    new Biome("rainforest", 0.9f, 0.9f));
-        biomeRegistry.Register("shrubland",     new Biome("shrubland", 0.7f, 0.1f));
-        biomeRegistry.Register("snowyForest",   new Biome("snowyForest", 0.1f, 0.4f));
-        biomeRegistry.Register("swamp",         new Biome("swamp", 0.65f, 0.8f));
-        biomeRegistry.Register("tundra",        new Biome("tundra", 0.1f, 0.1f));
-        biomeRegistry.Register("wetlands",      new Biome("wetlands", 0.3f, 0.8f));
-        biomeRegistry.Register("taiga",         new Biome("taiga", 0.3f, 0.5f));
+        //biomeRegistry.Register("plains",         new Biome("plains", 0.5f, 0.5f));
+        biomeRegistry.Register("plains",            new Biome.Build().Name("plains").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
+        biomeRegistry.Register("desert",            new Biome.Build().Name("desert").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
+        biomeRegistry.Register("borealForest",      new Biome.Build().Name("borealForest").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
+        biomeRegistry.Register("forest",            new Biome.Build().Name("forest").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
+        biomeRegistry.Register("glacial",           new Biome.Build().Name("glacial").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
+        biomeRegistry.Register("rainforest",        new Biome.Build().Name("rainforest").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
+        biomeRegistry.Register("shrubland",         new Biome.Build().Name("shrubland").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
+        biomeRegistry.Register("snowyForest",       new Biome.Build().Name("snowyForest").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
+        biomeRegistry.Register("swamp",             new Biome.Build().Name("swamp").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
+        biomeRegistry.Register("tundra",            new Biome.Build().Name("tundra").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
+        biomeRegistry.Register("wetlands",          new Biome.Build().Name("wetlands").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
+        biomeRegistry.Register("taiga",             new Biome.Build().Name("taiga").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
         InitializeClimateBiomes();
     }
 
@@ -34,6 +36,7 @@ public static class BiomeManager
             Debug.Log("Biome registry is not initialiszed.");
             return;
         }
+        //This is where the temperature ranges are set as opposed to the initialized biomes above.
         //I'd like to mathematically calculate the proper ranges based on weightings and biome count.
         BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.8f,1.0f,0.3f,0.7f), biomeRegistry.Get("plains"));
         BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.8f,1.0f,0.0f,0.3f), biomeRegistry.Get("desert"));

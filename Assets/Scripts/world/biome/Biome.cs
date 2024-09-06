@@ -10,47 +10,35 @@ using System;
 public class Biome
 {
     public string Name {get; private set;}
-    public float Temperature {get; private set;}
-    public float Precipitation {get; private set;}
+
+    public FeatureSettings FeatureSettings {get; private set;}
 
     //public SpawnSettings spawnSettings;
-    //public GenerationSettings generationSettings;
+    //public GenerationSettings generationSettings; //this should include species of tree.
     //public EffectSettings effectSettings;
 
-    public Biome(string name, float temperature, float precipitation){
+    public Biome(string name, FeatureSettings featureSettings){
         this.Name = name;
-        this.Temperature = temperature;
-        this.Precipitation = precipitation;
-    }
-
-    public bool Matches(float temperature, float precipitation){
-        float matchRange = 0.1f;
-        return Mathf.Abs(Temperature - temperature) < matchRange && Mathf.Abs(Precipitation - precipitation) < matchRange;
+        this.FeatureSettings = featureSettings;
     }
 
     public class Build
     {
         private string name;
-        private float temperature;
-        private float precipitation; //use as chance of rain.
+        private FeatureSettings featureSettings;
         //private float downfall;
         //Add some other stuff for weather and summise as cohesive weather settings.
         //private SpawnSettings spawnSettings;
         //private GenerationSettings generationSettings; //add features to this.
         //private EffectSettings effectSettings; //to make adjustments to fundamental tile data after biome generation.
 
-        private Biome.Build Name(string name){
+        public Biome.Build Name(string name){
             this.name = name;
             return this;
         }
 
-        public Biome.Build Temperature(float temperature){
-            this.temperature = temperature;
-            return this;
-        }
-
-        public Biome.Build Precipitation(float precipitation){
-            this.precipitation = precipitation;
+        public Biome.Build FeatureSettings(FeatureSettings featureSettings){
+            this.featureSettings = featureSettings;
             return this;
         }
 
@@ -60,8 +48,8 @@ public class Biome
         // }
 
         public Biome BuildBiome(){
-            if(this.name != null && this.temperature != null && this.precipitation != null){
-                return new Biome(this.name, this.temperature, this.precipitation);
+            if(this.name != null &&  this.featureSettings != null){
+                return new Biome(this.name, this.featureSettings);
             }else{
                 throw new Exception("Missing Biome parameters in builder\n" + this);
             }
