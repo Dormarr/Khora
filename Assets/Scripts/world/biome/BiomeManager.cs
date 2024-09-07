@@ -12,20 +12,23 @@ public static class BiomeManager
     public static void InitializeBiomes(Registry<Biome> registry){
 
         //Temperature and Precipitation variables are redundant here I think.
+        //Also the biomes should be built using the buildBiomes script once it's done.
         biomeRegistry = registry;
-        //biomeRegistry.Register("plains",         new Biome("plains", 0.5f, 0.5f));
-        biomeRegistry.Register("plains",            new Biome.Build().Name("plains").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
-        biomeRegistry.Register("desert",            new Biome.Build().Name("desert").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
-        biomeRegistry.Register("borealForest",      new Biome.Build().Name("borealForest").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
-        biomeRegistry.Register("forest",            new Biome.Build().Name("forest").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
-        biomeRegistry.Register("glacial",           new Biome.Build().Name("glacial").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
-        biomeRegistry.Register("rainforest",        new Biome.Build().Name("rainforest").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
-        biomeRegistry.Register("shrubland",         new Biome.Build().Name("shrubland").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
-        biomeRegistry.Register("snowyForest",       new Biome.Build().Name("snowyForest").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
-        biomeRegistry.Register("swamp",             new Biome.Build().Name("swamp").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
-        biomeRegistry.Register("tundra",            new Biome.Build().Name("tundra").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
-        biomeRegistry.Register("wetlands",          new Biome.Build().Name("wetlands").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
-        biomeRegistry.Register("taiga",             new Biome.Build().Name("taiga").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
+        //biomeRegistry.Register("plains",            new Biome.Build().Name("Plains").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
+        biomeRegistry.Register("plains",            BuildBiome.CreatePlains(false, false, false));
+        biomeRegistry.Register("desert",            BuildBiome.CreateDesert(false, true));
+        biomeRegistry.Register("borealForest",      BuildBiome.CreatePlains(false, true, true));
+        biomeRegistry.Register("forest",            BuildBiome.CreatePlains(false, false, true));
+        biomeRegistry.Register("glacial",           BuildBiome.CreateDesert(true, false));
+        biomeRegistry.Register("rainforest",        BuildBiome.CreateSwamp(true, false));
+        biomeRegistry.Register("shrubland",         BuildBiome.CreateDesert(false, false));
+        biomeRegistry.Register("snowyForest",       BuildBiome.CreatePlains(true, false, true));
+        biomeRegistry.Register("swamp",             BuildBiome.CreateSwamp(true, true));
+        biomeRegistry.Register("tundra",            BuildBiome.CreatePlains(true, false, false));
+        biomeRegistry.Register("wetlands",          BuildBiome.CreateSwamp(false, false));
+        biomeRegistry.Register("taiga",             BuildBiome.CreatePlains(true, true, true));
+        //UNUSED
+        biomeRegistry.Register("flowerMeadow",      BuildBiome.CreatePlains(false, true, false));
         InitializeClimateBiomes();
     }
 

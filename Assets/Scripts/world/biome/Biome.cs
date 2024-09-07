@@ -10,6 +10,7 @@ using System;
 public class Biome
 {
     public string Name {get; private set;}
+    public bool Occupied {get;private set;}
 
     public FeatureSettings FeatureSettings {get; private set;}
 
@@ -17,23 +18,28 @@ public class Biome
     //public GenerationSettings generationSettings; //this should include species of tree.
     //public EffectSettings effectSettings;
 
-    public Biome(string name, FeatureSettings featureSettings){
+    public Biome(string name, FeatureSettings featureSettings, bool occupied){
         this.Name = name;
         this.FeatureSettings = featureSettings;
+        this.Occupied = occupied;
     }
 
     public class Build
     {
-        private string name;
-        private FeatureSettings featureSettings;
-        //private float downfall;
-        //Add some other stuff for weather and summise as cohesive weather settings.
-        //private SpawnSettings spawnSettings;
-        //private GenerationSettings generationSettings; //add features to this.
-        //private EffectSettings effectSettings; //to make adjustments to fundamental tile data after biome generation.
+        private string name;//reshuffle to be enum.
+        public bool occupied;
+        private FeatureSettings featureSettings;//this contains all the trees, grass, flowers, and stones.
+        //private SpawnSettings spawnSettings;//this will be the config for what entities can spawn, how many, and how often.
 
         public Biome.Build Name(string name){
             this.name = name;
+            return this;
+        }
+
+        //this exists so that, if a tree generates on the tile, it will be marked as occupied and won't be regenerated on.
+        //Not sure if this actually belongs here or not though, since this will be determined after feature settings are done.
+        public Biome.Build Occupied(bool occupied){
+            this.occupied = occupied;
             return this;
         }
 
@@ -42,6 +48,7 @@ public class Biome
             return this;
         }
 
+
         // public Biome.Build SpawnSettings(SpawnSettings spawnSettings){
         //     this.spawnSettings = spawnSettings;
         //     return this;
@@ -49,7 +56,7 @@ public class Biome
 
         public Biome BuildBiome(){
             if(this.name != null &&  this.featureSettings != null){
-                return new Biome(this.name, this.featureSettings);
+                return new Biome(this.name, this.featureSettings, this.occupied);
             }else{
                 throw new Exception("Missing Biome parameters in builder\n" + this);
             }
