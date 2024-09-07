@@ -16,6 +16,7 @@ public class FeatureSettings
     public float grassChance;
     public float flowerChanceSolo;
     public float flowerChanceNeighbour;
+    //public List<Feature> features;
     //there'll be more to add, but stick with this for now.
 
 

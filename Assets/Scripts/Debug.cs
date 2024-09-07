@@ -43,8 +43,8 @@ public class Debug : MonoBehaviour
                     $"\nChunk Cache: {chunkManager.chunkCache.Count}" +
                     $"\nMouse Pos: {mousePos.x}, {mousePos.y}";
                 worldGenDebugText.text = "<b>Tile Debug</b>" +
-                    //$"\nBiome: {worldEngine.GenerateBiomeForCoordinate(tilePos)}" + //redo with updated methods.
                     $"\nTile Identity: {hoveredTile.name}" +
+                    //$"\nBiome: {worldEngine.GenerateBiomeForCoordinate(tilePos)}" + //redo with updated methods.
                     $"\n\nTemperature: {worldEngine.temperature}" +
                     $"\nHumidity: {worldEngine.precipitation}" +
                     $"\nTopology: {worldEngine.GenerateTopologyForCoordinate(tilePos)}" +

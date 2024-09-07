@@ -7,8 +7,14 @@ public class BuildBiome
 {
     //need a feature list to add to and build.
     //Add the spawn stuff here too.
-    public static Biome CreateBiome(){
+    public static Biome CreateBiome(
+        FeatureSettings featureSettings
+        //SpawnSettings spawnSettings
+    ){
         //funnel a feature list into this and construct as a biome.
+
+        return new Biome.Build()
+        .FeatureSettings(featureSettings).BuildBiome();
     }
 
     public static Biome CreatePlains(bool snowy, bool flower, bool trees){
@@ -16,48 +22,57 @@ public class BuildBiome
         //add grass
         
         if(snowy){
-            //tundra
             if(trees){
                 //snowy forest
+                return null;
             }
+            //tundra
+            return null;
         }
 
         if(flower){
             if(trees){
                 //lush forest - boreal?
-            }else{
-                //flower meadow
+                return null;
             }
+            //flower meadow
+            return null;
         }
 
         if(trees){
             //forest
+            return null;
         }
+
+        return null;//handle nothing.
     }
 
     public static Biome CreateSwamp(bool trees, bool wet){
         if(trees){
             if(wet){
                 //swamp
-            }else{
-                //rainforest
+                return null;
             }
-        }else{
-            //wetlands
+            //rainforest
+            return null;
         }
+        //wetlands
+        return null;
     }
 
     public static Biome CreateDesert(bool cold, bool barren){
         if(cold){
             if(!barren){
                 //glacial
-            }
-        }else{
-            if(barren){
-                //desert
-            }else{
-                //shrubland
+                return null;
             }
         }
+        if(barren){
+            //desert
+            return null;
+        }
+        
+        return null;//handle nothing
+
     }
 }
