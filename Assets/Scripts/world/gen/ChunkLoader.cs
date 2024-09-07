@@ -30,11 +30,11 @@ public class ChunkLoader : MonoBehaviour
 
     private Vector3Int playerChunkPosition;
     private Vector2 playerPosition;
-    private GameObject player;
+    [SerializeField] private GameObject player;
 
     public void Init()
     {
-        player = GameObject.FindWithTag("Player");
+        //player = GameObject.FindWithTag("Player");
         playerPosition = player.transform.position;
         playerChunkPosition = BiomeUtility.GetVariableChunkPosition(playerPosition);
         LoadChunksAroundPlayer();
@@ -133,6 +133,9 @@ public class ChunkLoader : MonoBehaviour
 
     void UnloadChunk(Vector3Int chunkPosition)
     {
+        //rejig to unload only once a certain distance away.
+        //Maybe unrender but don't have to completely unload it.
+
         if(chunkManager.chunkCache.TryGetValue(chunkPosition, out GameObject chunk))
         {
             chunkManager.RemoveChunk(chunkPosition, chunk);

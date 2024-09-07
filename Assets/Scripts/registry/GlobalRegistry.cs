@@ -1,21 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public static class GlobalRegistry
 {
     public static CategoryRegistry categoryRegistry = new CategoryRegistry();
 
     public static void Initialize(){
-
-        categoryRegistry.RegisterCategory<Feature>("naturalFeatures");
-        Registry<Feature> featureRegistry = categoryRegistry.GetCategoryRegistry<Feature>("naturalFeatures");
-        //Need to inisitalize the features prior to biomes.
-
-        categoryRegistry.RegisterCategory<Biome>("biomes");
-        Registry<Biome> biomeRegistry = categoryRegistry.GetCategoryRegistry<Biome>("biomes");
-        BiomeManager.InitializeBiomes(biomeRegistry);
+        //Consider order of initialization.
+        InitializeRegistry<NaturalFeature>("naturalFeatures", FeatureManager.InitializeNaturalFeatures);
+        InitializeRegistry<Biome>("biomes", BiomeManager.InitializeBiomes);
 
         Debug.Log("Initialized GlobalRegistry");
+    }
+
+    private static void InitializeRegistry<T>(string categoryKey, Action<Registry<T>> initializeAction){
+        categoryRegistry.RegisterCategory<T>(categoryKey);
+        Registry<T> registry = categoryRegistry.GetCategoryRegistry<T>(categoryKey);
+        initializeAction(registry);
     }
 }

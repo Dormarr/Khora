@@ -1,7 +1,7 @@
 public enum NaturalFeatureEnum
 {
-    Tree,
-    Grass,
-    Flower
+    TREE,
+    GRASS,
+    FLOWER
     //add more if and when needed.
 }

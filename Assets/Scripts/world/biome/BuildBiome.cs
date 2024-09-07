@@ -7,72 +7,105 @@ public class BuildBiome
 {
     //need a feature list to add to and build.
     //Add the spawn stuff here too.
-    public static Biome CreateBiome(
-        FeatureSettings featureSettings
+
+    //Need to consider the prioritisation of generation order. I.E. trees before grass etc.
+
+    public static Biome CreateBiome(string name,
+        FeatureSettings.Build featureSettings
         //SpawnSettings spawnSettings
     ){
         //funnel a feature list into this and construct as a biome.
 
         return new Biome.Build()
-        .FeatureSettings(featureSettings).BuildBiome();
+        .Name(name)
+        .FeatureSettings(featureSettings.BuildFeatureSettings()).BuildBiome();
     }
 
     public static Biome CreatePlains(bool snowy, bool flower, bool trees){
         
-        //add grass
+
+        FeatureSettings.Build featureSettingsBuild = new FeatureSettings.Build();
         
         if(snowy){
             if(trees){
+                if(flower){
+                    //taiga
+                    //coldish, pine trees, spattering of mushrooms and that's about it.
+                    featureSettingsBuild.AddNaturalFeature(NaturalFeatureLookup("pine_tree"));
+                    featureSettingsBuild.AddNaturalFeature(NaturalFeatureLookup("mushroom_tree"));
+                    return CreateBiome("taiga", featureSettingsBuild);
+                }
                 //snowy forest
-                return null;
+                return CreateBiome("snowyForest", featureSettingsBuild);
             }
             //tundra
-            return null;
+            return CreateBiome("tundra", featureSettingsBuild);
         }
 
         if(flower){
             if(trees){
                 //lush forest - boreal?
-                return null;
+                featureSettingsBuild.AddNaturalFeature(NaturalFeatureLookup("mushroom_tree"));
+                featureSettingsBuild.AddNaturalFeature(NaturalFeatureLookup("birch_tree"));
+                featureSettingsBuild.AddNaturalFeature(NaturalFeatureLookup("daisy"));
+                return CreateBiome("borealForest", featureSettingsBuild);
             }
             //flower meadow
-            return null;
+            featureSettingsBuild.AddNaturalFeature(NaturalFeatureLookup("daisy"));
+            return CreateBiome("flowerMeadow", featureSettingsBuild);
         }
 
         if(trees){
             //forest
-            return null;
+            featureSettingsBuild.AddNaturalFeature(NaturalFeatureLookup("oak_tree"));
+            featureSettingsBuild.AddNaturalFeature(NaturalFeatureLookup("birch_tree"));
+            return CreateBiome("forest", featureSettingsBuild);
         }
 
-        return null;//handle nothing.
+        //true plains
+        featureSettingsBuild.AddNaturalFeature(NaturalFeatureLookup("grass"));
+        return CreateBiome("plains", featureSettingsBuild);
     }
 
     public static Biome CreateSwamp(bool trees, bool wet){
+
+        FeatureSettings.Build featureSettingsBuild = new FeatureSettings.Build();
+
         if(trees){
             if(wet){
                 //swamp
-                return null;
+                featureSettingsBuild.AddNaturalFeature(NaturalFeatureLookup("willow_tree"));
+                return CreateBiome("swamp", featureSettingsBuild);
             }
             //rainforest
-            return null;
+            featureSettingsBuild.AddNaturalFeature(NaturalFeatureLookup("rubber_tree"));
+            return CreateBiome("rainforest", featureSettingsBuild);
         }
         //wetlands
-        return null;
+        return CreateBiome("wetlands", featureSettingsBuild);
     }
 
     public static Biome CreateDesert(bool cold, bool barren){
+
+        FeatureSettings.Build featureSettingsBuild = new FeatureSettings.Build();
+
         if(cold){
             if(!barren){
                 //glacial
-                return null;
+                return CreateBiome("glacial", featureSettingsBuild);
             }
         }
-        if(barren){
-            //desert
-            return null;
+        if(!barren){
+            //shrubland
+            return CreateBiome("shrubland", featureSettingsBuild);
         }
         
-        return null;//handle nothing
+        //desert
+        return CreateBiome("desert", featureSettingsBuild);
 
+    }
+
+    private static NaturalFeature NaturalFeatureLookup(string feature){
+        return FeatureManager.GetNaturalFeature(feature);
     }
 }
