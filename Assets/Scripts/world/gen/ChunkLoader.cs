@@ -168,7 +168,6 @@ public class ChunkLoader : MonoBehaviour
             int y = tileData.y;
             
             Vector3Int tilePosition = new Vector3Int(chunkPosition.x + x, chunkPosition.y + y, 0);
-            Debug.LogWarning($"Chunk Mod Tile Drawn at '{tilePosition}");
             //Replace the blankTile with the appropriate tile from a registry.
             chunkTilemap.SetTile(tilePosition, blankTile);
         }

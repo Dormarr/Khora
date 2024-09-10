@@ -101,6 +101,11 @@ public class ChunkManager : MonoBehaviour
 
         for(int i = 0; i < modificationCache.Count; i++){
             
+            //The issue is that it logs in order of placement, so if you cross chunk borders and back again...
+            //It will only render one patch of placed tiles.
+
+            //You need to use a dictionary or something to lookup the tiles in order of coordinate.
+
             Vector3Int newChunkPosition = BiomeUtility.GetVariableChunkPosition(new Vector2(modificationCache[i].x, modificationCache[i].y));
             if(chunkPosition != newChunkPosition){
                 //create new chunkData and tileData list.
