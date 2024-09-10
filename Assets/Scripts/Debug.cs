@@ -8,6 +8,7 @@ using UnityEngine.InputSystem;
 
 public class Debug : MonoBehaviour
 {
+    public Grid grid;
     public ChunkManager chunkManager;
     public WorldEngine worldEngine;
 
@@ -15,6 +16,7 @@ public class Debug : MonoBehaviour
     public TextMeshProUGUI cursorDebugText;
     public TextMeshProUGUI worldGenDebugText;
     public TextMeshProUGUI tickTimeDebugText;
+    public GameObject player;
 
     private Vector2 mousePos;
     private Vector3Int tilePos;
@@ -83,6 +85,35 @@ public class Debug : MonoBehaviour
         return $"Chunk {chunkPosX}, {chunkPosY} in {inChunkX}, {inChunkY}";
     }
 
+private void OnDrawGizmos()
+{
+    Gizmos.color = Color.green;
+
+    // Assuming chunkSize is 32 units
+    int chunkSize = 32;
+
+    // Get the player's current chunk position
+    Vector3Int playerChunkPos = BiomeUtility.GetVariableChunkPosition(player.transform.position);
+
+    // Calculate the bottom-left corner of the current chunk
+    Vector3 chunkOrigin = new Vector3(playerChunkPos.x * chunkSize, playerChunkPos.y * chunkSize, 0);
+
+    // Calculate the four corners of the chunk
+    Vector3 bottomLeft = chunkOrigin;
+    Vector3 bottomRight = chunkOrigin + new Vector3(chunkSize, 0, 0);
+    Vector3 topLeft = chunkOrigin + new Vector3(0, chunkSize, 0);
+    Vector3 topRight = chunkOrigin + new Vector3(chunkSize, chunkSize, 0);
+
+    // Draw the four sides of the chunk boundary
+    Gizmos.DrawLine(bottomLeft, bottomRight);  // Bottom
+    Gizmos.DrawLine(bottomRight, topRight);    // Right
+    Gizmos.DrawLine(topRight, topLeft);        // Top
+    Gizmos.DrawLine(topLeft, bottomLeft);      // Left
+}
+
+
+#region DebugLogs
+
     public static void Log(string msg)
     {
         UnityEngine.Debug.Log(msg);
@@ -95,4 +126,6 @@ public class Debug : MonoBehaviour
     public static void LogError(string msg){
         UnityEngine.Debug.LogError(msg);
     }
+
+#endregion
 }

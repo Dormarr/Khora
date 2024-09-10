@@ -57,7 +57,7 @@ public static class BiomeUtility
         return tile;
     }
 
-    public static List<BiomeData> BiomeArrayToList(Biome[,] biomeArray){
+    public static List<BiomeData> ArrayToList(Biome[,] biomeArray){
         List<BiomeData> biomeList = new List<BiomeData>();
 
         for(int x = 0; x < biomeArray.GetLength(0); x++){
@@ -69,7 +69,7 @@ public static class BiomeUtility
         return biomeList;
     }
 
-    public static Biome[,] ListToBiomeArray(List<BiomeData> biomeList, int width, int height){
+    public static Biome[,] ListToArray(List<BiomeData> biomeList, int width, int height){
         Biome[,] biomeArray = new Biome[width, height];
 
         foreach(BiomeData biomeData in biomeList){

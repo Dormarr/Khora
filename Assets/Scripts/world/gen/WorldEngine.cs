@@ -26,11 +26,24 @@ public class WorldEngine : MonoBehaviour
 
     void Awake()
     {
+        //check to see if any world data file exists, if so, pull seed from there.
         worldSeed = Seed.GenerateSeed();
     }
 
     public ChunkData GenerateChunk(Vector3Int chunkPosition){
-        return new ChunkData.Build().Name("placeholder").ChunkPosition(chunkPosition).BiomeMapList(BiomeUtility.BiomeArrayToList(GenerateBiomeForChunk(chunkPosition))).BuildChunkData();
+        return new ChunkData.Build()
+        .Name($"chunk_{chunkPosition}")
+        .ChunkPosition(chunkPosition)
+        .BiomeMapList(BiomeUtility.ArrayToList(GenerateBiomeForChunk(chunkPosition)))//this shouldn't be done.
+        .BuildChunkData();
+    }
+
+    public ChunkData LoadChunkDataFromSave(Vector3Int chunkPosition){
+        //use the chunkSerializer to grab tileData to regenerate saved modifications to the terrain.
+        //if null, return empty chunkData.
+
+        //Is this the right way to do it? Won't loaded chunks work anyway?
+        return null;
     }
 
     public Biome GenerateBiomeForCoordinate(Vector3Int coordinate)

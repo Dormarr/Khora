@@ -13,9 +13,12 @@ public class ChunkManager : MonoBehaviour
 
     public Dictionary<Vector3Int, GameObject> chunkCache = new Dictionary<Vector3Int, GameObject>();
 
+    public List<TileData> modificationCache;
+
     void Awake(){
         GlobalRegistry.Initialize();
         chunkCache.Clear();
+        modificationCache.Clear();
     }
 
     void Start()
@@ -25,6 +28,8 @@ public class ChunkManager : MonoBehaviour
 
     void InitializeChunks()
     {
+        //need to grab the seed from the world data file.
+
         chunkLoader.Init();
         if(chunkCache.Count > 0 ) gate = true;
     }
@@ -85,5 +90,31 @@ public class ChunkManager : MonoBehaviour
         string filePath = ChunkSerializer.GetChunkFilePath(chunkPosition);
         Debug.Log("Saved Chunk: " + chunkPosition);
         ChunkSerializer.SaveChunk(chunkData, filePath);
+    }
+
+    public void SaveModifications(){
+        //gather chunk data and chunk position, then save chunk.
+        Vector3Int chunkPosition = new Vector3Int(0, 0, 0);
+        List<TileData> tileData = new List<TileData>();
+
+        Debug.Log("Save Modifications called.");
+
+        for(int i = 0; i < modificationCache.Count; i++){
+            
+            Vector3Int newChunkPosition = BiomeUtility.GetVariableChunkPosition(new Vector2(modificationCache[i].x, modificationCache[i].y));
+            if(chunkPosition != newChunkPosition){
+                //create new chunkData and tileData list.
+                ChunkData chunkData = new ChunkData.Build().Name("chunkData").ChunkPosition(chunkPosition).TileDataList(tileData).BuildChunkData();
+                SaveChunk(chunkPosition, chunkData);
+                chunkPosition = newChunkPosition;
+                tileData.Clear();
+                tileData.Add(modificationCache[i]);
+                
+            }else{
+                //add to existing tileData list.
+                tileData.Add(modificationCache[i]);
+            }
+        }
+
     }
 }

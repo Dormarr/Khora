@@ -11,12 +11,11 @@ public class ChunkLoader : MonoBehaviour
     public Camera mainCamera;
     public GameObject grid;
 
-    public Tile[] tiles; //I'd like to use scriptable objects instead of tiles.
+    public Tile[] tiles;
 
     public Tile blankTile;
 
     public float noiseScale;
-
     public int octaves;
     [Range(0, 1)]
     public float persistance;
@@ -34,7 +33,8 @@ public class ChunkLoader : MonoBehaviour
 
     public void Init()
     {
-        //player = GameObject.FindWithTag("Player");
+        seed = worldEngine.worldSeed;
+
         playerPosition = player.transform.position;
         playerChunkPosition = BiomeUtility.GetVariableChunkPosition(playerPosition);
         LoadChunksAroundPlayer();
@@ -98,35 +98,43 @@ public class ChunkLoader : MonoBehaviour
 
     void LoadChunk(Vector3Int chunkPosition)
     {
-        GameObject chunk = new GameObject("Chunk_" + chunkPosition);
+        //Generation tilemap.
+        GameObject chunk = new GameObject($"Chunk_{chunkPosition}");
         chunk.transform.parent = grid.transform;
 
-        //Need to work out how to double up on the tilemaps to allow for features.
         Tilemap chunkTilemap = chunk.AddComponent<Tilemap>();
         TilemapRenderer chunkRenderer = chunk.AddComponent<TilemapRenderer>();
 
+        //Modification tilemap.
+        GameObject chunkChild = new GameObject($"Modified_{chunkPosition}");
+        chunkChild.transform.parent = chunk.transform;
+
+        Tilemap chunkChildTilemap = chunkChild.AddComponent<Tilemap>();
+        TilemapRenderer chunkChildRenderer = chunkChild.AddComponent<TilemapRenderer>();
+        chunkChildRenderer.sortingOrder = 1;
+
+
         chunkTilemap.tileAnchor = new Vector3(0.5f, 0.5f, 0);
 
-//This might be the source of the issue.
         if(chunkManager.chunkCache.ContainsKey(chunkPosition)){
             Debug.LogWarning($"Chunk at position {chunkPosition} already exists.");
             return;
         }
 
-        ChunkData chunkData = chunkManager.LoadChunk(chunkPosition);
 
-        if(chunkData == null){
-            Debug.Log("Generating chunk from scratch.");
-            chunkData = worldEngine.GenerateChunk(chunkPosition);
-            if(chunkData != null){
-                chunkManager.SaveChunk(chunkPosition, chunkData);
-            }else{
-                Debug.LogWarning($"Failed to generate chunk at {chunkPosition}");
-            }
-        }
-        Biome[,] biomeMap = BiomeUtility.ListToBiomeArray(chunkData.biomeMapList, chunkSize, chunkSize);
+        //Restructure to include natural generation and then loading modifications on top.
+
+        ChunkData chunkData = worldEngine.GenerateChunk(chunkPosition);
+        ChunkData modChunkData = chunkManager.LoadChunk(chunkPosition);
+        //chunkManager.SaveChunk(chunkPosition, chunkData);
+
+        Biome[,] biomeMap = BiomeUtility.ListToArray(chunkData.biomeMapList, chunkSize, chunkSize);
 
         DrawBiomeMap(biomeMap, chunkTilemap, chunkPosition);
+
+        if(modChunkData != null){
+            DrawModificationMap(modChunkData.tileDataList, chunkChildTilemap, chunkPosition);
+        }
 
         chunkManager.AddChunk(chunkPosition, chunk);
     }
@@ -138,9 +146,33 @@ public class ChunkLoader : MonoBehaviour
 
         if(chunkManager.chunkCache.TryGetValue(chunkPosition, out GameObject chunk))
         {
+            chunkManager.SaveModifications();
             chunkManager.RemoveChunk(chunkPosition, chunk);
             Destroy(chunk);
         }
+    }
+
+    void DrawModificationMap(List<TileData> tileDataList, Tilemap chunkTilemap, Vector3Int chunkPosition){
+        //same as below but with modifications.
+        if(tileDataList == null){
+            Debug.LogError("Unable to DrawModificationMap as tileDataList was null.");
+            return;
+        }
+
+
+        for(int i = 0; i < tileDataList.Count; i++){
+            
+            TileData tileData = tileDataList[i];
+
+            int x = tileData.x;
+            int y = tileData.y;
+            
+            Vector3Int tilePosition = new Vector3Int(chunkPosition.x + x, chunkPosition.y + y, 0);
+            Debug.LogWarning($"Chunk Mod Tile Drawn at '{tilePosition}");
+            //Replace the blankTile with the appropriate tile from a registry.
+            chunkTilemap.SetTile(tilePosition, blankTile);
+        }
+
     }
 
     void DrawBiomeMap(Biome[,] biomeMap, Tilemap chunkTilemap, Vector3Int chunkPosition)

@@ -14,7 +14,7 @@ public static class BiomeManager
         //Temperature and Precipitation variables are redundant here I think.
         //Also the biomes should be built using the buildBiomes script once it's done.
         biomeRegistry = registry;
-        //biomeRegistry.Register("plains",            new Biome.Build().Name("Plains").FeatureSettings(new FeatureSettings.Build().Grass(0.6f).Trees(0.1f, 0.6f).Flowers(0.05f, 0.4f).BuildFeatureSettings()).BuildBiome());
+
         biomeRegistry.Register("plains",            BuildBiome.CreatePlains(false, false, false));
         biomeRegistry.Register("desert",            BuildBiome.CreateDesert(false, true));
         biomeRegistry.Register("borealForest",      BuildBiome.CreatePlains(false, true, true));
@@ -41,6 +41,7 @@ public static class BiomeManager
         }
         //This is where the temperature ranges are set as opposed to the initialized biomes above.
         //I'd like to mathematically calculate the proper ranges based on weightings and biome count.
+
         BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.8f,1.0f,0.3f,0.7f), biomeRegistry.Get("plains"));
         BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.8f,1.0f,0.0f,0.3f), biomeRegistry.Get("desert"));
         BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.3f,0.5f,0.0f,0.3f), biomeRegistry.Get("borealForest"));
@@ -53,6 +54,7 @@ public static class BiomeManager
         BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.0f,0.3f,0.0f,0.3f), biomeRegistry.Get("tundra"));
         BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.3f,0.5f,0.7f,1.0f), biomeRegistry.Get("wetlands"));
         BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.3f,0.5f,0.3f,0.7f), biomeRegistry.Get("taiga"));
+        
         Debug.Log("Successfully registered BiomeClimateRegistry()");
     }
 
