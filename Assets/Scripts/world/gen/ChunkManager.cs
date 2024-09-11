@@ -31,7 +31,6 @@ public class ChunkManager : MonoBehaviour
         //need to grab the seed from the world data file.
 
         chunkLoader.Init();
-        if(chunkCache.Count > 0 ) gate = true;
     }
 
     public void AddChunk(Vector3Int chunkPosition, GameObject chunk)

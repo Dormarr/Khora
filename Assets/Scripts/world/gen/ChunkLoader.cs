@@ -97,7 +97,7 @@ public class ChunkLoader : MonoBehaviour
         }
     }
 
-    void LoadChunk(Vector3Int chunkPosition)
+    async void LoadChunk(Vector3Int chunkPosition)
     {
         //Generation tilemap.
         GameObject chunk = new GameObject($"Chunk_{chunkPosition}");
@@ -125,7 +125,7 @@ public class ChunkLoader : MonoBehaviour
 
         //Restructure to include natural generation and then loading modifications on top.
 
-        ChunkData chunkData = worldEngine.GenerateChunk(chunkPosition);
+        ChunkData chunkData = await worldEngine.GenerateChunkAsync(chunkPosition);
         ChunkData modChunkData = chunkManager.LoadChunk(chunkPosition);
         //chunkManager.SaveChunk(chunkPosition, chunkData);
 

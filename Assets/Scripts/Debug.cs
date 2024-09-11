@@ -23,42 +23,39 @@ public class Debug : MonoBehaviour
 
     void Update()
     {
-        if(chunkManager.gate)
+        mousePos = Utility.GetMousePosition();
+        Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
+        try{
+            tilemap = chunkManager.GetChunkTilemap().GetComponent<Tilemap>();
+        }
+        catch(Exception e){
+            Log($"{e}"); 
+        }
+
+        tilePos = tilemap.WorldToCell(mouseWorldPos);
+        TileBase hoveredTile = chunkManager.IdentifyTile(mouseWorldPos);
+
+        if(hoveredTile != null)
         {
-            mousePos = Utility.GetMousePosition();
-            Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
-            try{
-                tilemap = chunkManager.GetChunkTilemap().GetComponent<Tilemap>();
-            }
-            catch(Exception e){
-               Log($"{e}"); 
-            }
+            cursorDebugText.text = "<b>Cursor Coordinates</b>" + 
+                $"\nGlobal: {tilePos.x}, {tilePos.y}" + 
+                $"\n{ChunkPositionDebug()}" + 
+                $"\nChunk Cache: {chunkManager.chunkCache.Count}" +
+                $"\nMouse Pos: {mousePos.x}, {mousePos.y}";
+            worldGenDebugText.text = "<b>Tile Debug</b>" +
+                $"\nTile Identity: {hoveredTile.name}" +
+                $"\nBiome: {worldEngine.GenerateBiomeForCoordinate(tilePos).Name}" + //redo with updated methods.
+                $"\n\nTemperature: {worldEngine.temperature}" +
+                $"\nHumidity: {worldEngine.precipitation}" +
+                $"\nTopology: {worldEngine.GenerateTopologyForCoordinate(tilePos)}" +
+                $"\nElevation: {worldEngine.elevation}" +
+                $"\nErosion: {worldEngine.erosion}";
+            tickTimeDebugText.text = "<b>Tick Debug</b>" +
+                $"\nCurrent Time: {TickManager.Instance.GetCurrentTick()}" +
+                $"\nTick Rate: {TickManager.Instance.GetTickRate()}" +
+                $"\nActual Tick Rate: {TickManager.Instance.GetActualTickRate()}" +
+                $"\nElapsed Time: {TickManager.Instance.GetActualElapsedTime()}";
 
-            tilePos = tilemap.WorldToCell(mouseWorldPos);
-            TileBase hoveredTile = chunkManager.IdentifyTile(mouseWorldPos);
-
-            if(hoveredTile != null)
-            {
-                cursorDebugText.text = "<b>Cursor Coordinates</b>" + 
-                    $"\nGlobal: {tilePos.x}, {tilePos.y}" + 
-                    $"\n{ChunkPositionDebug()}" + 
-                    $"\nChunk Cache: {chunkManager.chunkCache.Count}" +
-                    $"\nMouse Pos: {mousePos.x}, {mousePos.y}";
-                worldGenDebugText.text = "<b>Tile Debug</b>" +
-                    $"\nTile Identity: {hoveredTile.name}" +
-                    //$"\nBiome: {worldEngine.GenerateBiomeForCoordinate(tilePos)}" + //redo with updated methods.
-                    $"\n\nTemperature: {worldEngine.temperature}" +
-                    $"\nHumidity: {worldEngine.precipitation}" +
-                    $"\nTopology: {worldEngine.GenerateTopologyForCoordinate(tilePos)}" +
-                    $"\nElevation: {worldEngine.elevation}" +
-                    $"\nErosion: {worldEngine.erosion}";
-                tickTimeDebugText.text = "<b>Tick Debug</b>" +
-                    $"\nCurrent Time: {TickManager.Instance.GetCurrentTick()}" +
-                    $"\nTick Rate: {TickManager.Instance.GetTickRate()}" +
-                    $"\nActual Tick Rate: {TickManager.Instance.GetActualTickRate()}" +
-                    $"\nElapsed Time: {TickManager.Instance.GetActualElapsedTime()}";
-
-            }
         }
     }
 
