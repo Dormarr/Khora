@@ -29,5 +29,26 @@ public static class Utility
         return mouseWorldPos;
     }
 
+    public static void SaveWorldSaveData(WorldSaveData worldSaveData){
+        string filePath = GetWorldSaveDataFilePath();
+        string json = JsonUtility.ToJson(worldSaveData);
+        File.WriteAllText(filePath, json);
+        Debug.Log($"Saved '{filePath}'");
+    }
+
+    public static WorldSaveData LoadWorldSaveData(){
+        string filePath = GetWorldSaveDataFilePath();
+        if(File.Exists(filePath)){
+            string json = File.ReadAllText(filePath);
+            Debug.Log($"Loaded chunk: {filePath}");
+            return JsonUtility.FromJson<WorldSaveData>(json);
+        }
+        return null;
+    }
+
+    public static string GetWorldSaveDataFilePath(){
+        return "Assets/saves/world/data/WorldSaveData.Json";
+    }
+
 
 }

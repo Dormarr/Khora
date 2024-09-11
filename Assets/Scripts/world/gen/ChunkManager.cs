@@ -88,37 +88,36 @@ public class ChunkManager : MonoBehaviour
 
     public void SaveChunk(Vector3Int chunkPosition, ChunkData chunkData){
         string filePath = ChunkSerializer.GetChunkFilePath(chunkPosition);
-        Debug.Log("Saved Chunk: " + chunkPosition);
+        //Debug.Log("Saved Chunk: " + chunkPosition);
         ChunkSerializer.SaveChunk(chunkData, filePath);
     }
 
     public void SaveModifications(){
         //gather chunk data and chunk position, then save chunk.
-        Vector3Int chunkPosition = new Vector3Int(0, 0, 0);
-        List<TileData> tileData = new List<TileData>();
 
-        Debug.Log("Save Modifications called.");
+        Dictionary<Vector3Int, List<TileData>> chunkedModifications = new Dictionary<Vector3Int, List<TileData>>();
 
-        for(int i = 0; i < modificationCache.Count; i++){
-            
-            //The issue is that it logs in order of placement, so if you cross chunk borders and back again...
-            //It will only render one patch of placed tiles.
+        foreach(TileData tile in modificationCache){
+            Vector3Int chunkPosition = BiomeUtility.GetVariableChunkPosition(new Vector2(tile.x, tile.y));
 
-            //You need to use a dictionary or something to lookup the tiles in order of coordinate.
-
-            Vector3Int newChunkPosition = BiomeUtility.GetVariableChunkPosition(new Vector2(modificationCache[i].x, modificationCache[i].y));
-            if(chunkPosition != newChunkPosition){
-                //create new chunkData and tileData list.
-                ChunkData chunkData = new ChunkData.Build().Name("chunkData").ChunkPosition(chunkPosition).TileDataList(tileData).BuildChunkData();
-                SaveChunk(chunkPosition, chunkData);
-                chunkPosition = newChunkPosition;
-                tileData.Clear();
-                tileData.Add(modificationCache[i]);
-                
+            if(chunkedModifications.ContainsKey(chunkPosition)){
+                chunkedModifications[chunkPosition].Add(tile);
             }else{
-                //add to existing tileData list.
-                tileData.Add(modificationCache[i]);
+                chunkedModifications[chunkPosition] = new List<TileData> {tile};
             }
+        }
+
+        foreach(var entry in chunkedModifications){
+            Vector3Int chunkPosition = entry.Key;
+            List<TileData> tileData = entry.Value;
+
+            ChunkData chunkData = new ChunkData.Build()
+                .Name("chunkData")
+                .ChunkPosition(chunkPosition)
+                .TileDataList(tileData)
+                .BuildChunkData();
+
+            SaveChunk(chunkPosition, chunkData);
         }
 
     }

@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.IO;
+using System.Threading.Tasks;
 
 //This will combine all the generated perlin noise maps and generate a final world based on the return values for coords.
 //Coords come in, passed over to perlinGenerator, a cluster of info comes back, is assessed and rendered.
@@ -27,7 +29,26 @@ public class WorldEngine : MonoBehaviour
     void Awake()
     {
         //check to see if any world data file exists, if so, pull seed from there.
-        worldSeed = Seed.GenerateSeed();
+
+        GetWorldSeed();
+
+    }
+
+    public void GetWorldSeed(){
+        if(File.Exists(Utility.GetWorldSaveDataFilePath())){
+            WorldSaveData wsd = Utility.LoadWorldSaveData();
+            worldSeed = wsd.seed;
+            Debug.Log($"Loaded existing seed: {worldSeed}");
+        }else{
+            worldSeed = Seed.GenerateSeed();
+            Debug.Log($"Generated new seed: {worldSeed}");
+            WorldSaveData wsd = new WorldSaveData.Build().Seed(worldSeed).BuildWorldSaveData();
+            Utility.SaveWorldSaveData(wsd);
+        }
+    }
+
+    public async Task<ChunkData> GenerateChunkAsync(Vector3Int chunkPosition){
+        return await Task.Run(() => GenerateChunk(chunkPosition));
     }
 
     public ChunkData GenerateChunk(Vector3Int chunkPosition){
@@ -36,14 +57,6 @@ public class WorldEngine : MonoBehaviour
         .ChunkPosition(chunkPosition)
         .BiomeMapList(BiomeUtility.ArrayToList(GenerateBiomeForChunk(chunkPosition)))//this shouldn't be done.
         .BuildChunkData();
-    }
-
-    public ChunkData LoadChunkDataFromSave(Vector3Int chunkPosition){
-        //use the chunkSerializer to grab tileData to regenerate saved modifications to the terrain.
-        //if null, return empty chunkData.
-
-        //Is this the right way to do it? Won't loaded chunks work anyway?
-        return null;
     }
 
     public Biome GenerateBiomeForCoordinate(Vector3Int coordinate)
@@ -65,8 +78,6 @@ public class WorldEngine : MonoBehaviour
 
         float[,] temperatureMap = temperatureGenerator.GenerateChunkPerlin(chunkPosition, worldSeed);
         float[,] precipitationMap = precipitationGenerator.GenerateChunkPerlin(chunkPosition, worldSeed);
-
-        //redefine to use a range for precipitation and temperature rather than a table.
 
 
         Biome[,] biomeMap = new Biome[temperatureMap.GetLength(0), precipitationMap.GetLength(1)];
@@ -111,20 +122,12 @@ public class WorldEngine : MonoBehaviour
 
 public static class BiomeGenerator
 {
-    //private static BiomeSearcher biomeSearcher;
-    static BiomeGenerator()
-    {  
-        //biomeSearcher = new BiomeSearcher(categoryRegistry);
-    }
-
     public static Biome GetBiome(float temperature, float precipitation)
     {
         Biome biome = BiomeClimateRegistry.GetBiome(temperature, precipitation);
         if(biome != null){
-            Debug.Log($"Biome returned: {biome.Name}");
             return biome;
         }
-        //biome = biomeSearcher.SearchBiome("biomes", temperature, precipitation);
         
         throw new Exception("Big whoops, unable to get biome in WorldEngine.GetBiome()");
 

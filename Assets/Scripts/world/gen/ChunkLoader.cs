@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using System.Threading;
 
 public class ChunkLoader : MonoBehaviour
 {
@@ -128,6 +129,7 @@ public class ChunkLoader : MonoBehaviour
         ChunkData modChunkData = chunkManager.LoadChunk(chunkPosition);
         //chunkManager.SaveChunk(chunkPosition, chunkData);
 
+        //I'm not buzzed about this way of doing things.
         Biome[,] biomeMap = BiomeUtility.ListToArray(chunkData.biomeMapList, chunkSize, chunkSize);
 
         DrawBiomeMap(biomeMap, chunkTilemap, chunkPosition);
@@ -159,7 +161,6 @@ public class ChunkLoader : MonoBehaviour
             return;
         }
 
-
         for(int i = 0; i < tileDataList.Count; i++){
             
             TileData tileData = tileDataList[i];
@@ -167,7 +168,7 @@ public class ChunkLoader : MonoBehaviour
             int x = tileData.x;
             int y = tileData.y;
             
-            Vector3Int tilePosition = new Vector3Int(chunkPosition.x + x, chunkPosition.y + y, 0);
+            Vector3Int tilePosition = new Vector3Int(x, y, 0);
             //Replace the blankTile with the appropriate tile from a registry.
             chunkTilemap.SetTile(tilePosition, blankTile);
         }

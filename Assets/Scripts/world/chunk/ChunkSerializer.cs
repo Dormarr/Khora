@@ -15,7 +15,7 @@ public static class ChunkSerializer
     public static ChunkData LoadChunk(string filePath){
         if(File.Exists(filePath)){
             string json = File.ReadAllText(filePath);
-            Debug.Log($"Loaded chunk: {filePath}");
+            //Debug.Log($"Loaded chunk: {filePath}");
             return JsonUtility.FromJson<ChunkData>(json);
         }
         return null;

@@ -47,11 +47,10 @@ public static class BiomeUtility
             //handle null or save the tile.
         }else{
             tile = AssetDatabase.LoadAssetAtPath<TileBase>(tilePath);
-            Debug.Log($"Pulled tile: {biome.Name}");
         }
         
         if(tile == null){
-            Debug.Log($"TileBase not found at path: {tilePath}");
+            Debug.LogWarning($"TileBase not found at path: {tilePath}");
         }
 
         return tile;
@@ -83,7 +82,6 @@ public static class BiomeUtility
     public static Biome GetBiomeByName(string biomeName){
         Registry<Biome> biomeRegistry = GlobalRegistry.categoryRegistry.GetCategoryRegistry<Biome>("biomes");
         Biome biome = biomeRegistry.Get(biomeName);
-        Debug.Log($"Retrieved biome '{biome.Name}' by name.");
         return biome;
     }
 }

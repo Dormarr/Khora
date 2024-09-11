@@ -22,7 +22,6 @@ public class Seed
 #nullable disable
 
     private static int GenerateRandomSeed(){
-        Debug.Log("Random Seed Generated.");
         System.Random random = new System.Random();
         seed = random.Next(0, int.MaxValue);
         return seed;
@@ -36,7 +35,7 @@ public class Seed
             seed = BitConverter.ToInt32(hashBytes, 0);
 
             seed = Mathf.Abs(seed);
-
+            Debug.Log("Generated seed from string.");
             return seed;
         }
     }
