@@ -114,7 +114,6 @@ public class ChunkLoader : MonoBehaviour
         TilemapRenderer chunkChildRenderer = chunkChild.AddComponent<TilemapRenderer>();
         chunkChildRenderer.sortingOrder = 1;
 
-
         chunkTilemap.tileAnchor = new Vector3(0.5f, 0.5f, 0);
 
         if(chunkManager.chunkCache.ContainsKey(chunkPosition)){
@@ -122,18 +121,11 @@ public class ChunkLoader : MonoBehaviour
             return;
         }
 
-
-        //Restructure to include natural generation and then loading modifications on top.
-
         ChunkData chunkData = await worldEngine.GenerateChunkAsync(chunkPosition);
         ChunkData modChunkData = chunkManager.LoadChunk(chunkPosition);
-        //chunkManager.SaveChunk(chunkPosition, chunkData);
-
-        //I'm not buzzed about this way of doing things.
         Biome[,] biomeMap = BiomeUtility.ListToArray(chunkData.biomeMapList, chunkSize, chunkSize);
 
         DrawBiomeMap(biomeMap, chunkTilemap, chunkPosition);
-
         if(modChunkData != null){
             DrawModificationMap(modChunkData.tileDataList, chunkChildTilemap, chunkPosition);
         }
@@ -155,21 +147,18 @@ public class ChunkLoader : MonoBehaviour
     }
 
     void DrawModificationMap(List<TileData> tileDataList, Tilemap chunkTilemap, Vector3Int chunkPosition){
-        //same as below but with modifications.
         if(tileDataList == null){
             Debug.LogError("Unable to DrawModificationMap as tileDataList was null.");
             return;
         }
 
         for(int i = 0; i < tileDataList.Count; i++){
-            
             TileData tileData = tileDataList[i];
 
             int x = tileData.x;
             int y = tileData.y;
             
             Vector3Int tilePosition = new Vector3Int(x, y, 0);
-            //Replace the blankTile with the appropriate tile from a registry.
             chunkTilemap.SetTile(tilePosition, blankTile);
         }
 
@@ -180,10 +169,8 @@ public class ChunkLoader : MonoBehaviour
         int width = biomeMap.GetLength(0);
         int height = biomeMap.GetLength(1);
 
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < width; x++)
-            {
+        for (int y = 0; y < height; y++){
+            for (int x = 0; x < width; x++){
                 Biome tileBiome = biomeMap[x, y];
                 TileBase selectedTile = BiomeUtility.GetTileFromBiome(tileBiome);
                 if(selectedTile == null){

@@ -8,8 +8,6 @@ using UnityEditor;
 
 public static class BiomeUtility
 {
-    //Get chunk coordinates of a Vector2. Mostly used for managing chunks and debugging.
-
     public static Vector3Int GetVariableChunkPosition(Vector2 focus)
     {
         return new Vector3Int(Mathf.FloorToInt(focus.x / Config.chunkSize), Mathf.FloorToInt(focus.y / Config.chunkSize), 0);

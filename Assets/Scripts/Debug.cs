@@ -34,6 +34,7 @@ public class Debug : MonoBehaviour
 
         tilePos = tilemap.WorldToCell(mouseWorldPos);
         TileBase hoveredTile = chunkManager.IdentifyTile(mouseWorldPos);
+        Biome biome = worldEngine.GenerateBiomeForCoordinate(tilePos);
 
         if(hoveredTile != null)
         {
@@ -44,12 +45,13 @@ public class Debug : MonoBehaviour
                 $"\nMouse Pos: {mousePos.x}, {mousePos.y}";
             worldGenDebugText.text = "<b>Tile Debug</b>" +
                 $"\nTile Identity: {hoveredTile.name}" +
-                $"\nBiome: {worldEngine.GenerateBiomeForCoordinate(tilePos).Name}" + //redo with updated methods.
+                $"\nBiome: {biome.Name}" +
                 $"\n\nTemperature: {worldEngine.temperature}" +
                 $"\nHumidity: {worldEngine.precipitation}" +
                 $"\nTopology: {worldEngine.GenerateTopologyForCoordinate(tilePos)}" +
                 $"\nElevation: {worldEngine.elevation}" +
-                $"\nErosion: {worldEngine.erosion}";
+                $"\nErosion: {worldEngine.erosion}" +
+                $"\n\n Feature Info: {biome.FeatureSettings.naturalFeatures[0].type}";
             tickTimeDebugText.text = "<b>Tick Debug</b>" +
                 $"\nCurrent Time: {TickManager.Instance.GetCurrentTick()}" +
                 $"\nTick Rate: {TickManager.Instance.GetTickRate()}" +
@@ -67,9 +69,6 @@ public class Debug : MonoBehaviour
         int chunkPosX = tilePos.x - (inChunkX * Config.chunkSize);
         int chunkPosY = tilePos.y - (inChunkY * Config.chunkSize);
 
-        //can I normalize * 2 - 1? And subtract the negative of the tilePos. Then absolute it, the negative will be positive after double neg, and positive will go through absolution.
-
-        //find a mathematical way to avoid if statements.
         if(chunkPosX < 0)
         {
             chunkPosX += Config.chunkSize;
@@ -85,34 +84,27 @@ public class Debug : MonoBehaviour
 private void OnDrawGizmos()
 {
     Gizmos.color = Color.green;
+    int chunkSize = Config.chunkSize;
 
-    // Assuming chunkSize is 32 units
-    int chunkSize = 32;
-
-    // Get the player's current chunk position
     Vector3Int playerChunkPos = BiomeUtility.GetVariableChunkPosition(player.transform.position);
 
-    // Calculate the bottom-left corner of the current chunk
     Vector3 chunkOrigin = new Vector3(playerChunkPos.x * chunkSize, playerChunkPos.y * chunkSize, 0);
 
-    // Calculate the four corners of the chunk
     Vector3 bottomLeft = chunkOrigin;
     Vector3 bottomRight = chunkOrigin + new Vector3(chunkSize, 0, 0);
     Vector3 topLeft = chunkOrigin + new Vector3(0, chunkSize, 0);
     Vector3 topRight = chunkOrigin + new Vector3(chunkSize, chunkSize, 0);
 
-    // Draw the four sides of the chunk boundary
-    Gizmos.DrawLine(bottomLeft, bottomRight);  // Bottom
-    Gizmos.DrawLine(bottomRight, topRight);    // Right
-    Gizmos.DrawLine(topRight, topLeft);        // Top
-    Gizmos.DrawLine(topLeft, bottomLeft);      // Left
+    Gizmos.DrawLine(bottomLeft, bottomRight);
+    Gizmos.DrawLine(bottomRight, topRight);
+    Gizmos.DrawLine(topRight, topLeft);
+    Gizmos.DrawLine(topLeft, bottomLeft);
 }
 
 
 #region DebugLogs
 
-    public static void Log(string msg)
-    {
+    public static void Log(string msg){
         UnityEngine.Debug.Log(msg);
     }
 

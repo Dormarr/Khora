@@ -28,10 +28,7 @@ public class WorldEngine : MonoBehaviour
 
     void Awake()
     {
-        //check to see if any world data file exists, if so, pull seed from there.
-
         GetWorldSeed();
-
     }
 
     public void GetWorldSeed(){
@@ -59,37 +56,24 @@ public class WorldEngine : MonoBehaviour
         .BuildChunkData();
     }
 
-    public Biome GenerateBiomeForCoordinate(Vector3Int coordinate)
-    {
-        //this should be adjust to account for coordinates previously generated.
-
+    public Biome GenerateBiomeForCoordinate(Vector3Int coordinate){
         Vector3Int offset = new Vector3Int(Config.chunkSize / 2, Config.chunkSize / 2, 0);
-
         temperature = temperatureGenerator.GenerateCoordinatePerlin(coordinate - offset, worldSeed);
         precipitation = precipitationGenerator.GenerateCoordinatePerlin(coordinate - offset, worldSeed);
-
         return BiomeGenerator.GetBiome(temperature, precipitation);
-        //time to implement a save feature to cache the biomes and optimise the gameplay.
     }
 
     public Biome[,] GenerateBiomeForChunk(Vector3Int chunkPosition)
     {
-        //this should be adjusted to account for chunks previous generated.
-
         float[,] temperatureMap = temperatureGenerator.GenerateChunkPerlin(chunkPosition, worldSeed);
         float[,] precipitationMap = precipitationGenerator.GenerateChunkPerlin(chunkPosition, worldSeed);
-
-
         Biome[,] biomeMap = new Biome[temperatureMap.GetLength(0), precipitationMap.GetLength(1)];
 
-        for(int i = 0; i < temperatureMap.GetLength(0); i++)
-        {
-            for(int j = 0; j < precipitationMap.GetLength(1); j++)
-            {
+        for(int i = 0; i < temperatureMap.GetLength(0); i++){
+            for(int j = 0; j < precipitationMap.GetLength(1); j++){
                 biomeMap[i,j] = BiomeGenerator.GetBiome(temperatureMap[i,j], precipitationMap[i,j]);
             }
         }
-
         return biomeMap;
     }
 
@@ -105,13 +89,10 @@ public class WorldEngine : MonoBehaviour
     {
         float[,] elevationMap = elevationGenerator.GenerateChunkPerlin(chunkPosition, worldSeed);
         float[,] erosionMap = erosionGenerator.GenerateChunkPerlin(chunkPosition, worldSeed);
-
         float[,] topologyMap = new float[elevationMap.GetLength(0),erosionMap.GetLength(0)];
 
-        for(int i = 0; i < elevationMap.GetLength(0);  i++)
-        {
-            for(int j = 0; j < erosionMap.GetLength(0); j++)
-            {
+        for(int i = 0; i < elevationMap.GetLength(0);  i++){
+            for(int j = 0; j < erosionMap.GetLength(0); j++){
                 topologyMap[i, j] = TopologyGenerator.GetTopology(elevationMap[i, j], erosionMap[i, j], erosionStrength);
             }
         }
@@ -130,7 +111,6 @@ public static class BiomeGenerator
         }
         
         throw new Exception("Big whoops, unable to get biome in WorldEngine.GetBiome()");
-
     }
 }
 
@@ -139,7 +119,6 @@ public static class TopologyGenerator
     public static float GetTopology(float elevation, float erosion, float erosionStrength)
     {
         float erodedElevation = elevation - (erosion * erosionStrength);
-
         return Mathf.Clamp01(erodedElevation);
     }
 }
