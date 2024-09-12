@@ -13,6 +13,7 @@ public class Debug : MonoBehaviour
     public WorldEngine worldEngine;
 
     public Tilemap tilemap;
+    public Tilemap childTilemap;
     public TextMeshProUGUI cursorDebugText;
     public TextMeshProUGUI worldGenDebugText;
     public TextMeshProUGUI tickTimeDebugText;
@@ -27,6 +28,7 @@ public class Debug : MonoBehaviour
         Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
         try{
             tilemap = chunkManager.GetChunkTilemap().GetComponent<Tilemap>();
+            childTilemap = chunkManager.GetChunkTilemap().GetComponentInChildren<Tilemap>();
         }
         catch(Exception e){
             Log($"{e}"); 

@@ -39,7 +39,7 @@ public class WorldEngine : MonoBehaviour
         }else{
             worldSeed = Seed.GenerateSeed();
             Debug.Log($"Generated new seed: {worldSeed}");
-            WorldSaveData wsd = new WorldSaveData.Build().Seed(worldSeed).BuildWorldSaveData();
+            WorldSaveData wsd = new WorldSaveData.Build().Seed(worldSeed).Name($"{worldSeed}").BuildWorldSaveData();
             Utility.SaveWorldSaveData(wsd);
         }
     }

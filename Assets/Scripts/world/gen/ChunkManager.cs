@@ -14,13 +14,15 @@ public class ChunkManager : MonoBehaviour
     public List<TileData> modificationCache;
 
     void Awake(){
+        //redo to get rid of awake entirely.
+        Initialize();
+
+    }
+
+    void Initialize(){
         GlobalRegistry.Initialize();
         chunkCache.Clear();
         modificationCache.Clear();
-    }
-
-    void Start()
-    {
         chunkLoader.Init();
     }
 
@@ -46,9 +48,15 @@ public class ChunkManager : MonoBehaviour
 
         if (chunkCache.ContainsKey(chunkPosition)){
             GameObject chunk = chunkCache[chunkPosition];
-            Tilemap chunkTilemap = chunk.GetComponent<Tilemap>();
-            Vector3Int tilePos = chunkTilemap.WorldToCell(position);
-            return chunkTilemap.GetTile(tilePos);
+            Tilemap childChunkTilemap = chunk.GetComponentInChildren<Tilemap>();
+            Vector3Int tilePos = childChunkTilemap.WorldToCell(position);
+            TileBase tile = childChunkTilemap.GetTile(tilePos);
+            if(tile == null){
+                Tilemap chunkTilemap = chunk.GetComponent<Tilemap>();
+                tilePos = chunkTilemap.WorldToCell(position);
+                tile = chunkTilemap.GetTile(tilePos);
+            }
+            return tile;
         }
 
         return null;

@@ -34,6 +34,8 @@ public static class Utility
         string json = JsonUtility.ToJson(worldSaveData);
         File.WriteAllText(filePath, json);
         Debug.Log($"Saved '{filePath}'");
+
+        //Need to rejig along side the menu scripts to ensure loading and saving works with naming for multiple worlds.
     }
 
     public static WorldSaveData LoadWorldSaveData(){
