@@ -30,7 +30,7 @@ public static class Utility
     }
 
     public static void SaveWorldSaveData(WorldSaveData worldSaveData){
-        string filePath = GetWorldSaveDataFilePath();
+        string filePath = GetWorldSaveDataFilePath(worldSaveData.name);
         string json = JsonUtility.ToJson(worldSaveData);
         File.WriteAllText(filePath, json);
         Debug.Log($"Saved '{filePath}'");
@@ -38,8 +38,8 @@ public static class Utility
         //Need to rejig along side the menu scripts to ensure loading and saving works with naming for multiple worlds.
     }
 
-    public static WorldSaveData LoadWorldSaveData(){
-        string filePath = GetWorldSaveDataFilePath();
+    public static WorldSaveData LoadWorldSaveData(string fileName){
+        string filePath = GetWorldSaveDataFilePath(fileName + ".json");
         if(File.Exists(filePath)){
             string json = File.ReadAllText(filePath);
             Debug.Log($"Loaded chunk: {filePath}");
@@ -48,8 +48,12 @@ public static class Utility
         return null;
     }
 
+    public static string GetWorldSaveDataFilePath(string fileName){
+        return "Assets/saves/world/data/" + fileName;
+    }
+
     public static string GetWorldSaveDataFilePath(){
-        return "Assets/saves/world/data/WorldSaveData.Json";
+        return "Assets/saves/world/data/";
     }
 
 

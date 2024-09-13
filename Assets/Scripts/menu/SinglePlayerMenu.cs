@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.IO;
+using System.Linq;
 
 public class SinglePlayerMenu : MonoBehaviour
 {
@@ -32,13 +33,19 @@ public class SinglePlayerMenu : MonoBehaviour
 
         WorldSaveData[] wsds = GetWorldDataFiles();
 
+        if(wsds.Length <= 0){
+            return;
+        }
+
         foreach(WorldSaveData wsd in wsds){
             CreateWorldWidget(wsd);
         }
     }
 
     void CreateWorldWidget(WorldSaveData wsd){
-        //this is where you actually put together the game object and it's components.
+        if(wsd == null) return;
+
+        //Make this selectable.
 
         GameObject worldWidget = new GameObject($"World_{wsd.name}");
         worldWidget.transform.SetParent(content.transform);
@@ -62,8 +69,8 @@ public class SinglePlayerMenu : MonoBehaviour
         textMesh.text = textContent;
 
         textMesh.font = fontAsset;//Resources.Load<TMP_FontAsset>("Pizel");
-        textMesh.fontSize = 16;
-        textMesh.color = Color.white;
+        textMesh.fontSize = 12;
+        textMesh.color = Color.white;//Redo colour.
 
         RectTransform rectTransform = textObject.GetComponent<RectTransform>();
         rectTransform.sizeDelta = new Vector2(300, 32);
@@ -72,10 +79,19 @@ public class SinglePlayerMenu : MonoBehaviour
     WorldSaveData[] GetWorldDataFiles(){
         //get the world data files from what already exists.
         //Synthesis it all into an array and return.
-        WorldSaveData[] wsds = new WorldSaveData[1];
-        WorldSaveData wsd = Utility.LoadWorldSaveData();
-        //This will only retrieve one because the current setup doesn't support multiple worlds.
-        wsds[0] = wsd;
+        int worldCount = Directory.GetFiles(Utility.GetWorldSaveDataFilePath()).Length;
+        WorldSaveData[] wsds = new WorldSaveData[worldCount];
+
+        //string[] files = Directory.GetFilesWithoutExtension(Utility.GetWorldSaveDataFilePath());
+
+        string[] files = Directory.GetFiles(Utility.GetWorldSaveDataFilePath())
+                          .Select(Path.GetFileNameWithoutExtension)
+                          .ToArray();
+
+        for(int i = 0; i < files.Length; i++){
+            wsds[i] = Utility.LoadWorldSaveData(files[i]);
+        }
+
         return wsds;
     }
 

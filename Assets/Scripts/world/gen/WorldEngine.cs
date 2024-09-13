@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
+using System.Linq;
 using System.Threading.Tasks;
 
 //This will combine all the generated perlin noise maps and generate a final world based on the return values for coords.
@@ -28,20 +30,48 @@ public class WorldEngine : MonoBehaviour
 
     void Awake()
     {
-        GetWorldSeed();
+        string worldName = WorldDataTransfer.worldName;
+        worldSeed = WorldDataTransfer.worldSeed;
+
+        //I'll deal with this later.
+        GetWorldSeed(worldName);
     }
 
-    public void GetWorldSeed(){
-        if(File.Exists(Utility.GetWorldSaveDataFilePath())){
-            WorldSaveData wsd = Utility.LoadWorldSaveData();
+    public void GetWorldSeed(string input){
+        if(File.Exists(Utility.GetWorldSaveDataFilePath(input + ".json"))){
+            WorldSaveData wsd = Utility.LoadWorldSaveData(input + ".json");
             worldSeed = wsd.seed;
             Debug.Log($"Loaded existing seed: {worldSeed}");
         }else{
-            worldSeed = Seed.GenerateSeed();
             Debug.Log($"Generated new seed: {worldSeed}");
-            WorldSaveData wsd = new WorldSaveData.Build().Seed(worldSeed).Name($"{worldSeed}").BuildWorldSaveData();
+            //Need a better way to manage the world names, i.e. World_1, World_2, etc.
+            WorldSaveData wsd = new WorldSaveData.Build().Seed(worldSeed).Name($"{GenerateWorldName()}").BuildWorldSaveData();
             Utility.SaveWorldSaveData(wsd);
         }
+    }
+
+    public string GenerateWorldName(){
+        int highestNumber = 0;
+
+        string[] files = Directory.GetFiles(Utility.GetWorldSaveDataFilePath(), "*.json");
+
+        Regex regex = new Regex(@"New_World_(\d+)");
+
+        foreach(string file in files){
+            string fileName = Path.GetFileNameWithoutExtension(file);
+
+            Match match = regex.Match(fileName);
+            if(match.Success){
+                int currentNumber = int.Parse(match.Groups[1].Value);
+
+                if(currentNumber > highestNumber){
+                    highestNumber = currentNumber;
+                }
+            }
+        }
+
+
+        return $"New_World_{highestNumber + 1}";
     }
 
     public async Task<ChunkData> GenerateChunkAsync(Vector3Int chunkPosition){
