@@ -32,9 +32,9 @@ public class ChunkLoader : MonoBehaviour
     private Vector2 playerPosition;
     [SerializeField] private GameObject player;
 
-    public void Init()
+    public void Initialize()
     {
-        seed = worldEngine.worldSeed;
+        seed = WorldDataTransfer.worldSeed;
 
         playerPosition = player.transform.position;
         playerChunkPosition = BiomeUtility.GetVariableChunkPosition(playerPosition);

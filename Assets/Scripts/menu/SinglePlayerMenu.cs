@@ -31,7 +31,7 @@ public class SinglePlayerMenu : MonoBehaviour
     void ListWorlds(){
         //populate the content gameobject with world widgets for each world data file as children.
 
-        WorldSaveData[] wsds = GetWorldDataFiles();
+        WorldSaveData[] wsds = Utility.GetWorldDataFiles();
 
         if(wsds.Length <= 0){
             return;
@@ -45,8 +45,6 @@ public class SinglePlayerMenu : MonoBehaviour
     void CreateWorldWidget(WorldSaveData wsd){
         if(wsd == null) return;
 
-        //Make this selectable.
-
         GameObject worldWidget = new GameObject($"World_{wsd.name}");
         worldWidget.transform.SetParent(content.transform);
 
@@ -59,6 +57,24 @@ public class SinglePlayerMenu : MonoBehaviour
         CreateTextElement(worldWidget, $"Name: {wsd.name}");
         CreateTextElement(worldWidget, $"Seed: {wsd.seed}");
         //add directly to content.
+
+        Button button = worldWidget.AddComponent<Button>();
+        button.onClick.AddListener(() => SelectWorld(wsd));
+
+        ColorBlock cb = button.colors;
+        cb.normalColor = Color.white;
+        cb.highlightedColor = Color.grey;
+        button.colors = cb;
+
+        //Selectable functionality in place, need to sort out UI.
+
+    }
+
+    void SelectWorld(WorldSaveData wsd){
+        WorldDataTransfer.worldName = wsd.name;
+        WorldDataTransfer.worldSeed = wsd.seed;
+        //assign world transfer stuff.
+        Debug.Log($"Selected world: {wsd.name}");
     }
 
     void CreateTextElement(GameObject parent, string textContent){
@@ -75,28 +91,4 @@ public class SinglePlayerMenu : MonoBehaviour
         RectTransform rectTransform = textObject.GetComponent<RectTransform>();
         rectTransform.sizeDelta = new Vector2(300, 32);
     }
-
-    WorldSaveData[] GetWorldDataFiles(){
-        //get the world data files from what already exists.
-        //Synthesis it all into an array and return.
-        int worldCount = Directory.GetFiles(Utility.GetWorldSaveDataFilePath()).Length;
-        WorldSaveData[] wsds = new WorldSaveData[worldCount];
-
-        //string[] files = Directory.GetFilesWithoutExtension(Utility.GetWorldSaveDataFilePath());
-
-        string[] files = Directory.GetFiles(Utility.GetWorldSaveDataFilePath())
-                          .Select(Path.GetFileNameWithoutExtension)
-                          .ToArray();
-
-        for(int i = 0; i < files.Length; i++){
-            wsds[i] = Utility.LoadWorldSaveData(files[i]);
-        }
-
-        return wsds;
-    }
-
-
-    //Create new world. -> go to new world gen menu.
-    //Delete selected world.
-    //Play selected world.
 }

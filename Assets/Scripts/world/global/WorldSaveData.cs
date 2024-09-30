@@ -8,6 +8,7 @@ public class WorldSaveData
 {
     public int seed;
     public string name;
+    public string date;
 
 
     WorldSaveData(int seed, string name){

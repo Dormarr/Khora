@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 public class WorldEngine : MonoBehaviour
 {
     public float erosionStrength;
+    public string worldName;
     public int worldSeed;
 
     public PerlinGenerator temperatureGenerator;
@@ -30,7 +31,7 @@ public class WorldEngine : MonoBehaviour
 
     void Awake()
     {
-        string worldName = WorldDataTransfer.worldName;
+        worldName = WorldDataTransfer.worldName;
         worldSeed = WorldDataTransfer.worldSeed;
 
         //I'll deal with this later.
@@ -38,27 +39,34 @@ public class WorldEngine : MonoBehaviour
     }
 
     public void GetWorldSeed(string input){
-        if(File.Exists(Utility.GetWorldSaveDataFilePath(input + ".json"))){
-            WorldSaveData wsd = Utility.LoadWorldSaveData(input + ".json");
+        if(File.Exists(Utility.GetWorldSaveDataFilePath(input))){
+            WorldSaveData wsd = Utility.LoadWorldSaveData(input);
             worldSeed = wsd.seed;
-            Debug.Log($"Loaded existing seed: {worldSeed}");
         }else{
-            Debug.Log($"Generated new seed: {worldSeed}");
-            //Need a better way to manage the world names, i.e. World_1, World_2, etc.
             WorldSaveData wsd = new WorldSaveData.Build().Seed(worldSeed).Name($"{GenerateWorldName()}").BuildWorldSaveData();
             Utility.SaveWorldSaveData(wsd);
         }
     }
 
     public string GenerateWorldName(){
+        
+        if(worldName != null && worldName != ""){
+            return WorldDataTransfer.worldName;
+        }
+        
         int highestNumber = 0;
 
-        string[] files = Directory.GetFiles(Utility.GetWorldSaveDataFilePath(), "*.json");
+        WorldSaveData[] wsds = Utility.GetWorldDataFiles();
+        List<string> worldNames = new List<string>();
+
+        foreach(WorldSaveData wsd in wsds){
+            worldNames.Add(wsd.name);
+        }
 
         Regex regex = new Regex(@"New_World_(\d+)");
 
-        foreach(string file in files){
-            string fileName = Path.GetFileNameWithoutExtension(file);
+        foreach(string worldName in worldNames){
+            string fileName = Path.GetFileNameWithoutExtension(worldName);
 
             Match match = regex.Match(fileName);
             if(match.Success){
@@ -70,8 +78,9 @@ public class WorldEngine : MonoBehaviour
             }
         }
 
-
-        return $"New_World_{highestNumber + 1}";
+        string finalWorldName = $"New_World_{highestNumber + 1}";
+        WorldDataTransfer.worldName = finalWorldName;
+        return finalWorldName;
     }
 
     public async Task<ChunkData> GenerateChunkAsync(Vector3Int chunkPosition){

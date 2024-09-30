@@ -20,6 +20,7 @@ public class PlayerController : MonoBehaviour
 
     private Vector2 moveInput;
     private Rigidbody2D rb;
+    public PauseMenu pauseMenu;
 
     void Awake()
     {
@@ -60,6 +61,15 @@ public class PlayerController : MonoBehaviour
 
         chunkManager.modificationCache.Add(new TileData(mouseGridPos.x, mouseGridPos.y, blankTile.name));
         targetChunk.GetComponentInChildren<Tilemap>().SetTile(mouseGridPos, blankTile);        
+    }
+
+    void OnEsc(){
+        if(pauseMenu.isPaused){
+            pauseMenu.Resume();
+        }
+        else{
+            pauseMenu.Pause();
+        }
     }
 
 

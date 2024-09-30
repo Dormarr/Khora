@@ -14,7 +14,7 @@ public class Seed
 
 #nullable enable
     public static int GenerateSeed(string? input = null){
-        if(input != null || input == ""){
+        if(input != null && input != ""){
             return GenerateSeedFromString(input);
         }
         return GenerateRandomSeed();
@@ -24,6 +24,7 @@ public class Seed
     private static int GenerateRandomSeed(){
         System.Random random = new System.Random();
         seed = random.Next(0, int.MaxValue);
+        Debug.Log($"Generated random seed: {seed}");
         return seed;
     }
 
@@ -35,7 +36,7 @@ public class Seed
             seed = BitConverter.ToInt32(hashBytes, 0);
 
             seed = Mathf.Abs(seed);
-            Debug.Log("Generated seed from string.");
+            Debug.Log($"Generated seed from string: {seed}");
             return seed;
         }
     }

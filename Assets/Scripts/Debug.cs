@@ -38,13 +38,13 @@ public class Debug : MonoBehaviour
         TileBase hoveredTile = chunkManager.IdentifyTile(mouseWorldPos);
         Biome biome = worldEngine.GenerateBiomeForCoordinate(tilePos);
 
+        cursorDebugText.text = "<b>Cursor Coordinates</b>" + 
+            $"\nGlobal: {tilePos.x}, {tilePos.y}" + 
+            $"\n{ChunkPositionDebug()}" + 
+            $"\nChunk Cache: {chunkManager.chunkCache.Count}" +
+            $"\nMouse Pos: {mousePos.x}, {mousePos.y}";
         if(hoveredTile != null)
         {
-            cursorDebugText.text = "<b>Cursor Coordinates</b>" + 
-                $"\nGlobal: {tilePos.x}, {tilePos.y}" + 
-                $"\n{ChunkPositionDebug()}" + 
-                $"\nChunk Cache: {chunkManager.chunkCache.Count}" +
-                $"\nMouse Pos: {mousePos.x}, {mousePos.y}";
             worldGenDebugText.text = "<b>Tile Debug</b>" +
                 $"\nTile Identity: {hoveredTile.name}" +
                 $"\nBiome: {biome.Name}" +
@@ -54,13 +54,12 @@ public class Debug : MonoBehaviour
                 $"\nElevation: {worldEngine.elevation}" +
                 $"\nErosion: {worldEngine.erosion}" +
                 $"\n\n Feature Info: {biome.FeatureSettings.naturalFeatures[0].type}";
-            tickTimeDebugText.text = "<b>Tick Debug</b>" +
-                $"\nCurrent Time: {TickManager.Instance.GetCurrentTick()}" +
-                $"\nTick Rate: {TickManager.Instance.GetTickRate()}" +
-                $"\nActual Tick Rate: {TickManager.Instance.GetActualTickRate()}" +
-                $"\nElapsed Time: {TickManager.Instance.GetActualElapsedTime()}";
-
         }
+        tickTimeDebugText.text = "<b>Tick Debug</b>" +
+            $"\nCurrent Time: {TickManager.Instance.GetCurrentTick()}" +
+            $"\nTick Rate: {TickManager.Instance.GetTickRate()}" +
+            $"\nActual Tick Rate: {TickManager.Instance.GetActualTickRate()}" +
+            $"\nElapsed Time: {TickManager.Instance.GetActualElapsedTime()}";
     }
 
     string ChunkPositionDebug()
@@ -83,25 +82,25 @@ public class Debug : MonoBehaviour
         return $"Chunk {chunkPosX}, {chunkPosY} in {inChunkX}, {inChunkY}";
     }
 
-private void OnDrawGizmos()
-{
-    Gizmos.color = Color.green;
-    int chunkSize = Config.chunkSize;
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+        int chunkSize = Config.chunkSize;
 
-    Vector3Int playerChunkPos = BiomeUtility.GetVariableChunkPosition(player.transform.position);
+        Vector3Int playerChunkPos = BiomeUtility.GetVariableChunkPosition(player.transform.position);
 
-    Vector3 chunkOrigin = new Vector3(playerChunkPos.x * chunkSize, playerChunkPos.y * chunkSize, 0);
+        Vector3 chunkOrigin = new Vector3(playerChunkPos.x * chunkSize, playerChunkPos.y * chunkSize, 0);
 
-    Vector3 bottomLeft = chunkOrigin;
-    Vector3 bottomRight = chunkOrigin + new Vector3(chunkSize, 0, 0);
-    Vector3 topLeft = chunkOrigin + new Vector3(0, chunkSize, 0);
-    Vector3 topRight = chunkOrigin + new Vector3(chunkSize, chunkSize, 0);
+        Vector3 bottomLeft = chunkOrigin;
+        Vector3 bottomRight = chunkOrigin + new Vector3(chunkSize, 0, 0);
+        Vector3 topLeft = chunkOrigin + new Vector3(0, chunkSize, 0);
+        Vector3 topRight = chunkOrigin + new Vector3(chunkSize, chunkSize, 0);
 
-    Gizmos.DrawLine(bottomLeft, bottomRight);
-    Gizmos.DrawLine(bottomRight, topRight);
-    Gizmos.DrawLine(topRight, topLeft);
-    Gizmos.DrawLine(topLeft, bottomLeft);
-}
+        Gizmos.DrawLine(bottomLeft, bottomRight);
+        Gizmos.DrawLine(bottomRight, topRight);
+        Gizmos.DrawLine(topRight, topLeft);
+        Gizmos.DrawLine(topLeft, bottomLeft);
+    }
 
 
 #region DebugLogs

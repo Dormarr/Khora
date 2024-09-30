@@ -5,8 +5,6 @@ using UnityEngine.Tilemaps;
 
 public class ChunkManager : MonoBehaviour
 {
-    public bool gate = false;
-
     [SerializeField] private ChunkLoader chunkLoader;
 
     public Dictionary<Vector3Int, GameObject> chunkCache = new Dictionary<Vector3Int, GameObject>();
@@ -15,15 +13,13 @@ public class ChunkManager : MonoBehaviour
 
     void Awake(){
         //redo to get rid of awake entirely.
-        Initialize();
-
-    }
-
-    void Initialize(){
-        GlobalRegistry.Initialize();
         chunkCache.Clear();
         modificationCache.Clear();
-        chunkLoader.Init();
+        GlobalRegistry.Initialize();
+    }
+
+    void Start(){
+        chunkLoader.Initialize();
     }
 
     public void AddChunk(Vector3Int chunkPosition, GameObject chunk)
@@ -80,6 +76,9 @@ public class ChunkManager : MonoBehaviour
 
     public void SaveChunk(Vector3Int chunkPosition, ChunkData chunkData){
         string filePath = ChunkSerializer.GetChunkFilePath(chunkPosition);
+
+        //load and add data on top, save as the same file, overwrite with changes.
+
         ChunkSerializer.SaveChunk(chunkData, filePath);
     }
 

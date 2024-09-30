@@ -31,6 +31,14 @@ public static class Utility
 
     public static void SaveWorldSaveData(WorldSaveData worldSaveData){
         string filePath = GetWorldSaveDataFilePath(worldSaveData.name);
+
+
+        string directory = $"Assets/saves/{worldSaveData.name}/data";
+        if(!Directory.Exists(filePath)){
+            Directory.CreateDirectory(directory);
+            Debug.Log($"Created World Save File Path: {filePath}");
+        }
+
         string json = JsonUtility.ToJson(worldSaveData);
         File.WriteAllText(filePath, json);
         Debug.Log($"Saved '{filePath}'");
@@ -39,7 +47,7 @@ public static class Utility
     }
 
     public static WorldSaveData LoadWorldSaveData(string fileName){
-        string filePath = GetWorldSaveDataFilePath(fileName + ".json");
+        string filePath = GetWorldSaveDataFilePath(fileName);
         if(File.Exists(filePath)){
             string json = File.ReadAllText(filePath);
             Debug.Log($"Loaded chunk: {filePath}");
@@ -49,12 +57,36 @@ public static class Utility
     }
 
     public static string GetWorldSaveDataFilePath(string fileName){
-        return "Assets/saves/world/data/" + fileName;
+        return $"Assets/saves/{fileName}/data/{fileName}.json";
     }
 
-    public static string GetWorldSaveDataFilePath(){
-        return "Assets/saves/world/data/";
+    public static WorldSaveData[] GetWorldDataFiles(){
+        string[] worldDirectories = Directory.GetDirectories("Assets/saves/");
+
+        List<WorldSaveData> worldSaveDataList = new List<WorldSaveData>();
+
+        foreach(string worldDir in worldDirectories){
+            string dataFolder = Path.Combine(worldDir, "data");
+
+            string worldName = Path.GetFileName(worldDir);
+            string worldSaveFilePath = Path.Combine(dataFolder, $"{worldName}.json");
+
+            //string worldSaveFilePath = $"Assets/saves/{worldName}/data/{worldName}.json";
+
+            if(File.Exists(worldSaveFilePath)){
+                WorldSaveData wsd = LoadWorldSaveData(worldName);
+                if(wsd != null){
+                    worldSaveDataList.Add(wsd);
+                }
+                else{
+                    Debug.LogError($"Failed to load WorldSaveData from {worldSaveFilePath}");
+                }
+            }
+            else{
+                Debug.LogWarning($"World save file not found: {worldSaveFilePath}");
+            }
+        }
+
+        return worldSaveDataList.ToArray();
     }
-
-
 }

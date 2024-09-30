@@ -8,7 +8,6 @@ public static class ChunkSerializer
 {
     public static void SaveChunk(ChunkData chunkData, string filePath){
         string json = JsonUtility.ToJson(chunkData);
-        //It's not saving the biomeMap to the json file.
         File.WriteAllText(filePath, json);
     }
 
@@ -22,7 +21,12 @@ public static class ChunkSerializer
     }
 
     public static string GetChunkFilePath(Vector3Int chunkPosition){
-        return $"Assets/saves/world/chunks/chunk_{chunkPosition.x}_{chunkPosition.y}.json";
+        //return $"Assets/saves/world/chunks/chunk_{chunkPosition.x}_{chunkPosition.y}.json";
+        string directory = $"Assets/saves/{WorldDataTransfer.worldName}/chunks/";
+        if(!Directory.Exists(directory)){
+            Directory.CreateDirectory(directory);
+        }
+        return $"{directory}/chunk_{chunkPosition.x}_{chunkPosition.y}.json";
     }
 }
 

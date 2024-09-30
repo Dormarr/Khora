@@ -8,13 +8,14 @@ public class CreateWorldButton : MonoBehaviour
 {
     public TMP_InputField worldNameInput;
     public TMP_InputField seedInput;
+    private int seed;
 
     public void OnCreateWorldButtonClick(){
         string worldName = worldNameInput.text;
-        int seed = Seed.GenerateSeed();
 
         if(!int.TryParse(seedInput.text, out seed)){
             Debug.LogError("No seed input. Creating new.");
+            seed = Seed.GenerateSeed(seedInput.text);
         }
 
         WorldDataTransfer.worldName = worldName;
