@@ -51,7 +51,7 @@ public class PlayerController : MonoBehaviour
 
     void OnMouseDown(InputValue value){
 
-        GameObject targetChunk = chunkManager.GetChunkTilemap(); //grabs by mouse position.
+        GameObject targetChunk = chunkManager.GetChunkGameObject(); //grabs by mouse position.
         targetChunk = targetChunk.transform.GetChild(0).gameObject;
         Vector3Int mouseGridPos = grid.WorldToCell(Utility.GetMouseWorldPosition());
 

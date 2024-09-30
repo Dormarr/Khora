@@ -39,9 +39,7 @@ public class ChunkManager : MonoBehaviour
 
     public TileBase IdentifyTile(Vector3 position)
     {
-        int chunkPositionX = Mathf.FloorToInt((float)position.x / Config.chunkSize);
-        int chunkPositionY = Mathf.FloorToInt((float)position.y / Config.chunkSize);
-        Vector3Int chunkPosition = new Vector3Int(chunkPositionX, chunkPositionY, 0);
+        Vector3Int chunkPosition = Utility.GetChunkPosition(position);
 
         if (chunkCache.ContainsKey(chunkPosition)){
             GameObject chunk = chunkCache[chunkPosition];
@@ -49,9 +47,12 @@ public class ChunkManager : MonoBehaviour
             Vector3Int tilePos = childChunkTilemap.WorldToCell(position);
             TileBase tile = childChunkTilemap.GetTile(tilePos);
             if(tile == null){
+                Debug.Log($"IdentifyTile: {tile.name}");
                 Tilemap chunkTilemap = chunk.GetComponent<Tilemap>();
                 tilePos = chunkTilemap.WorldToCell(position);
                 tile = chunkTilemap.GetTile(tilePos);
+                Debug.Log($"IdentifyTile: {tile.name}");
+
             }
             return tile;
         }

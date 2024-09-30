@@ -30,6 +30,7 @@ public class PauseMenu : MonoBehaviour
         //save the game.
         ChunkManager cm = GameObject.Find("ChunkManager").GetComponent<ChunkManager>();
         cm.SaveModifications();
+        Resume();
         SceneManager.LoadScene("Title");
     }
 }

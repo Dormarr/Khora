@@ -59,8 +59,8 @@ public class Debug : MonoBehaviour
             $"\nHumidity: {worldEngine.precipitation}" +
             $"\nTopology: {worldEngine.GenerateTopologyForCoordinate(tilePos)}" +
             $"\nElevation: {worldEngine.elevation}" +
-            $"\nErosion: {worldEngine.erosion}" +
-            $"\n\n Feature Info: {biome.FeatureSettings.naturalFeatures[0].type}";
+            $"\nErosion: {worldEngine.erosion}";
+            //$"\n\n Feature Info: {biome.FeatureSettings.naturalFeatures[0].type}";
         tickTimeDebugText.text = "<b>Tick Debug</b>" +
             $"\nCurrent Time: {TickManager.Instance.GetCurrentTick()}" +
             $"\nTick Rate: {TickManager.Instance.GetTickRate()}" +
@@ -70,22 +70,21 @@ public class Debug : MonoBehaviour
 
     string ChunkPositionDebug()
     {
-        int inChunkX = Mathf.FloorToInt((float)tilePos.x / Config.chunkSize);
-        int inChunkY = Mathf.FloorToInt((float)tilePos.y / Config.chunkSize);
+        Vector3Int chunkPos = Utility.GetChunkPosition(tilePos);
 
-        int chunkPosX = tilePos.x - (inChunkX * Config.chunkSize);
-        int chunkPosY = tilePos.y - (inChunkY * Config.chunkSize);
+        int withinChunkPosX = tilePos.x - (chunkPos.x * Config.chunkSize);
+        int withinChunkPosY = tilePos.y - (chunkPos.y * Config.chunkSize);
 
-        if(chunkPosX < 0)
-        {
-            chunkPosX += Config.chunkSize;
-        }
-        if(chunkPosY < 0)
-        {
-            chunkPosY += Config.chunkSize;
-        }
+        // if(withinChunkPosX < 0)
+        // {
+        //     withinChunkPosX += Config.chunkSize;
+        // }
+        // if(withinChunkPosY < 0)
+        // {
+        //     withinChunkPosY += Config.chunkSize;
+        // }
 
-        return $"Chunk {chunkPosX}, {chunkPosY} in {inChunkX}, {inChunkY}";
+        return $"Chunk {withinChunkPosX}, {withinChunkPosY} in {chunkPos.x}, {chunkPos.y}";
     }
 
     private void OnDrawGizmos()

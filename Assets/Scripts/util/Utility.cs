@@ -29,6 +29,13 @@ public static class Utility
         return mouseWorldPos;
     }
 
+    public static Vector3Int GetChunkPosition(Vector3 position){
+        int chunkPositionX = Mathf.FloorToInt((float)position.x / Config.chunkSize);
+        int chunkPositionY = Mathf.FloorToInt((float)position.y / Config.chunkSize);
+        Vector3Int chunkPosition = new Vector3Int(chunkPositionX, chunkPositionY, 0);
+        return chunkPosition;
+    }
+
     public static void SaveWorldSaveData(WorldSaveData worldSaveData){
         string filePath = GetWorldSaveDataFilePath(worldSaveData.name);
 

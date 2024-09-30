@@ -125,6 +125,10 @@ public class ChunkLoader : MonoBehaviour
 
         ChunkData chunkData = await worldEngine.GenerateChunkAsync(chunkPosition);
         ChunkData modChunkData = chunkManager.LoadChunk(chunkPosition);
+
+        //Could be an issue where chunkData isn't finished before the biomeMap is populated.
+        //Need to figure out how to wait for the data to be done before proceeding without messing up async.
+
         Biome[,] biomeMap = BiomeUtility.ListToArray(chunkData.biomeMapList, chunkSize, chunkSize);
 
         DrawBiomeMap(biomeMap, chunkTilemap, chunkPosition);
