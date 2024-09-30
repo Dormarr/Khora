@@ -12,8 +12,8 @@ public class Debug : MonoBehaviour
     public ChunkManager chunkManager;
     public WorldEngine worldEngine;
 
-    public Tilemap tilemap;
-    public Tilemap childTilemap;
+    private Tilemap tilemap;
+    private Tilemap childTilemap;
     public TextMeshProUGUI cursorDebugText;
     public TextMeshProUGUI worldGenDebugText;
     public TextMeshProUGUI tickTimeDebugText;
@@ -27,8 +27,8 @@ public class Debug : MonoBehaviour
         mousePos = Utility.GetMousePosition();
         Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
         try{
-            tilemap = chunkManager.GetChunkTilemap().GetComponent<Tilemap>();
-            childTilemap = chunkManager.GetChunkTilemap().GetComponentInChildren<Tilemap>();
+            tilemap = chunkManager.GetChunkGameObject().GetComponent<Tilemap>();
+            childTilemap = chunkManager.GetChunkGameObject().GetComponentInChildren<Tilemap>();
         }
         catch(Exception e){
             Log($"{e}"); 

@@ -59,7 +59,7 @@ public class ChunkManager : MonoBehaviour
         return null;
     }
 
-    public GameObject GetChunkTilemap()
+    public GameObject GetChunkGameObject()
     {
         Vector3Int chunkPosition = BiomeUtility.GetVariableChunkPosition(Utility.GetMouseWorldPosition());
         if (chunkCache.ContainsKey(chunkPosition)){
