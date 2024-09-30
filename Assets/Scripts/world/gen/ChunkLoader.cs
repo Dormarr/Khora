@@ -38,6 +38,8 @@ public class ChunkLoader : MonoBehaviour
 
         playerPosition = player.transform.position;
         playerChunkPosition = BiomeUtility.GetVariableChunkPosition(playerPosition);
+        
+        //Should I wait for the registries to be done?
         LoadChunksAroundPlayer();
     }
     

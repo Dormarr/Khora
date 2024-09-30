@@ -55,6 +55,7 @@ public class SinglePlayerMenu : MonoBehaviour
         VerticalLayoutGroup layoutGroup = worldWidget.AddComponent<VerticalLayoutGroup>();
 
         CreateTextElement(worldWidget, $"Name: {wsd.name}");
+        CreateTextElement(worldWidget, $"Last Played: {wsd.date}");
         CreateTextElement(worldWidget, $"Seed: {wsd.seed}");
         //add directly to content.
 
@@ -73,6 +74,7 @@ public class SinglePlayerMenu : MonoBehaviour
     void SelectWorld(WorldSaveData wsd){
         WorldDataTransfer.worldName = wsd.name;
         WorldDataTransfer.worldSeed = wsd.seed;
+        WorldDataTransfer.worldDate = Utility.GetDateTimeString();
         //assign world transfer stuff.
         Debug.Log($"Selected world: {wsd.name}");
     }

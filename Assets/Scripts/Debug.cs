@@ -34,27 +34,33 @@ public class Debug : MonoBehaviour
             Log($"{e}"); 
         }
 
+
         tilePos = tilemap.WorldToCell(mouseWorldPos);
         TileBase hoveredTile = chunkManager.IdentifyTile(mouseWorldPos);
         Biome biome = worldEngine.GenerateBiomeForCoordinate(tilePos);
+
+        if(hoveredTile == null){
+            Debug.Log("HoveredTile is null buddy.");
+        }
+
+        if(biome == null){
+            Debug.Log("Biome is null fella.");
+        }
 
         cursorDebugText.text = "<b>Cursor Coordinates</b>" + 
             $"\nGlobal: {tilePos.x}, {tilePos.y}" + 
             $"\n{ChunkPositionDebug()}" + 
             $"\nChunk Cache: {chunkManager.chunkCache.Count}" +
             $"\nMouse Pos: {mousePos.x}, {mousePos.y}";
-        if(hoveredTile != null)
-        {
-            worldGenDebugText.text = "<b>Tile Debug</b>" +
-                $"\nTile Identity: {hoveredTile.name}" +
-                $"\nBiome: {biome.Name}" +
-                $"\n\nTemperature: {worldEngine.temperature}" +
-                $"\nHumidity: {worldEngine.precipitation}" +
-                $"\nTopology: {worldEngine.GenerateTopologyForCoordinate(tilePos)}" +
-                $"\nElevation: {worldEngine.elevation}" +
-                $"\nErosion: {worldEngine.erosion}" +
-                $"\n\n Feature Info: {biome.FeatureSettings.naturalFeatures[0].type}";
-        }
+        worldGenDebugText.text = "<b>Tile Debug</b>" +
+            $"\nTile Identity: {hoveredTile.name}" +
+            $"\nBiome: {biome.Name}" +
+            $"\n\nTemperature: {worldEngine.temperature}" +
+            $"\nHumidity: {worldEngine.precipitation}" +
+            $"\nTopology: {worldEngine.GenerateTopologyForCoordinate(tilePos)}" +
+            $"\nElevation: {worldEngine.elevation}" +
+            $"\nErosion: {worldEngine.erosion}" +
+            $"\n\n Feature Info: {biome.FeatureSettings.naturalFeatures[0].type}";
         tickTimeDebugText.text = "<b>Tick Debug</b>" +
             $"\nCurrent Time: {TickManager.Instance.GetCurrentTick()}" +
             $"\nTick Rate: {TickManager.Instance.GetTickRate()}" +
@@ -64,7 +70,7 @@ public class Debug : MonoBehaviour
 
     string ChunkPositionDebug()
     {
-        int inChunkX = Mathf.FloorToInt((float)tilePos.x / Config.chunkSize); //fix 0,0 issue
+        int inChunkX = Mathf.FloorToInt((float)tilePos.x / Config.chunkSize);
         int inChunkY = Mathf.FloorToInt((float)tilePos.y / Config.chunkSize);
 
         int chunkPosX = tilePos.x - (inChunkX * Config.chunkSize);

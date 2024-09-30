@@ -41,9 +41,14 @@ public class WorldEngine : MonoBehaviour
     public void GetWorldSeed(string input){
         if(File.Exists(Utility.GetWorldSaveDataFilePath(input))){
             WorldSaveData wsd = Utility.LoadWorldSaveData(input);
+            wsd.date = Utility.GetDateTimeString();
             worldSeed = wsd.seed;
         }else{
-            WorldSaveData wsd = new WorldSaveData.Build().Seed(worldSeed).Name($"{GenerateWorldName()}").BuildWorldSaveData();
+            WorldSaveData wsd = new WorldSaveData.Build()
+                .Seed(worldSeed)
+                .Name($"{GenerateWorldName()}")
+                .Date(Utility.GetDateTimeString())
+                .BuildWorldSaveData();
             Utility.SaveWorldSaveData(wsd);
         }
     }
@@ -149,7 +154,7 @@ public static class BiomeGenerator
             return biome;
         }
         
-        throw new Exception("Big whoops, unable to get biome in WorldEngine.GetBiome()");
+        throw new Exception("Big whoops, cannot find biome in registry.");
     }
 }
 

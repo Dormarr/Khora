@@ -7,8 +7,22 @@ public static class GlobalRegistry
 {
     public static CategoryRegistry categoryRegistry = new CategoryRegistry();
 
+    public static void Bootstrap(){
+        if(Gates.registryGate == Gate.Open && Gates.biomeClimateRegistryGate == Gate.Open){
+            Initialize();
+            Gates.registryGate = Gate.Closed;
+        }
+        else if(Gates.registryGate == Gate.Ajar){
+            Bootstrap();
+        }else{
+            return;
+        }
+    }
+
     public static void Initialize(){
         //Consider order of initialization.
+        Gates.registryGate = Gate.Ajar;
+
         InitializeRegistry<NaturalFeature>("naturalFeatures", FeatureManager.InitializeNaturalFeatures);
         InitializeRegistry<Biome>("biomes", BiomeManager.InitializeBiomes);
 

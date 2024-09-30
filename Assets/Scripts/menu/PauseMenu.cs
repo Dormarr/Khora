@@ -28,6 +28,8 @@ public class PauseMenu : MonoBehaviour
 
     public void QuitToMain(){
         //save the game.
+        ChunkManager cm = GameObject.Find("ChunkManager").GetComponent<ChunkManager>();
+        cm.SaveModifications();
         SceneManager.LoadScene("Title");
     }
 }

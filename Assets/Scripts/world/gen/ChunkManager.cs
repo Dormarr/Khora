@@ -15,7 +15,8 @@ public class ChunkManager : MonoBehaviour
         //redo to get rid of awake entirely.
         chunkCache.Clear();
         modificationCache.Clear();
-        GlobalRegistry.Initialize();
+
+        GlobalRegistry.Bootstrap();
     }
 
     void Start(){
@@ -38,8 +39,8 @@ public class ChunkManager : MonoBehaviour
 
     public TileBase IdentifyTile(Vector3 position)
     {
-        int chunkPositionX = Mathf.FloorToInt(position.x / Config.chunkSize);
-        int chunkPositionY = Mathf.FloorToInt(position.y / Config.chunkSize);
+        int chunkPositionX = Mathf.FloorToInt((float)position.x / Config.chunkSize);
+        int chunkPositionY = Mathf.FloorToInt((float)position.y / Config.chunkSize);
         Vector3Int chunkPosition = new Vector3Int(chunkPositionX, chunkPositionY, 0);
 
         if (chunkCache.ContainsKey(chunkPosition)){

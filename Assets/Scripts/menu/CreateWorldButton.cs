@@ -20,7 +20,10 @@ public class CreateWorldButton : MonoBehaviour
 
         WorldDataTransfer.worldName = worldName;
         WorldDataTransfer.worldSeed = seed;
+        WorldDataTransfer.worldDate = Utility.GetDateTimeString();
 
+
+        //Redo scene management to increase to singleplayer scene. Stanmdardise the process.
         SceneManager.LoadScene("TerrainGen");
     }
 }

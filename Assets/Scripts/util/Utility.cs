@@ -89,4 +89,8 @@ public static class Utility
 
         return worldSaveDataList.ToArray();
     }
+
+    public static string GetDateTimeString(){
+        return System.DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+    }
 }

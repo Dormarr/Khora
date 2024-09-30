@@ -56,6 +56,7 @@ public static class BiomeManager
         BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.3f,0.5f,0.3f,0.7f), biomeRegistry.Get("taiga"));
         
         Debug.Log("Successfully registered BiomeClimateRegistry()");
-    }
 
+        Gates.biomeClimateRegistryGate = Gate.Closed;
+    }
 }
