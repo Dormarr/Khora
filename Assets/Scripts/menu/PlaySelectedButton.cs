@@ -6,6 +6,6 @@ using UnityEngine.SceneManagement;
 public class PlaySelectedButton : MonoBehaviour
 {
     public void OnPlaySelectedWorldButtonClick(){
-        SceneManager.LoadScene("TerrainGen");
+        SceneManager.LoadScene("Singleplayer");
     }
 }

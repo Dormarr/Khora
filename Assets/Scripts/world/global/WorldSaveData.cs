@@ -38,7 +38,7 @@ public class WorldSaveData
         }
 
         public WorldSaveData BuildWorldSaveData(){
-            if(this.seed != null && this.name != null && this.date != null){
+            if(this.seed != 0 && this.name != null && this.date != null){
                 return new WorldSaveData(seed, name, date);
             }else{
                 throw new Exception($"Missing WorldSaveData parameter\n {this}");

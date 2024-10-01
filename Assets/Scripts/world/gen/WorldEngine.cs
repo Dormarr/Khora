@@ -17,6 +17,7 @@ public class WorldEngine : MonoBehaviour
     public float erosionStrength;
     public string worldName;
     public int worldSeed;
+    public string worldDate;
 
     public PerlinGenerator temperatureGenerator;
     public PerlinGenerator precipitationGenerator;
@@ -44,18 +45,39 @@ public class WorldEngine : MonoBehaviour
             wsd.date = Utility.GetDateTimeString();
             worldSeed = wsd.seed;
         }else{
-            WorldSaveData wsd = new WorldSaveData.Build()
-                .Seed(worldSeed)
-                .Name($"{GenerateWorldName()}")
-                .Date(Utility.GetDateTimeString())
-                .BuildWorldSaveData();
-            Utility.SaveWorldSaveData(wsd);
+            SaveNewWorldSaveData($"{GenerateWorldName()}", worldSeed, Utility.GetDateTimeString());
         }
+    }
+
+    public void SaveNewWorldSaveData(string name, int seed, string date){
+        worldName = name;
+        worldSeed = seed;
+        worldDate = date;
+        WorldSaveData wsd = new WorldSaveData.Build()
+            .Seed(seed)
+            .Name(name)
+            .Date(date)
+            .BuildWorldSaveData();
+        Utility.SaveWorldSaveData(wsd);
+    }
+
+    public void UpdateWorldSaveData(string? name = null, string? date = null){
+        string updatedName = !string.IsNullOrEmpty(name)? name : worldName;
+        string updatedDate = !string.IsNullOrEmpty(date)? date : worldDate;
+        
+        WorldSaveData wsd = new WorldSaveData.Build()
+            .Seed(worldSeed)//this should never need updating beyond initialisation.
+            .Name(updatedName)
+            .Date(updatedDate)
+            .BuildWorldSaveData();
+        Utility.SaveWorldSaveData(wsd);
     }
 
     public string GenerateWorldName(){
         
-        if(worldName != null && worldName != ""){
+        //add in a system for what if the input name is already the name of a world.
+
+        if(string.IsNullOrEmpty(worldName)){
             return WorldDataTransfer.worldName;
         }
         

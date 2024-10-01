@@ -15,6 +15,7 @@ public class PerlinGenerator : MonoBehaviour
 {
     [SerializeField] public float noiseScale;
     [SerializeField] public int octaves;
+    [Range(0,1)]
     [SerializeField] public float persistance;
     [SerializeField] public float lacunarity;
     [SerializeField] public Vector2 offset;
@@ -30,6 +31,18 @@ public class PerlinGenerator : MonoBehaviour
     public float GenerateCoordinatePerlin(Vector3Int coordinate, int seed)
     {
         return Noise.GenerateCoordinateNoise(coordinate, seed,  noiseScale, octaves, persistance,lacunarity, offset);
+    }
+
+        void OnValidate()
+    {
+        if(octaves < 1)
+        {
+            octaves = 1;
+        }
+        if(lacunarity < 1)
+        {
+            lacunarity = 1;
+        }
     }
 
 }

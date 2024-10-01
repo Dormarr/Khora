@@ -48,7 +48,7 @@ public class NaturalFeature : AbstractFeature
         }
 
         public NaturalFeature BuildNaturalFeature(){
-            if(this.name != null && this.type != null){
+            if(this.name != null){
                 return new NaturalFeature(name, type, strength, frequency);
             }else{
                 throw new Exception($"Missing NaturalFeature parameters in builder\n{this}");

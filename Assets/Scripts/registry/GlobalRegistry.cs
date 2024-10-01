@@ -8,14 +8,17 @@ public static class GlobalRegistry
     public static CategoryRegistry categoryRegistry = new CategoryRegistry();
 
     public static void Bootstrap(){
-        if(Gates.registryGate == Gate.Open && Gates.biomeClimateRegistryGate == Gate.Open){
-            Initialize();
-            Gates.registryGate = Gate.Closed;
-        }
-        else if(Gates.registryGate == Gate.Ajar){
-            Bootstrap();
-        }else{
-            return;
+
+        switch(Gates.registryGate){
+            case Gate.Open:
+                Initialize();
+                Gates.registryGate = Gate.Closed;
+                break;
+            case Gate.Ajar:
+                Bootstrap();
+                break;
+            case Gate.Closed:
+                return;
         }
     }
 

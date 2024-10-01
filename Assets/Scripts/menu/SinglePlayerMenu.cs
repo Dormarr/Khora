@@ -93,4 +93,8 @@ public class SinglePlayerMenu : MonoBehaviour
         RectTransform rectTransform = textObject.GetComponent<RectTransform>();
         rectTransform.sizeDelta = new Vector2(300, 32);
     }
+
+    void DeleteWorld(){
+        //get selected world and delete entire directory.
+    }
 }

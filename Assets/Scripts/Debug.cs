@@ -34,24 +34,40 @@ public class Debug : MonoBehaviour
             Log($"{e}"); 
         }
 
-
-        tilePos = tilemap.WorldToCell(mouseWorldPos);
+        try{
+            tilePos = tilemap.WorldToCell(mouseWorldPos);
+        }
+        catch(Exception e){
+            Log($"{e}");
+            return;
+        }
+        
         TileBase hoveredTile = chunkManager.IdentifyTile(mouseWorldPos);
         Biome biome = worldEngine.GenerateBiomeForCoordinate(tilePos);
 
-        if(hoveredTile == null){
-            Debug.Log("HoveredTile is null buddy.");
-        }
-
-        if(biome == null){
-            Debug.Log("Biome is null fella.");
-        }
 
         cursorDebugText.text = "<b>Cursor Coordinates</b>" + 
             $"\nGlobal: {tilePos.x}, {tilePos.y}" + 
             $"\n{ChunkPositionDebug()}" + 
             $"\nChunk Cache: {chunkManager.chunkCache.Count}" +
             $"\nMouse Pos: {mousePos.x}, {mousePos.y}";
+
+        tickTimeDebugText.text = "<b>Tick Debug</b>" +
+            $"\nCurrent Time: {TickManager.Instance.GetCurrentTick()}" +
+            $"\nTick Rate: {TickManager.Instance.GetTickRate()}" +
+            $"\nActual Tick Rate: {TickManager.Instance.GetActualTickRate()}" +
+            $"\nElapsed Time: {TickManager.Instance.GetActualElapsedTime()}";
+
+        if(hoveredTile == null){
+            Debug.Log($"HoveredTile is null.");
+            return;
+        }
+
+        if(biome == null){
+            Debug.Log($"Biome is null at.");
+            return;
+        }
+
         worldGenDebugText.text = "<b>Tile Debug</b>" +
             $"\nTile Identity: {hoveredTile.name}" +
             $"\nBiome: {biome.Name}" +
@@ -60,12 +76,8 @@ public class Debug : MonoBehaviour
             $"\nTopology: {worldEngine.GenerateTopologyForCoordinate(tilePos)}" +
             $"\nElevation: {worldEngine.elevation}" +
             $"\nErosion: {worldEngine.erosion}";
-            //$"\n\n Feature Info: {biome.FeatureSettings.naturalFeatures[0].type}";
-        tickTimeDebugText.text = "<b>Tick Debug</b>" +
-            $"\nCurrent Time: {TickManager.Instance.GetCurrentTick()}" +
-            $"\nTick Rate: {TickManager.Instance.GetTickRate()}" +
-            $"\nActual Tick Rate: {TickManager.Instance.GetActualTickRate()}" +
-            $"\nElapsed Time: {TickManager.Instance.GetActualElapsedTime()}";
+            //$"\n\n Feature Info: {biome.FeatureSettings.naturalFeatures[0].type}"; //Not every biome has features.
+
     }
 
     string ChunkPositionDebug()

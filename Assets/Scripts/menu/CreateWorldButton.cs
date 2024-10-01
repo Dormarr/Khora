@@ -24,6 +24,6 @@ public class CreateWorldButton : MonoBehaviour
 
 
         //Redo scene management to increase to singleplayer scene. Stanmdardise the process.
-        SceneManager.LoadScene("TerrainGen");
+        SceneManager.LoadScene("Singleplayer");
     }
 }

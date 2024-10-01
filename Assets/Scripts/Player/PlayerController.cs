@@ -20,7 +20,6 @@ public class PlayerController : MonoBehaviour
 
     private Vector2 moveInput;
     private Rigidbody2D rb;
-    public PauseMenu pauseMenu;
 
     void Awake()
     {
@@ -51,6 +50,10 @@ public class PlayerController : MonoBehaviour
 
     void OnMouseDown(InputValue value){
 
+        if(Config.isPaused){
+            return;
+        }
+
         GameObject targetChunk = chunkManager.GetChunkGameObject(); //grabs by mouse position.
         targetChunk = targetChunk.transform.GetChild(0).gameObject;
         Vector3Int mouseGridPos = grid.WorldToCell(Utility.GetMouseWorldPosition());
@@ -64,11 +67,11 @@ public class PlayerController : MonoBehaviour
     }
 
     void OnEsc(){
-        if(pauseMenu.isPaused){
-            pauseMenu.Resume();
+        if(Config.isPaused){
+            MenuUtility.Resume();
         }
         else{
-            pauseMenu.Pause();
+            MenuUtility.Pause();
         }
     }
 
