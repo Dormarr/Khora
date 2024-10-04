@@ -16,7 +16,7 @@ public class PerlinGenerator : MonoBehaviour
     [SerializeField] public float noiseScale;
     [SerializeField] public int octaves;
     [Range(0,1)]
-    [SerializeField] public float persistance;
+    [SerializeField] public float persistence;
     [SerializeField] public float lacunarity;
     [SerializeField] public Vector2 offset;
 
@@ -25,12 +25,12 @@ public class PerlinGenerator : MonoBehaviour
 
     public float[,] GenerateChunkPerlin(Vector3Int chunkPosition, int seed)
     {
-        return Noise.GenerateChunkNoiseMap(chunkPosition, chunkSize, seed, noiseScale, octaves, persistance, lacunarity, offset);
+        return Noise.GenerateChunkNoiseMap(chunkPosition, chunkSize, seed, noiseScale, octaves, persistence, lacunarity, offset);
     }
 
     public float GenerateCoordinatePerlin(Vector3Int coordinate, int seed)
     {
-        return Noise.GenerateCoordinateNoise(coordinate, seed,  noiseScale, octaves, persistance,lacunarity, offset);
+        return Noise.GenerateCoordinateNoise(coordinate, seed,  noiseScale, octaves, persistence,lacunarity, offset);
     }
 
         void OnValidate()

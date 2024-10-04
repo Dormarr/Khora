@@ -42,18 +42,21 @@ public static class BiomeManager
         //This is where the temperature ranges are set as opposed to the initialized biomes above.
         //I'd like to mathematically calculate the proper ranges based on weightings and biome count.
 
-        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.8f,1.0f,0.3f,0.7f), biomeRegistry.Get("plains"));
+        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.8f,1.0f,0.3f,0.8f), biomeRegistry.Get("plains"));
+        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.7f,0.8f,0.4f,0.6f), biomeRegistry.Get("plains"));
         BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.8f,1.0f,0.0f,0.3f), biomeRegistry.Get("desert"));
-        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.3f,0.5f,0.0f,0.3f), biomeRegistry.Get("borealForest"));
-        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.5f,0.8f,0.3f,0.7f), biomeRegistry.Get("forest"));
-        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.0f,0.3f,0.7f,1.0f), biomeRegistry.Get("glacial"));
-        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.8f,1.0f,0.7f,1.0f), biomeRegistry.Get("rainforest"));
-        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.5f,0.8f,0.0f,0.3f), biomeRegistry.Get("shrubland"));
-        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.0f,0.3f,0.3f,0.7f), biomeRegistry.Get("snowyForest"));
-        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.5f,0.8f,0.7f,1.0f), biomeRegistry.Get("swamp"));
-        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.0f,0.3f,0.0f,0.3f), biomeRegistry.Get("tundra"));
-        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.3f,0.5f,0.7f,1.0f), biomeRegistry.Get("wetlands"));
-        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.3f,0.5f,0.3f,0.7f), biomeRegistry.Get("taiga"));
+        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.2f,0.6f,0.0f,0.4f), biomeRegistry.Get("borealForest"));
+        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.4f,0.6f,0.4f,0.8f), biomeRegistry.Get("forest"));
+        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.6f,0.7f,0.4f,0.6f), biomeRegistry.Get("forest"));
+        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.0f,0.2f,0.8f,1.0f), biomeRegistry.Get("glacial"));
+        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.8f,1.0f,0.8f,1.0f), biomeRegistry.Get("rainforest"));
+        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.6f,0.8f,0.0f,0.4f), biomeRegistry.Get("shrubland"));
+        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.0f,0.2f,0.4f,0.8f), biomeRegistry.Get("snowyForest"));
+        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.4f,0.8f,0.8f,1.0f), biomeRegistry.Get("swamp"));
+        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.0f,0.2f,0.0f,0.4f), biomeRegistry.Get("tundra"));
+        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.2f,0.4f,0.8f,1.0f), biomeRegistry.Get("wetlands"));
+        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.2f,0.4f,0.4f,0.8f), biomeRegistry.Get("taiga"));
+        BiomeClimateRegistry.RegisterBiome(new ClimateRange(0.6f,0.8f,0.6f,0.8f), biomeRegistry.Get("flowerMeadow"));
         
         Debug.Log("Successfully registered BiomeClimateRegistry()");
 

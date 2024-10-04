@@ -25,8 +25,6 @@ public class MapGenerator : MonoBehaviour
     private float erosion;
 
     public void GenerateBiomeMap(){
-        //generate perlin for each coordinate, for temp and precip.
-        //Determine by map width.
 
         float[,] temperatureMap = new float[mapWidth, mapHeight];
         float[,] precipitationMap = new float[mapWidth, mapHeight];
@@ -35,13 +33,18 @@ public class MapGenerator : MonoBehaviour
         for(int x = 0; x < mapWidth; x++){
             for(int y = 0; y < mapHeight; y++){
                 Vector3Int coord = new Vector3Int(x, y, 0);
-                biomeMap[x,y] = BiomeGenerator.GetBiome(temperatureGenerator.GenerateCoordinatePerlin(coord, seed), precipitationGenerator.GenerateCoordinatePerlin(coord, seed));
+
+                temperatureMap[x,y] = temperatureGenerator.GenerateCoordinatePerlin(coord, seed);
+                precipitationMap[x,y] = precipitationGenerator.GenerateCoordinatePerlin(coord, seed);
+
+                biomeMap[x,y] = BiomeGenerator.GetBiome(
+                    temperatureMap[x,y], 
+                    precipitationMap[x,y]);
             }
         }
-
         MapDisplay display = FindObjectOfType<MapDisplay>();
         display.DrawBiomeMap(biomeMap);
-
+        //display.RenderTileTint(temperatureMap, precipitationMap);
     }
 
         void OnValidate()

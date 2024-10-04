@@ -9,6 +9,8 @@ public class MapDisplay : MonoBehaviour
     public Tile[] tiles;
     public Tile blankTile;
 
+    public UVColourMap uVColourMap;
+
     public void DrawNoiseMap(float[,] noiseMap)
     {
         tilemap.ClearAllTiles();
@@ -33,7 +35,7 @@ public class MapDisplay : MonoBehaviour
         int width = biomeMap.GetLength(0);
         int height = biomeMap.GetLength(1);
 
-                for (int y = 0; y < height; y++){
+        for (int y = 0; y < height; y++){
             for (int x = 0; x < width; x++){
                 Biome tileBiome = biomeMap[x, y];
                 TileBase selectedTile = BiomeUtility.GetTileFromBiome(tileBiome);
@@ -41,8 +43,18 @@ public class MapDisplay : MonoBehaviour
                     selectedTile = blankTile;
                 }
                 Vector3Int tilePosition = new Vector3Int(x, y, 0);
+                tilemap.SetTile(tilePosition, blankTile);
+            }
+        }
+    }
 
-                tilemap.SetTile(tilePosition, selectedTile);
+    public void RenderTileTint(float[,] temperatureMap, float[,] precipitationMap){
+        int width = temperatureMap.GetLength(0);
+        int height = temperatureMap.GetLength(1);
+
+        for(int x = 0; x < width; x++){
+            for(int y = 0; y < height; y++){
+                uVColourMap.ApplyColourToTile(temperatureMap[x,y], precipitationMap[x,y], tilemap, new Vector3Int(x,y,0));
             }
         }
     }
