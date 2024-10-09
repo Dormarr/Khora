@@ -103,7 +103,7 @@ public static class Utility
 
     public static Color[] LerpBetweenColours(Color colourA, Color colourB, int steps){
         //return an array the size of steps, consisting of colours equal between colourA and colourB.
-        
+
         return null;
     }
 
@@ -142,7 +142,7 @@ public static class Utility
         Color bottomRight = neighbourColors[8];
 
         // We will create a 4x4 grid to smoothly blend colors across the tile
-        Color[] gradientColors = new Color[16];
+        Color[] gradientColours = new Color[16];
 
 
         // [ 0,  1,  2,  3, ]
@@ -150,29 +150,56 @@ public static class Utility
         // [ 8,  9,  10, 11,]
         // [ 12, 13, 14, 15 ]
 
+        // Corners
+        gradientColours[0]  =   Color.Lerp(top, left, 0.5f);
+        gradientColours[3]  =   Color.Lerp(top, right, 0.5f);
+        gradientColours[15] =   Color.Lerp(bottom, right, 0.5f);
+        gradientColours[12] =   Color.Lerp(bottom, left, 0.5f);
 
-        // Interpolate edges
-        gradientColors[1] = Color.Lerp(top, center, 0.75f);
-        gradientColors[2] = Color.Lerp(top, center, 0.6f);
-        gradientColors[4] = Color.Lerp(left, center, 0.5f);
-        gradientColors[7] = Color.Lerp(right, center, 0.5f);
-        gradientColors[8] = Color.Lerp(left, center, 0.5f);
-        gradientColors[11] = Color.Lerp(right, center, 0.5f);
-        gradientColors[13] = Color.Lerp(bottomLeft, bottomRight, 0.5f);
-        gradientColors[14] = Color.Lerp(bottom, center, 0.5f);
+        //Edges
+        gradientColours[1]  =   Color.Lerp(center, top, 0.4f);
+        gradientColours[2]  =   Color.Lerp(center, top, 0.4f);
+        gradientColours[4]  =   Color.Lerp(center, left, 0.4f);
+        gradientColours[8]  =   Color.Lerp(center, left, 0.4f);
+        gradientColours[7]  =   Color.Lerp(center, right, 0.6f);
+        gradientColours[11] =   Color.Lerp(center, right, 0.6f);
+        gradientColours[13] =   Color.Lerp(center, bottom, 0.6f);
+        gradientColours[14] =   Color.Lerp(center, bottom, 0.6f);
+        
+        //Center
+        gradientColours[5]  =   ApplyNoiseToColour(Color.Lerp(center, gradientColours[1], 0.5f), 0.025f);
+        gradientColours[10] =   ApplyNoiseToColour(Color.Lerp(center, gradientColours[14], 0.5f), 0.025f);
+        gradientColours[9]  =   ApplyNoiseToColour(center, 0.02f);
+        gradientColours[6]  =   ApplyNoiseToColour(center, 0.02f);
 
-        // Interpolate center
-        gradientColors[5] = Color.Lerp(center, top, 0.75f);
-        gradientColors[10] = Color.Lerp(center, bottom, 0.75f);
-        gradientColors[6] = Color.Lerp(center, top, 0.5f);
-        gradientColors[9] = Color.Lerp(center, bottom, 0.5f);
+        return gradientColours;
+    }
 
-        // Interpolate the corners using 4-way gradients
-        gradientColors[0] = Color.Lerp(topLeft, gradientColors[5], 0.25f);
-        gradientColors[3] = Color.Lerp(topRight, gradientColors[6], 0.25f);
-        gradientColors[12] = Color.Lerp(bottomLeft, center, 0.25f);
-        gradientColors[15] = Color.Lerp(bottomRight, center, 0.25f);
+    public static Color ApplyRandomHueShift(Color colour){
+        float hue, saturation, brightness;
+        Color.RGBToHSV(colour, out hue, out saturation, out brightness);
 
-        return gradientColors;
+        // Id'd rather this wasn't random, but it's inconsequential so whatever. I'll revisit it.
+        hue += UnityEngine.Random.Range(-0.02f, 0.02f);
+        hue = Mathf.Repeat(hue, 1.0f);
+
+        return Color.HSVToRGB(hue, saturation, brightness);
+    }
+
+    public static Color ApplyNoiseToColour(Color color, float noiseIntensity)
+    {
+        // Id'd rather this wasn't random, but it's inconsequential so whatever. I'll revisit it.
+        float noise = UnityEngine.Random.Range(-1.0f, 1.0f) * noiseIntensity;
+
+        // Convert the colour to HSV to modify brightness (Value)
+        float hue, saturation, brightness;
+        Color.RGBToHSV(color, out hue, out saturation, out brightness);
+
+        // Apply noise to brightness
+        brightness += noise;
+        brightness = Mathf.Clamp(brightness, 0.0f, 1.0f); // Ensure brightness is within valid range
+
+        // Return the colour with applied noise
+        return Color.HSVToRGB(hue, saturation, brightness);
     }
 }

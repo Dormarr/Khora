@@ -11,34 +11,16 @@ namespace UnityEngine.Tilemaps
     public class GradientTile : TileBase
     {
         public int id;
-        public Color tint;
         public Sprite mainTexture;
         private Texture2D mainTexture2D;
         //I would like to add weighted texture variations.
 
 
-         private Color[] originalColours = new Color[16] 
-        {
-            new Color(0.9608f, 0.8235f, 0.3882f, 1f),
-            new Color(0.4000f, 0.8627f, 0.5608f, 1f),
-            new Color(0.4039f, 0.3686f, 0.8549f, 1f),
-            new Color(0.9059f, 0.3725f, 0.5647f, 1f),
-            new Color(0.8588f, 0.6902f, 0.1451f, 1f),
-            new Color(0.2392f, 0.7333f, 0.4157f, 1f),
-            new Color(0.2549f, 0.2157f, 0.7059f, 1f),
-            new Color(0.7490f, 0.1608f, 0.3765f, 1f),
-            new Color(0.6667f, 0.4627f, 0.0667f, 1f),
-            new Color(0.1059f, 0.5569f, 0.2627f, 1f),
-            new Color(0.1176f, 0.0863f, 0.5098f, 1f),
-            new Color(0.5451f, 0.0745f, 0.2471f, 1f),
-            new Color(0.5059f, 0.2980f, 0.0275f, 1f),
-            new Color(0.0314f, 0.3725f, 0.1529f, 1f),
-            new Color(0.0667f, 0.0431f, 0.3412f, 1f),
-            new Color(0.4000f, 0.0275f, 0.1608f, 1f)
-        };
+         private Color[] originalColours;
 
         public void Initialize(Vector3Int position, Color[] inputColours, Sprite inputSprite){
             mainTexture = inputSprite;
+            originalColours = ColourLibrary.grassUV;
             ApplyGradientToTile(inputColours);
         }
         public override void GetTileData(Vector3Int position, ITilemap tilemap, ref TileData tileData)
@@ -85,12 +67,12 @@ namespace UnityEngine.Tilemaps
                 }
             }
             newTexture.SetPixels(pixels);
-            newTexture.Apply();
 
             newTexture.filterMode = FilterMode.Point;
             newTexture.wrapMode = TextureWrapMode.Clamp;
             newTexture.anisoLevel = 0;
             newTexture.Compress(false);
+            newTexture.Apply();
 
             return newTexture;
         }
@@ -103,7 +85,7 @@ namespace UnityEngine.Tilemaps
                 Mathf.Pow(colorA.a - colorB.a, 2)
             );
 
-            return distance < 0.000075f;
+            return distance < 0.0001f;
         }
         
         public void ApplyGradientToTile(Color[] inputColors)

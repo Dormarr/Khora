@@ -44,7 +44,6 @@ public class MapGenerator : MonoBehaviour
         }
         MapDisplay display = FindObjectOfType<MapDisplay>();
         display.DrawBiomeMap(biomeMap);
-        //display.RenderTileTint(temperatureMap, precipitationMap);
         display.RenderTileColours(temperatureMap, precipitationMap);
     }
 

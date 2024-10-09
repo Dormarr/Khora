@@ -8,14 +8,11 @@ public class ChunkLoader : MonoBehaviour
 {
     public ChunkManager chunkManager;
     public WorldEngine worldEngine;
+    public UVColourMap uVColourMap;
 
     public Camera mainCamera;
     public GameObject grid;
-
-    public Tile[] tiles;
-
     public Tile blankTile;
-
     public float noiseScale;
     public int octaves;
     [Range(0, 1)]
@@ -177,15 +174,76 @@ public class ChunkLoader : MonoBehaviour
 
         for (int y = 0; y < height; y++){
             for (int x = 0; x < width; x++){
-                Biome tileBiome = biomeMap[x, y];
-                TileBase selectedTile = BiomeUtility.GetTileFromBiome(tileBiome);
-                if(selectedTile == null){
-                    selectedTile = blankTile;
-                }
+
+                GradientTile selectedTile = BiomeUtility.GetGradientTileByName("grass");
+
                 Vector3Int tilePosition = new Vector3Int(chunkPosition.x * width + x, chunkPosition.y * height + y, 0);
 
                 chunkTilemap.SetTile(tilePosition, selectedTile);
             }
         }
+
+
+        float[,] temperatureMap = worldEngine.temperatureGenerator.GenerateChunkPerlin(chunkPosition, WorldDataTransfer.worldSeed);
+        float[,] precipitationMap = worldEngine.precipitationGenerator.GenerateChunkPerlin(chunkPosition, WorldDataTransfer.worldSeed);
+        RenderTileColours(temperatureMap, precipitationMap, chunkTilemap, chunkPosition);
     }
+
+    public void RenderTileColours(float[,] temperatureMap, float[,] precipitationMap, Tilemap chunkTilemap, Vector3Int chunkPosition){
+
+        // Values set to 1 and -1 so as to leave a border of data which avoids out-of-bounds issues.
+        for(int x = 1; x < temperatureMap.GetLength(0) -1; x++){
+            for(int y = 1; y < temperatureMap.GetLength(1) -1; y++){
+                Color[] tiles = GetTileNeighbourColours(temperatureMap, precipitationMap, x, y);
+
+                Color[] colours = Utility.Get8WayGradient(tiles);
+
+                //Find a better way to do this.
+                GradientTile selectedTile = BiomeUtility.GetGradientTileByName("grass");
+
+                GradientTile tile = ScriptableObject.CreateInstance<GradientTile>();
+                Vector3Int tilePos = new Vector3Int(chunkPosition.x * Config.chunkSize + x, chunkPosition.y * Config.chunkSize + y, 0);
+                tile.Initialize(tilePos, colours, selectedTile.mainTexture);
+
+                chunkTilemap.SetTile(tilePos, tile);
+                // chunkTilemap.RefreshAllTiles();
+            }
+        }
+    }
+
+    public Color[] GetTileNeighbourColours(float[,] temperatureMap, float[,] precipitationMap, int x, int y){
+
+        Color[] tileColours = new Color[9];
+        
+        int index = 0;
+
+        // [0,1,2]
+        // [3,4,5]
+        // [6,7,8]
+
+        //Gets the colours in rows from bottom left.
+        for(int yOffset = 1; yOffset >= -1; yOffset--){
+            for(int xOffset = -1; xOffset <= 1; xOffset++){
+                int xCoord = x + xOffset;
+                int yCoord = y + yOffset;
+
+                // Safety check to ensure we don't access out-of-bounds
+                if (xCoord >= 0 && xCoord < temperatureMap.GetLength(0) && yCoord >= 0 && yCoord < precipitationMap.GetLength(1))
+                {
+                    // Get the colour based on the temperature and precipitation map values at this tile
+                    tileColours[index] = uVColourMap.GetColourFromUVMap(temperatureMap[xCoord, yCoord], precipitationMap[xCoord, yCoord]);
+                }
+                else
+                {
+                    // Backup colour.
+                    tileColours[index] = Color.white;
+                }
+
+                index++;
+            }
+        }
+
+        return tileColours;
+    }
+
 }

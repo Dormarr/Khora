@@ -5,13 +5,13 @@ using UnityEngine.Tilemaps;
 
 public class UVColourMap : MonoBehaviour
 {
-    public Sprite colorMap;
+    public Texture2D colourMap;
 
     public Color GetColourFromUVMap(float temperature, float precipitation){
         temperature = Mathf.Clamp01(temperature);
         precipitation = Mathf.Clamp01(precipitation);
 
-        Texture2D tex = colorMap.texture;
+        Texture2D tex = colourMap;
         int texSize = tex.width;
 
         int u = Mathf.FloorToInt(temperature * texSize);
