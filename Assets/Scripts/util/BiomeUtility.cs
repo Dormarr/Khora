@@ -82,4 +82,8 @@ public static class BiomeUtility
         Biome biome = biomeRegistry.Get(biomeName);
         return biome;
     }
+
+    public static void GetNeighbouringTiles(){
+        //I don't even know what this should return.
+    }
 }

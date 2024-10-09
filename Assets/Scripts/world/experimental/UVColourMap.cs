@@ -23,9 +23,17 @@ public class UVColourMap : MonoBehaviour
     }
 
     public void ApplyColourToTile(float temperature, float precipitation, Tilemap tilemap, Vector3Int tilePos){
+
+        //use this colour value to determine the central colour for the tile to work outwards from.
+        //The gradient and complimentary shades should start here.
+
         tilemap.SetTileFlags(tilePos, TileFlags.None);
         Color tintColour = GetColourFromUVMap(temperature, precipitation);
-        tilemap.SetColor(tilePos, tintColour);
-        Debug.Log($"Colour Applied to Tile: {tintColour}");
+        
+        // The tile tint here is handy, but not how I want to pursue the terrain rendering.
+        //tilemap.SetColor(tilePos, tintColour);
+
+
+        //Debug.Log($"Colour Applied to Tile: {tintColour}");
     }
 }

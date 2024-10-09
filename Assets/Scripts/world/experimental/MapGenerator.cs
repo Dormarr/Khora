@@ -38,13 +38,14 @@ public class MapGenerator : MonoBehaviour
                 precipitationMap[x,y] = precipitationGenerator.GenerateCoordinatePerlin(coord, seed);
 
                 biomeMap[x,y] = BiomeGenerator.GetBiome(
-                    temperatureMap[x,y], 
+                    temperatureMap[x,y],
                     precipitationMap[x,y]);
             }
         }
         MapDisplay display = FindObjectOfType<MapDisplay>();
         display.DrawBiomeMap(biomeMap);
         //display.RenderTileTint(temperatureMap, precipitationMap);
+        display.RenderTileColours(temperatureMap, precipitationMap);
     }
 
         void OnValidate()
