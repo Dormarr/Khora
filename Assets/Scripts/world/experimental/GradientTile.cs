@@ -14,26 +14,27 @@ namespace UnityEngine.Tilemaps
         public Color tint;
         public Sprite mainTexture;
         private Texture2D mainTexture2D;
+        //I would like to add weighted texture variations.
 
 
          private Color[] originalColours = new Color[16] 
         {
-            new Color(0.9607f, 0.8235f, 0.3885f, 1),
-            new Color(0.8588f, 0.6902f, 0.1451f, 1),
-            new Color(0.6667f, 0.4627f, 0.0667f, 1),
-            new Color(0.5059f, 0.2980f, 0.0275f, 1),
-            new Color(0.4000f, 0.8627f, 0.5608f, 1),
-            new Color(0.2392f, 0.7333f, 0.4157f, 1),
-            new Color(0.1059f, 0.5569f, 0.2627f, 1),
-            new Color(0.0314f, 0.3725f, 0.1529f, 1),
-            new Color(0.4039f, 0.3686f, 0.8549f, 1),
-            new Color(0.2549f, 0.2157f, 0.7059f, 1),
-            new Color(0.1176f, 0.0863f, 0.5098f, 1),
-            new Color(0.0667f, 0.0431f, 0.3412f, 1),
-            new Color(0.9059f, 0.3725f, 0.5647f, 1),
-            new Color(0.7490f, 0.1608f, 0.3765f, 1),
-            new Color(0.5451f, 0.0745f, 0.2471f, 1),
-            new Color(0.4000f, 0.0275f, 0.1608f, 1)
+            new Color(0.9608f, 0.8235f, 0.3882f, 1f),
+            new Color(0.4000f, 0.8627f, 0.5608f, 1f),
+            new Color(0.4039f, 0.3686f, 0.8549f, 1f),
+            new Color(0.9059f, 0.3725f, 0.5647f, 1f),
+            new Color(0.8588f, 0.6902f, 0.1451f, 1f),
+            new Color(0.2392f, 0.7333f, 0.4157f, 1f),
+            new Color(0.2549f, 0.2157f, 0.7059f, 1f),
+            new Color(0.7490f, 0.1608f, 0.3765f, 1f),
+            new Color(0.6667f, 0.4627f, 0.0667f, 1f),
+            new Color(0.1059f, 0.5569f, 0.2627f, 1f),
+            new Color(0.1176f, 0.0863f, 0.5098f, 1f),
+            new Color(0.5451f, 0.0745f, 0.2471f, 1f),
+            new Color(0.5059f, 0.2980f, 0.0275f, 1f),
+            new Color(0.0314f, 0.3725f, 0.1529f, 1f),
+            new Color(0.0667f, 0.0431f, 0.3412f, 1f),
+            new Color(0.4000f, 0.0275f, 0.1608f, 1f)
         };
 
         public void Initialize(Vector3Int position, Color[] inputColours, Sprite inputSprite){
@@ -54,8 +55,6 @@ namespace UnityEngine.Tilemaps
         public void SetTileColors(Color[] newColours){
             originalColours = newColours;
         }
-
-        // Maybe I can colour replace in here?
 
         public Texture2D ReplaceColors(Texture2D originalTexture, Color[] inputColours)
         {
@@ -78,13 +77,6 @@ namespace UnityEngine.Tilemaps
             {
                 for (int j = 0; j < originalColours.Length; j++)
                 {
-                    // if (pixels[i] == originalColours[j])
-                    // {
-                    //     Replace the original color with the corresponding input color
-                    //     pixels[i] = inputColours[j];
-                    //     pixels[i] = Color.red;
-                    //     break;
-                    // }
 
                     if(CompareColour(pixels[i], originalColours[j])){
                         pixels[i] = inputColours[j];
@@ -92,21 +84,18 @@ namespace UnityEngine.Tilemaps
                     }
                 }
             }
-
-            // Apply the modified pixels to the new texture
             newTexture.SetPixels(pixels);
-            newTexture.Apply(); // Make sure changes are applied to the texture
+            newTexture.Apply();
 
             newTexture.filterMode = FilterMode.Point;
-            newTexture.wrapMode = TextureWrapMode.Clamp; // Avoid edge artifacts
-            newTexture.anisoLevel = 0; // Disable anisotropic filtering
-            newTexture.Compress(false); // Disable compression
+            newTexture.wrapMode = TextureWrapMode.Clamp;
+            newTexture.anisoLevel = 0;
+            newTexture.Compress(false);
 
             return newTexture;
         }
         bool CompareColour(Color colorA, Color colorB)
         {
-            // Calculate the Euclidean distance between two colors
             float distance = Mathf.Sqrt(
                 Mathf.Pow(colorA.r - colorB.r, 2) + 
                 Mathf.Pow(colorA.g - colorB.g, 2) + 
@@ -114,7 +103,7 @@ namespace UnityEngine.Tilemaps
                 Mathf.Pow(colorA.a - colorB.a, 2)
             );
 
-            return distance < 0.01f;
+            return distance < 0.000075f;
         }
         
         public void ApplyGradientToTile(Color[] inputColors)
@@ -127,20 +116,16 @@ namespace UnityEngine.Tilemaps
 
             mainTexture2D = mainTexture.texture;
 
-            // Replace the colors in the texture
             Texture2D updatedTexture = ReplaceColors(mainTexture2D, inputColors);
 
-            // Create a new sprite from the updated texture
             Sprite updatedSprite = Sprite.Create(
                 updatedTexture,
                 new Rect(0, 0, updatedTexture.width, updatedTexture.height),
-                new Vector2(0.5f, 0.5f), // pivot in the center
+                new Vector2(0.5f, 0.5f),
                 16
             );
 
-            // Assign the updated sprite back to the tile
             mainTexture = updatedSprite;
-            // mainTexture.texture = updatedTexture;
             Debug.Log("Updated tile sprite.");
 
         }

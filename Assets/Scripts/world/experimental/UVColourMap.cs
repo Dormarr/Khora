@@ -29,11 +29,5 @@ public class UVColourMap : MonoBehaviour
 
         tilemap.SetTileFlags(tilePos, TileFlags.None);
         Color tintColour = GetColourFromUVMap(temperature, precipitation);
-        
-        // The tile tint here is handy, but not how I want to pursue the terrain rendering.
-        //tilemap.SetColor(tilePos, tintColour);
-
-
-        //Debug.Log($"Colour Applied to Tile: {tintColour}");
     }
 }

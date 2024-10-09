@@ -83,42 +83,18 @@ public class MapDisplay : MonoBehaviour
     }
 
     public void RenderTileColours(float[,] temperatureMap, float[,] precipitationMap){
-        //get the colour from the uv colour map for the focus tile and its neighbours.
-        //Lerp between the colours to create a gradient.
-        //Keep colours in an array, then tint ever even colour darker for texture.
-        //Send the final colour array to set coloud with the coorindate.
-        MaterialPropertyBlock mpb1 = new MaterialPropertyBlock();
-        tilemap.GetComponent<TilemapRenderer>().GetPropertyBlock(mpb1);
-        EmptyShaderColours(mpb1);
-
 
         // Values set to 1 and -1 so as to leave a border of data which avoids out-of-bounds issues.
         for(int x = 1; x < temperatureMap.GetLength(0) -1; x++){
             for(int y = 1; y < temperatureMap.GetLength(1) -1; y++){
                 Color[] tiles = GetTileNeighbourColours(temperatureMap, precipitationMap, x, y);
 
-                Color[] colours = new Color[16];
-                colours[0] = tiles[0];
-                colours[1] = tiles[1];
-                colours[2] = tiles[2];
-                colours[3] = tiles[2];
-                colours[4] = tiles[3];
-                colours[5] = tiles[3];
-                colours[6] = tiles[4];
-                colours[7] = tiles[4];
-                colours[8] = tiles[5];
-                colours[9] = tiles[5];
-                colours[10] = tiles[6];
-                colours[11] = tiles[6];
-                colours[12] = tiles[7];
-                colours[13] = tiles[7];
-                colours[14] = tiles[8];
-                colours[15] = tiles[8];
+                // Color[] colours = Utility.Get4WayGradient(tiles[0], tiles[2], tiles[6], tiles[8]);
+                Color[] colours = Utility.Get8WayGradient(tiles);
 
                 GradientTile tile = ScriptableObject.CreateInstance<GradientTile>();
                 tile.Initialize(new Vector3Int(x,y,0), colours, defaultSprite);
 
-                //tile.ApplyGradientToTile(colours);
                 tilemap.SetTile(new Vector3Int(x,y,0), tile);
                 tilemap.RefreshAllTiles();
             }
@@ -126,15 +102,18 @@ public class MapDisplay : MonoBehaviour
     }
 
     public Color[] GetTileNeighbourColours(float[,] temperatureMap, float[,] precipitationMap, int x, int y){
-        //get the cardinal neighbours for the focus tile.
 
         Color[] tileColours = new Color[9];
         
         int index = 0;
 
+        //  [0,1,2]
+        //  [3,4,5]
+        //  [6,7,8]
+
         //Gets the colours in rows from bottom left.
-        for(int xOffset = -1; xOffset <= 1; xOffset++){
-            for(int yOffset = -1; yOffset <= 1; yOffset++){
+        for(int yOffset = 1; yOffset >= -1; yOffset--){
+            for(int xOffset = -1; xOffset <= 1; xOffset++){
                 int xCoord = x + xOffset;
                 int yCoord = y + yOffset;
 
@@ -143,20 +122,16 @@ public class MapDisplay : MonoBehaviour
                 {
                     // Get the colour based on the temperature and precipitation map values at this tile
                     tileColours[index] = uVColourMap.GetColourFromUVMap(temperatureMap[xCoord, yCoord], precipitationMap[xCoord, yCoord]);
-                    // Debug.Log($"Tile Colour {index}: {tileColours[index]}");
                 }
                 else
                 {
                     // Backup colour.
-                    tileColours[index] = Color.yellow;
-                    // Debug.Log($"Tile Colour {index}: {tileColours[index]}");
+                    tileColours[index] = Color.white;
                 }
 
                 index++;
             }
         }
-
-        // tileColours[0] = uVColourMap.GetColourFromUVMap(temperatureMap[x - 1, y - 1], precipitationMap[x - 1, y - 1]);
 
         return tileColours;
     }
