@@ -6,6 +6,7 @@ public static class Config
 {
     //Establish the constants
     public const int chunkSize = 32;
+    public const int tileSize = 16;
 
     //Global Variables
     public static bool isPaused = false;

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Text;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 using System;
 using UnityEngine.Tilemaps;
 using System.IO;
@@ -124,22 +125,77 @@ public static class Utility
         return colours;
     }
 
-    public static Color[] Get8WayGradient(Color[] neighbourColors)
+    public static async Task<Color[]> Get8WayGradientAsync(Color[] neighbourColours)
     {
         // Color array structure
         // [ 0, 1, 2 ]
         // [ 3, 4, 5 ]
         // [ 6, 7, 8 ]
         
-        Color topLeft = neighbourColors[0];
-        Color top = neighbourColors[1];
-        Color topRight = neighbourColors[2];
-        Color left = neighbourColors[3];
-        Color center = neighbourColors[4]; // The tile's own color
-        Color right = neighbourColors[5];
-        Color bottomLeft = neighbourColors[6];
-        Color bottom = neighbourColors[7];
-        Color bottomRight = neighbourColors[8];
+        Color topLeft = neighbourColours[0];
+        Color top = neighbourColours[1];
+        Color topRight = neighbourColours[2];
+        Color left = neighbourColours[3];
+        Color center = neighbourColours[4]; // The tile's own color
+        Color right = neighbourColours[5];
+        Color bottomLeft = neighbourColours[6];
+        Color bottom = neighbourColours[7];
+        Color bottomRight = neighbourColours[8];
+
+        // We will create a 4x4 grid to smoothly blend colors across the tile
+
+        Color[] gradientColours = new Color[16];
+
+        // [ 0,  1,  2,  3, ]
+        // [ 4,  5,  6,  7, ]
+        // [ 8,  9,  10, 11,]
+        // [ 12, 13, 14, 15 ]
+
+
+        await Task.Run(() => {
+
+            // Corners
+            gradientColours[0]  =   Color.Lerp(top, left, 0.5f);
+            gradientColours[3]  =   Color.Lerp(top, right, 0.5f);
+            gradientColours[15] =   Color.Lerp(bottom, right, 0.5f);
+            gradientColours[12] =   Color.Lerp(bottom, left, 0.5f);
+
+            //Edges
+            gradientColours[1]  =   Color.Lerp(center, top, 0.4f);
+            gradientColours[2]  =   Color.Lerp(center, top, 0.4f);
+            gradientColours[4]  =   Color.Lerp(center, left, 0.4f);
+            gradientColours[8]  =   Color.Lerp(center, left, 0.4f);
+            gradientColours[7]  =   Color.Lerp(center, right, 0.6f);
+            gradientColours[11] =   Color.Lerp(center, right, 0.6f);
+            gradientColours[13] =   Color.Lerp(center, bottom, 0.6f);
+            gradientColours[14] =   Color.Lerp(center, bottom, 0.6f);
+            
+            //Center
+            gradientColours[5]  =   ApplyNoiseToColour(Color.Lerp(center, gradientColours[1], 0.5f), 0.025f);
+            gradientColours[10] =   ApplyNoiseToColour(Color.Lerp(center, gradientColours[14], 0.5f), 0.025f);
+            gradientColours[9]  =   ApplyNoiseToColour(center, 0.02f);
+            gradientColours[6]  =   ApplyNoiseToColour(center, 0.02f);
+        });
+
+        return gradientColours;
+    }
+
+    public static Color[] Get8WayGradient(Color[] neighbourColours)
+    {
+        // Color array structure
+        // [ 0, 1, 2 ]
+        // [ 3, 4, 5 ]
+        // [ 6, 7, 8 ]
+        
+        Color topLeft = neighbourColours[0];
+        Color top = neighbourColours[1];
+        Color topRight = neighbourColours[2];
+        Color left = neighbourColours[3];
+        Color center = neighbourColours[4]; // The tile's own color
+        Color right = neighbourColours[5];
+        Color bottomLeft = neighbourColours[6];
+        Color bottom = neighbourColours[7];
+        Color bottomRight = neighbourColours[8];
 
         // We will create a 4x4 grid to smoothly blend colors across the tile
         Color[] gradientColours = new Color[16];
@@ -189,7 +245,12 @@ public static class Utility
     public static Color ApplyNoiseToColour(Color color, float noiseIntensity)
     {
         // Id'd rather this wasn't random, but it's inconsequential so whatever. I'll revisit it.
-        float noise = UnityEngine.Random.Range(-1.0f, 1.0f) * noiseIntensity;
+        //float noise = UnityEngine.Random.Range(-1.0f, 1.0f) * noiseIntensity;
+
+        System.Random random = new System.Random();
+        int randomInt = random.Next(0, int.MaxValue);
+
+        float noise = Mathf.Clamp01(randomInt) * noiseIntensity;
 
         // Convert the colour to HSV to modify brightness (Value)
         float hue, saturation, brightness;

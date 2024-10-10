@@ -12,7 +12,7 @@ public class UVColourMap : MonoBehaviour
         precipitation = Mathf.Clamp01(precipitation);
 
         Texture2D tex = colourMap;
-        int texSize = tex.width;
+        int texSize = 16;
 
         int u = Mathf.FloorToInt(temperature * texSize);
         int v = Mathf.FloorToInt(precipitation * texSize);
