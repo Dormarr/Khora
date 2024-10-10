@@ -97,6 +97,7 @@ public static class BiomeUtility
             return null;
         }
         else{
+
             tile = AssetDatabase.LoadAssetAtPath<GradientTile>(path);
             return tile;
         }

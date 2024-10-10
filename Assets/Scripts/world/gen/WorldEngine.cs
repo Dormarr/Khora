@@ -61,7 +61,7 @@ public class WorldEngine : MonoBehaviour
         Utility.SaveWorldSaveData(wsd);
     }
 
-    public void UpdateWorldSaveData(string? name = null, string? date = null){
+    public void UpdateWorldSaveData(string name = null, string date = null){
         string updatedName = !string.IsNullOrEmpty(name)? name : worldName;
         string updatedDate = !string.IsNullOrEmpty(date)? date : worldDate;
         

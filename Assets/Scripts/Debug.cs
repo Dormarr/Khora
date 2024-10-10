@@ -42,7 +42,7 @@ public class Debug : MonoBehaviour
             return;
         }
         
-        TileBase hoveredTile = chunkManager.IdentifyTile(mouseWorldPos);
+        // TileBase hoveredTile = chunkManager.IdentifyTile(mouseWorldPos);
         Biome biome = worldEngine.GenerateBiomeForCoordinate(tilePos);
 
 
@@ -58,10 +58,10 @@ public class Debug : MonoBehaviour
             $"\nActual Tick Rate: {TickManager.Instance.GetActualTickRate()}" +
             $"\nElapsed Time: {TickManager.Instance.GetActualElapsedTime()}";
 
-        if(hoveredTile == null){
-            Debug.Log($"HoveredTile is null.");
-            return;
-        }
+        // if(hoveredTile == null){
+        //     Debug.Log($"HoveredTile is null.");
+        //     return;
+        // }
 
         if(biome == null){
             Debug.Log($"Biome is null at.");
@@ -69,7 +69,7 @@ public class Debug : MonoBehaviour
         }
 
         worldGenDebugText.text = "<b>Tile Debug</b>" +
-            $"\nTile Identity: {hoveredTile.name}" +
+            //$"\nTile Identity: {hoveredTile.name}" +
             $"\nBiome: {biome.Name}" +
             $"\n\nTemperature: {worldEngine.temperature}" +
             $"\nHumidity: {worldEngine.precipitation}" +

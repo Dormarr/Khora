@@ -245,12 +245,11 @@ public static class Utility
     public static Color ApplyNoiseToColour(Color color, float noiseIntensity)
     {
         // Id'd rather this wasn't random, but it's inconsequential so whatever. I'll revisit it.
-        //float noise = UnityEngine.Random.Range(-1.0f, 1.0f) * noiseIntensity;
+        
 
         System.Random random = new System.Random();
-        int randomInt = random.Next(0, int.MaxValue);
 
-        float noise = Mathf.Clamp01(randomInt) * noiseIntensity;
+        float noise = (float)(random.NextDouble() * 2.0 - 1.0) * noiseIntensity;
 
         // Convert the colour to HSV to modify brightness (Value)
         float hue, saturation, brightness;

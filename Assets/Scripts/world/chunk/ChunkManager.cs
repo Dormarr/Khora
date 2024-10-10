@@ -40,28 +40,28 @@ public class ChunkManager : MonoBehaviour
         }
     }
 
-    public TileBase IdentifyTile(Vector3 position)
-    {
-        Vector3Int chunkPosition = Utility.GetChunkPosition(position);
+    // public TileBase IdentifyTile(Vector3 position)
+    // {
+    //     Vector3Int chunkPosition = Utility.GetChunkPosition(position);
 
-        if (chunkCache.ContainsKey(chunkPosition)){
-            GameObject chunk = chunkCache[chunkPosition];
-            Tilemap childChunkTilemap = chunk.GetComponentInChildren<Tilemap>();
-            Vector3Int tilePos = childChunkTilemap.WorldToCell(position);
-            TileBase tile = childChunkTilemap.GetTile(tilePos);
-            if(tile == null){
-                Debug.Log($"IdentifyTile: {tile.name}");
-                Tilemap chunkTilemap = chunk.GetComponent<Tilemap>();
-                tilePos = chunkTilemap.WorldToCell(position);
-                tile = chunkTilemap.GetTile(tilePos);
-                Debug.Log($"IdentifyTile: {tile.name}");
+    //     if (chunkCache.ContainsKey(chunkPosition)){
+    //         GameObject chunk = chunkCache[chunkPosition];
+    //         Tilemap childChunkTilemap = chunk.GetComponentInChildren<Tilemap>();
+    //         Vector3Int tilePos = childChunkTilemap.WorldToCell(position);
+    //         TileBase tile = childChunkTilemap.GetTile(tilePos);
+    //         if(tile == null){
+    //             Debug.Log($"IdentifyTile: {tile.name}");
+    //             Tilemap chunkTilemap = chunk.GetComponent<Tilemap>();
+    //             tilePos = chunkTilemap.WorldToCell(position);
+    //             tile = chunkTilemap.GetTile(tilePos);
+    //             Debug.Log($"IdentifyTile: {tile.name}");
 
-            }
-            return tile;
-        }
+    //         }
+    //         return tile;
+    //     }
 
-        return null;
-    }
+    //     return null;
+    // }
 
     public GameObject GetChunkGameObject()
     {
