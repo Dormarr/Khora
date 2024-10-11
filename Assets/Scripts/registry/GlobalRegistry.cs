@@ -7,8 +7,25 @@ public static class GlobalRegistry
 {
     public static CategoryRegistry categoryRegistry = new CategoryRegistry();
 
+    public static void Bootstrap(){
+
+        switch(Gates.registryGate){
+            case Gate.Open:
+                Initialize();
+                Gates.registryGate = Gate.Closed;
+                break;
+            case Gate.Ajar:
+                Bootstrap();
+                break;
+            case Gate.Closed:
+                return;
+        }
+    }
+
     public static void Initialize(){
         //Consider order of initialization.
+        Gates.registryGate = Gate.Ajar;
+
         InitializeRegistry<NaturalFeature>("naturalFeatures", FeatureManager.InitializeNaturalFeatures);
         InitializeRegistry<Biome>("biomes", BiomeManager.InitializeBiomes);
 

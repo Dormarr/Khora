@@ -14,13 +14,17 @@ public class MapGeneratorEditor : Editor
         {
             if (mapGen.autoUpdate)
             {
-                mapGen.GenerateMap();
+                mapGen.GenerateBiomeMap();
             }
         }
 
         if (GUILayout.Button("Generate"))
         {
-            mapGen.GenerateMap();
+            mapGen.GenerateBiomeMap();
+        }
+
+        if(GUILayout.Button("Register Biomes")){
+            GlobalRegistry.Initialize();
         }
     }
 }

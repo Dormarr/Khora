@@ -8,8 +8,6 @@ using UnityEditor;
 
 public static class BiomeUtility
 {
-    //Get chunk coordinates of a Vector2. Mostly used for managing chunks and debugging.
-
     public static Vector3Int GetVariableChunkPosition(Vector2 focus)
     {
         return new Vector3Int(Mathf.FloorToInt(focus.x / Config.chunkSize), Mathf.FloorToInt(focus.y / Config.chunkSize), 0);
@@ -47,17 +45,16 @@ public static class BiomeUtility
             //handle null or save the tile.
         }else{
             tile = AssetDatabase.LoadAssetAtPath<TileBase>(tilePath);
-            Debug.Log($"Pulled tile: {biome.Name}");
         }
         
         if(tile == null){
-            Debug.Log($"TileBase not found at path: {tilePath}");
+            Debug.LogWarning($"TileBase not found at path: {tilePath}");
         }
 
         return tile;
     }
 
-    public static List<BiomeData> BiomeArrayToList(Biome[,] biomeArray){
+    public static List<BiomeData> ArrayToList(Biome[,] biomeArray){
         List<BiomeData> biomeList = new List<BiomeData>();
 
         for(int x = 0; x < biomeArray.GetLength(0); x++){
@@ -69,7 +66,7 @@ public static class BiomeUtility
         return biomeList;
     }
 
-    public static Biome[,] ListToBiomeArray(List<BiomeData> biomeList, int width, int height){
+    public static Biome[,] ListToArray(List<BiomeData> biomeList, int width, int height){
         Biome[,] biomeArray = new Biome[width, height];
 
         foreach(BiomeData biomeData in biomeList){
@@ -83,7 +80,27 @@ public static class BiomeUtility
     public static Biome GetBiomeByName(string biomeName){
         Registry<Biome> biomeRegistry = GlobalRegistry.categoryRegistry.GetCategoryRegistry<Biome>("biomes");
         Biome biome = biomeRegistry.Get(biomeName);
-        Debug.Log($"Retrieved biome '{biome.Name}' by name.");
         return biome;
+    }
+
+    public static void GetNeighbouringTiles(){
+        //I don't even know what this should return.
+    }
+
+    public static GradientTile GetGradientTileByName(string name){
+
+        GradientTile tile;
+        string path = $"Assets/textures/world/tiles/natural/{name}.asset";
+
+        if(!File.Exists(path)){
+            Debug.LogError($"Tile {name} could not be found.");
+            return null;
+        }
+        else{
+
+            tile = AssetDatabase.LoadAssetAtPath<GradientTile>(path);
+            return tile;
+        }
+
     }
 }

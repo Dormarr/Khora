@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-//This is passed into the json files and is subsequently what determines how biomes are generated.
-
-
 [System.Serializable]
 public class Biome
 {

@@ -8,83 +8,121 @@ using UnityEngine.InputSystem;
 
 public class Debug : MonoBehaviour
 {
+    public Grid grid;
     public ChunkManager chunkManager;
     public WorldEngine worldEngine;
 
-    public Tilemap tilemap;
+    private Tilemap tilemap;
+    private Tilemap childTilemap;
     public TextMeshProUGUI cursorDebugText;
     public TextMeshProUGUI worldGenDebugText;
     public TextMeshProUGUI tickTimeDebugText;
+    public GameObject player;
 
     private Vector2 mousePos;
     private Vector3Int tilePos;
 
     void Update()
     {
-        if(chunkManager.gate)
-        {
-            mousePos = Utility.GetMousePosition();
-            Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
-            try{
-                tilemap = chunkManager.GetChunkTilemap().GetComponent<Tilemap>();
-            }
-            catch(Exception e){
-               Log($"{e}"); 
-            }
-
-            tilePos = tilemap.WorldToCell(mouseWorldPos);
-            TileBase hoveredTile = chunkManager.IdentifyTile(mouseWorldPos);
-
-            if(hoveredTile != null)
-            {
-                cursorDebugText.text = "<b>Cursor Coordinates</b>" + 
-                    $"\nGlobal: {tilePos.x}, {tilePos.y}" + 
-                    $"\n{ChunkPositionDebug()}" + 
-                    $"\nChunk Cache: {chunkManager.chunkCache.Count}" +
-                    $"\nMouse Pos: {mousePos.x}, {mousePos.y}";
-                worldGenDebugText.text = "<b>Tile Debug</b>" +
-                    $"\nTile Identity: {hoveredTile.name}" +
-                    //$"\nBiome: {worldEngine.GenerateBiomeForCoordinate(tilePos)}" + //redo with updated methods.
-                    $"\n\nTemperature: {worldEngine.temperature}" +
-                    $"\nHumidity: {worldEngine.precipitation}" +
-                    $"\nTopology: {worldEngine.GenerateTopologyForCoordinate(tilePos)}" +
-                    $"\nElevation: {worldEngine.elevation}" +
-                    $"\nErosion: {worldEngine.erosion}";
-                tickTimeDebugText.text = "<b>Tick Debug</b>" +
-                    $"\nCurrent Time: {TickManager.Instance.GetCurrentTick()}" +
-                    $"\nTick Rate: {TickManager.Instance.GetTickRate()}" +
-                    $"\nActual Tick Rate: {TickManager.Instance.GetActualTickRate()}" +
-                    $"\nElapsed Time: {TickManager.Instance.GetActualElapsedTime()}";
-
-            }
+        mousePos = Utility.GetMousePosition();
+        Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
+        try{
+            tilemap = chunkManager.GetChunkGameObject().GetComponent<Tilemap>();
+            childTilemap = chunkManager.GetChunkGameObject().GetComponentInChildren<Tilemap>();
         }
+        catch(Exception e){
+            Log($"{e}"); 
+        }
+
+        try{
+            tilePos = tilemap.WorldToCell(mouseWorldPos);
+        }
+        catch(Exception e){
+            Log($"{e}");
+            return;
+        }
+        
+        // TileBase hoveredTile = chunkManager.IdentifyTile(mouseWorldPos);
+        Biome biome = worldEngine.GenerateBiomeForCoordinate(tilePos);
+
+
+        cursorDebugText.text = "<b>Cursor Coordinates</b>" + 
+            $"\nGlobal: {tilePos.x}, {tilePos.y}" + 
+            $"\n{ChunkPositionDebug()}" + 
+            $"\nChunk Cache: {chunkManager.chunkCache.Count}" +
+            $"\nMouse Pos: {mousePos.x}, {mousePos.y}";
+
+        tickTimeDebugText.text = "<b>Tick Debug</b>" +
+            $"\nCurrent Time: {TickManager.Instance.GetCurrentTick()}" +
+            $"\nTick Rate: {TickManager.Instance.GetTickRate()}" +
+            $"\nActual Tick Rate: {TickManager.Instance.GetActualTickRate()}" +
+            $"\nElapsed Time: {TickManager.Instance.GetActualElapsedTime()}";
+
+        // if(hoveredTile == null){
+        //     Debug.Log($"HoveredTile is null.");
+        //     return;
+        // }
+
+        if(biome == null){
+            Debug.Log($"Biome is null at.");
+            return;
+        }
+
+        worldGenDebugText.text = "<b>Tile Debug</b>" +
+            //$"\nTile Identity: {hoveredTile.name}" +
+            $"\nBiome: {biome.Name}" +
+            $"\n\nTemperature: {worldEngine.temperature}" +
+            $"\nHumidity: {worldEngine.precipitation}" +
+            $"\nTopology: {worldEngine.GenerateTopologyForCoordinate(tilePos)}" +
+            $"\nElevation: {worldEngine.elevation}" +
+            $"\nErosion: {worldEngine.erosion}";
+            //$"\n\n Feature Info: {biome.FeatureSettings.naturalFeatures[0].type}"; //Not every biome has features.
+
     }
 
     string ChunkPositionDebug()
     {
-        int inChunkX = Mathf.FloorToInt((float)tilePos.x / Config.chunkSize); //fix 0,0 issue
-        int inChunkY = Mathf.FloorToInt((float)tilePos.y / Config.chunkSize);
+        Vector3Int chunkPos = Utility.GetChunkPosition(tilePos);
 
-        int chunkPosX = tilePos.x - (inChunkX * Config.chunkSize);
-        int chunkPosY = tilePos.y - (inChunkY * Config.chunkSize);
+        int withinChunkPosX = tilePos.x - (chunkPos.x * Config.chunkSize);
+        int withinChunkPosY = tilePos.y - (chunkPos.y * Config.chunkSize);
 
-        //can I normalize * 2 - 1? And subtract the negative of the tilePos. Then absolute it, the negative will be positive after double neg, and positive will go through absolution.
+        // if(withinChunkPosX < 0)
+        // {
+        //     withinChunkPosX += Config.chunkSize;
+        // }
+        // if(withinChunkPosY < 0)
+        // {
+        //     withinChunkPosY += Config.chunkSize;
+        // }
 
-        //find a mathematical way to avoid if statements.
-        if(chunkPosX < 0)
-        {
-            chunkPosX += Config.chunkSize;
-        }
-        if(chunkPosY < 0)
-        {
-            chunkPosY += Config.chunkSize;
-        }
-
-        return $"Chunk {chunkPosX}, {chunkPosY} in {inChunkX}, {inChunkY}";
+        return $"Chunk {withinChunkPosX}, {withinChunkPosY} in {chunkPos.x}, {chunkPos.y}";
     }
 
-    public static void Log(string msg)
+    private void OnDrawGizmos()
     {
+        Gizmos.color = Color.green;
+        int chunkSize = Config.chunkSize;
+
+        Vector3Int playerChunkPos = BiomeUtility.GetVariableChunkPosition(player.transform.position);
+
+        Vector3 chunkOrigin = new Vector3(playerChunkPos.x * chunkSize, playerChunkPos.y * chunkSize, 0);
+
+        Vector3 bottomLeft = chunkOrigin;
+        Vector3 bottomRight = chunkOrigin + new Vector3(chunkSize, 0, 0);
+        Vector3 topLeft = chunkOrigin + new Vector3(0, chunkSize, 0);
+        Vector3 topRight = chunkOrigin + new Vector3(chunkSize, chunkSize, 0);
+
+        Gizmos.DrawLine(bottomLeft, bottomRight);
+        Gizmos.DrawLine(bottomRight, topRight);
+        Gizmos.DrawLine(topRight, topLeft);
+        Gizmos.DrawLine(topLeft, bottomLeft);
+    }
+
+
+#region DebugLogs
+
+    public static void Log(string msg){
         UnityEngine.Debug.Log(msg);
     }
 
@@ -95,4 +133,6 @@ public class Debug : MonoBehaviour
     public static void LogError(string msg){
         UnityEngine.Debug.LogError(msg);
     }
+
+#endregion
 }

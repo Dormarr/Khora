@@ -153,7 +153,7 @@ public static class Noise
 
     public static float GenerateCoordinateNoise(Vector3Int coordinate, int seed, float scale, int octaves, float persistance, float lacunarity, Vector2 offset)
     {
-        System.Random prng = new System.Random(seed); //implement seed.
+        System.Random prng = new System.Random(seed);
         Vector2[] octaveOffsets = new Vector2[octaves];
 
         float amplitude = 1;
