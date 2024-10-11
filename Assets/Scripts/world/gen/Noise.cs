@@ -151,6 +151,87 @@ public static class Noise
         return noiseMap;
     }
 
+        public static float[,] GenerateChunkNoiseMapWithBorder(Vector3Int chunkPosition, int chunkSize, int seed, float scale, int octaves, float persistance, float lacunarity, Vector2 offset)
+    {
+        int mapSize = chunkSize + 2;
+        float[,] noiseMap = new float[mapSize, mapSize];
+
+        System.Random prng = new System.Random(seed);
+        Vector2[] octaveOffsets = new Vector2[octaves];
+
+        float amplitude = 1;
+        float maxPossibleHeight = 0f;
+
+        for (int i = 0; i < octaves; i++)
+        {
+            float offsetX = prng.Next(-100000, 100000) + offset.x;
+            float offsetY = prng.Next(-100000, 100000) + offset.y;
+            octaveOffsets[i] = new Vector2(offsetX, offsetY);
+
+            maxPossibleHeight += amplitude;
+            amplitude *= persistance;
+        }
+
+        if (scale <= 0) scale = 0.0001f;
+
+        float maxNoiseHeight = float.MinValue;
+        float minNoiseHeight = float.MaxValue;
+
+        float halfChunkSize = chunkSize / 2f;
+
+        int chunkPosX = chunkPosition.x * chunkSize - (int)halfChunkSize;
+        int chunkPosY = chunkPosition.y * chunkSize - (int)halfChunkSize;
+        
+
+        for (int y = 0; y < mapSize; y++)
+        {
+            for (int x = 0; x < mapSize; x++)
+            {
+                amplitude = 1;
+                float frequency = 1;
+                float noiseHeight = 0;
+
+                float globalX = (x + chunkPosX - 1) / scale;
+                float globalY = (y + chunkPosY - 1) / scale;
+
+                //float worldX = (chunkPosition.x * chunkWidth + x) / scale;
+                //float worldY = (chunkPosition.y * chunkHeight + y) / scale;
+
+                for (int i = 0; i < octaves; i++)
+                {
+
+                    float sampleX = globalX * frequency + octaveOffsets[i].x;
+                    float sampleY = globalY * frequency + octaveOffsets[i].y;
+
+                    float perlinValue = Mathf.PerlinNoise((float)sampleX, (float)sampleY) * 2 - 1;
+                    noiseHeight += perlinValue * amplitude;
+
+                    amplitude *= persistance;
+                    frequency *= lacunarity;
+                }
+
+                if (noiseHeight > maxNoiseHeight) maxNoiseHeight = noiseHeight;
+                if (noiseHeight < minNoiseHeight) minNoiseHeight = noiseHeight;
+
+                noiseMap[x, y] = noiseHeight;
+            }
+
+        }
+
+        for (int y = 0; y < mapSize; y++)
+        {
+            for (int x = 0; x < mapSize; x++)
+            {
+                float normalizedHeight = (noiseMap[x,y] + maxPossibleHeight) / (2f * maxPossibleHeight);
+                
+                noiseMap[x, y] = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, noiseMap[x, y]);
+                noiseMap[x,y] = Mathf.Clamp01(normalizedHeight);
+            }
+        }
+
+        return noiseMap;
+    }
+
     public static float GenerateCoordinateNoise(Vector3Int coordinate, int seed, float scale, int octaves, float persistance, float lacunarity, Vector2 offset)
     {
         System.Random prng = new System.Random(seed);

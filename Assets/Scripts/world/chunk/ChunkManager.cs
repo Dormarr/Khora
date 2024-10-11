@@ -9,12 +9,14 @@ public class ChunkManager : MonoBehaviour
     [SerializeField] private WorldEngine worldEngine;
 
     public Dictionary<Vector3Int, GameObject> chunkCache = new Dictionary<Vector3Int, GameObject>();
+    public Dictionary<Vector3Int, GameObject> softChunkCache = new Dictionary<Vector3Int, GameObject>();
 
     public List<TileData> modificationCache;
 
     void Awake(){
         //redo to get rid of awake entirely.
         chunkCache.Clear();
+        softChunkCache.Clear();
         modificationCache.Clear();
 
         GlobalRegistry.Bootstrap();
@@ -33,10 +35,19 @@ public class ChunkManager : MonoBehaviour
         }
     }
 
+    public void AddSoftChunk(Vector3Int chunkPosition, GameObject chunk){
+        if(!softChunkCache.ContainsKey(chunkPosition)){
+            softChunkCache[chunkPosition] = chunk;
+        }
+    }
+
     public void RemoveChunk(Vector3Int chunkPosition, GameObject chunk)
     {
         if(chunkCache.ContainsKey(chunkPosition)){
             chunkCache.Remove(chunkPosition);
+        }
+        if(softChunkCache.ContainsKey(chunkPosition)){
+            softChunkCache.Remove(chunkPosition);
         }
     }
 

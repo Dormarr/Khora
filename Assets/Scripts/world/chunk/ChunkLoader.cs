@@ -129,7 +129,7 @@ public class ChunkLoader : MonoBehaviour
             return;
         }
 
-            ChunkData chunkData = await Task.Run(() => worldEngine.GenerateChunkAsync(chunkPosition));
+        ChunkData chunkData = await Task.Run(() => worldEngine.GenerateChunkAsync(chunkPosition));
 
         // If the chunkData generation failed or returned null, abort.
         if (chunkData == null)
@@ -140,6 +140,14 @@ public class ChunkLoader : MonoBehaviour
 
         // Load modification data synchronously (assuming this is quick).
         ChunkData modChunkData = chunkManager.LoadChunk(chunkPosition);
+
+        // Soft loaded chunks exist to supply data to the rendering process.
+        // They exist computationally only (unrendered), but otherwise function as main chunks.
+        if(softLoad){
+            Debug.Log($"Chunk {chunkPosition} was Loaded Softly.");
+            chunkManager.AddSoftChunk(chunkPosition, chunk);
+            return;
+        }
 
         // Add the chunk to the cache.
         chunkManager.AddChunk(chunkPosition, chunk);
@@ -156,30 +164,22 @@ public class ChunkLoader : MonoBehaviour
     async Task RenderChunk(ChunkData chunkData, ChunkData modChunkData, Vector3Int chunkPosition, Tilemap chunkTilemap, Tilemap chunkChildTilemap)
     {
         // Begin profiling the entire chunk rendering process
-        Profiler.BeginSample("RenderChunk: Entire Chunk Process");
         Debug.Log("RenderChunk: Processing Started.");
 
         // Extract biomeMap from the chunkData and precompute the array
-        Profiler.BeginSample("RenderChunk: Biome Map Preprocessing");
         Biome[,] biomeMap = BiomeUtility.ListToArray(chunkData.biomeMapList, chunkSize, chunkSize);
-        Profiler.EndSample();
 
         // Render the biome map onto the chunk's tilemap
-        Profiler.BeginSample("RenderChunk: Draw Biome Map");
         await Task.Run(() => DrawBiomeMap(biomeMap, chunkTilemap, chunkPosition));
-        Profiler.EndSample();
 
         // If there is modification data, apply it to the child tilemap
         if (modChunkData != null)
         {
-            Profiler.BeginSample("RenderChunk: Draw Modification Map");
             await Task.Run(() => DrawModificationMap(modChunkData.tileDataList, chunkChildTilemap, chunkPosition));
-            Profiler.EndSample();
         }
 
         // End profiling for the entire chunk rendering process
         Debug.Log("RenderChunk: Processing Finished.");
-        Profiler.EndSample();
     }
 
     void UnloadChunk(Vector3Int chunkPosition)
@@ -232,11 +232,11 @@ public class ChunkLoader : MonoBehaviour
         // Create a list of tasks for setting tiles
         List<Task> tileTasks = new List<Task>();
 
-        // Process the biome map asynchronously and only set tiles on the main thread
 
         int localX = chunkPosition.x * width;
         int localY = chunkPosition.y * height;
 
+        // Process the biome map asynchronously and only set tiles on the main thread
         await Task.Run(() =>
         {
             for (int y = 0; y < height; y++)
@@ -244,6 +244,10 @@ public class ChunkLoader : MonoBehaviour
                 for (int x = 0; x < width; x++)
                 {
                     Vector3Int tilePosition = new Vector3Int(localX + x, localY + y, 0);
+
+                    if(tilePosition.x > localX + width || tilePosition.x < localX || tilePosition.y > localY + height || tilePosition.y < localY){
+                        continue;
+                    }
 
                     // Only enqueue tile setting on the main thread when necessary
                     tileTasks.Add(UnityMainThreadDispatcher.Instance().EnqueueAsync(() =>
@@ -259,8 +263,12 @@ public class ChunkLoader : MonoBehaviour
 
         });
 
-        float[,] temperatureMap = worldEngine.temperatureGenerator.GenerateChunkPerlin(chunkPosition, WorldDataTransfer.worldSeed);
-        float[,] precipitationMap = worldEngine.precipitationGenerator.GenerateChunkPerlin(chunkPosition, WorldDataTransfer.worldSeed);
+        float[,] temperatureMap = worldEngine.temperatureGenerator.GenerateChunkPerlinWithBorder(chunkPosition, WorldDataTransfer.worldSeed);
+        float[,] precipitationMap = worldEngine.precipitationGenerator.GenerateChunkPerlinWithBorder(chunkPosition, WorldDataTransfer.worldSeed);
+
+
+
+
         await RenderTileColours(temperatureMap, precipitationMap, chunkTilemap, chunkPosition);
     }
 
@@ -269,8 +277,8 @@ public class ChunkLoader : MonoBehaviour
     {
         Debug.Log("RenderTileColours: Processing Started.");
 
-        int width = temperatureMap.GetLength(0);
-        int height = temperatureMap.GetLength(1);
+        int width = Config.chunkSize;
+        int height = Config.chunkSize;
 
         int chunkOffsetX = chunkPosition.x * Config.chunkSize;
         int chunkOffsetY = chunkPosition.y * Config.chunkSize;
@@ -286,9 +294,9 @@ public class ChunkLoader : MonoBehaviour
         Debug.Log("RenderTileColours: About to start the loop.");
         
         // Use a regular for loop to handle async tasks properly.
-        for (int x = 1; x < width - 1; x++)
+        for (int x = 0; x < width; x++)         // THE BORDER CODE LIVED HERE!!!
         {
-            for (int y = 1; y < height - 1; y++)
+            for (int y = 0; y < height; y++)
             {
                 int localX = x;
                 int localY = y;
@@ -297,6 +305,7 @@ public class ChunkLoader : MonoBehaviour
                 var tileTask = Task.Run(async () =>
                 {
                     // Fetch neighbour colors without dispatcher (background thread).
+                    //This can't grab from other chunks, so need to work around that.
                     Color[] neighbourColours = await Task.Run(() => GetTileNeighbourColoursAsync(temperatureMap, precipitationMap, localX, localY));
                     
                     // Perform the gradient calculation in the background.
@@ -334,43 +343,12 @@ public class ChunkLoader : MonoBehaviour
         Debug.Log("RenderTileColours: Completed.");
     }
 
-    public Color[] GetTileNeighbourColours(float[,] temperatureMap, float[,] precipitationMap, int x, int y){
-
-        Color[] tileColours = new Color[9];
-        
-        int index = 0;
-
-        // [0,1,2]
-        // [3,4,5]
-        // [6,7,8]
-
-        //Gets the colours in rows from bottom left.
-        for(int yOffset = 1; yOffset >= -1; yOffset--){
-            for(int xOffset = -1; xOffset <= 1; xOffset++){
-                int xCoord = x + xOffset;
-                int yCoord = y + yOffset;
-
-                // Safety check to ensure we don't access out-of-bounds
-                if (xCoord >= 0 && xCoord < temperatureMap.GetLength(0) && yCoord >= 0 && yCoord < precipitationMap.GetLength(1))
-                {
-                    // Get the colour based on the temperature and precipitation map values at this tile
-                    tileColours[index] = uVColourMap.GetColourFromUVMap(temperatureMap[xCoord, yCoord], precipitationMap[xCoord, yCoord]);
-                }
-                else
-                {
-                    // Backup colour.
-                    tileColours[index] = Color.white;
-                }
-
-                index++;
-            }
-        }
-
-        return tileColours;
-    }
-
     public async Task<Color[]> GetTileNeighbourColoursAsync(float[,] temperatureMap, float[,] precipitationMap, int x, int y)
     {
+
+        //If I generate noise maps for the chunk with a 1 tile border, then offset the x and y values by 1 inwards...
+        //I can get rid of the border colour issue.
+
         var dispatcher = UnityMainThreadDispatcher.Instance();
 
         Color[] tileColours = new Color[9];
@@ -380,20 +358,22 @@ public class ChunkLoader : MonoBehaviour
         // [3,4,5]
         // [6,7,8]
 
-        // Run the tile color fetching on the main thread
+        // Run the tile colour fetching on the main thread
         // Iterate over neighboring tiles to collect colors
         for (int yOffset = 1; yOffset >= -1; yOffset--)
         {
             for (int xOffset = -1; xOffset <= 1; xOffset++)
             {
-                int xCoord = x + xOffset;
-                int yCoord = y + yOffset;
+                int xCoord = x + xOffset + 1;
+                int yCoord = y + yOffset + 1;
 
                 // Ensure we don't go out of bounds
                 if (xCoord >= 0 && xCoord < temperatureMap.GetLength(0) && yCoord >= 0 && yCoord < precipitationMap.GetLength(1))
                 {
                     // Call GetColourFromUVMap on the main thread
                     int currentIndex = index;  // Capture the index for the closure
+
+                    // Ensure this is finished before returning and rendering.
                     tileColours[currentIndex] = await dispatcher.EnqueueAsync(() =>
                     {
                         return uVColourMap.GetColourFromUVMap(temperatureMap[xCoord, yCoord], precipitationMap[xCoord, yCoord]);

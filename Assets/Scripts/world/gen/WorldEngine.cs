@@ -124,8 +124,9 @@ public class WorldEngine : MonoBehaviour
 
     public Biome GenerateBiomeForCoordinate(Vector3Int coordinate){
         Vector3Int offset = new Vector3Int(Config.chunkSize / 2, Config.chunkSize / 2, 0);
-        temperature = temperatureGenerator.GenerateCoordinatePerlin(coordinate - offset, worldSeed);
-        precipitation = precipitationGenerator.GenerateCoordinatePerlin(coordinate - offset, worldSeed);
+        Vector3Int localCoord = coordinate - offset;
+        temperature = temperatureGenerator.GenerateCoordinatePerlin(localCoord, worldSeed);
+        precipitation = precipitationGenerator.GenerateCoordinatePerlin(localCoord, worldSeed);
         return BiomeGenerator.GetBiome(temperature, precipitation);
     }
 

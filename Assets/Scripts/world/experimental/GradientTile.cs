@@ -72,7 +72,7 @@ namespace UnityEngine.Tilemaps
             newTexture.filterMode = FilterMode.Point;
             newTexture.wrapMode = TextureWrapMode.Clamp;
             newTexture.anisoLevel = 0;
-            //newTexture.Compress(false);
+            newTexture.Compress(false);
             newTexture.Apply();
 
             return newTexture;
@@ -109,7 +109,7 @@ namespace UnityEngine.Tilemaps
             );
 
             mainTexture = updatedSprite;
-            Debug.Log("Updated tile sprite.");
+            // Debug.Log("Updated tile sprite.");
 
         }
     }
