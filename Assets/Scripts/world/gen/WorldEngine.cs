@@ -118,7 +118,7 @@ public class WorldEngine : MonoBehaviour
         return new ChunkData.Build()
         .Name($"chunk_{chunkPosition}")
         .ChunkPosition(chunkPosition)
-        .BiomeMapList(BiomeUtility.ArrayToList(GenerateBiomeForChunk(chunkPosition)))//this shouldn't be done. Because of arrays and lists.
+        .BiomeMapList(BiomeUtility.ArrayToList(GenerateBiomeForChunk(chunkPosition)))
         .BuildChunkData();
     }
 

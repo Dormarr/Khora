@@ -17,8 +17,8 @@ public class UVColourMap : MonoBehaviour
         int u = Mathf.FloorToInt(temperature * texSize);
         int v = Mathf.FloorToInt(precipitation * texSize);
 
-
         Color pixelColour = tex.GetPixel(u, v);
+        Debug.Log($"Grabbed UV Colour: {pixelColour.ToString()}");
         return pixelColour;
     }
 

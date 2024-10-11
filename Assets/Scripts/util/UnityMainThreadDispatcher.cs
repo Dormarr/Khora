@@ -37,8 +37,25 @@ public class UnityMainThreadDispatcher : MonoBehaviour
             {
                 var taskFunc = taskActions.Dequeue();
                 var tcs = new TaskCompletionSource<bool>();
-                taskFunc(tcs);
-                tcs.SetResult(true);
+
+                try
+                {
+                    taskFunc(tcs).ContinueWith(task =>
+                    {
+                        if (task.IsFaulted && task.Exception != null)
+                        {
+                            tcs.TrySetException(task.Exception);
+                        }
+                        else
+                        {
+                            tcs.TrySetResult(true); // Ensure TrySetResult to avoid multiple calls.
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    tcs.TrySetException(ex); // Use TrySetException to avoid multiple calls.
+                }
             }
         }
     }
@@ -51,7 +68,7 @@ public class UnityMainThreadDispatcher : MonoBehaviour
         }
     }
 
-    // New EnqueueAsync Method
+    // New EnqueueAsync Method for synchronous tasks
     public Task<T> EnqueueAsync<T>(Func<T> func)
     {
         var tcs = new TaskCompletionSource<T>();
@@ -66,7 +83,7 @@ public class UnityMainThreadDispatcher : MonoBehaviour
                 }
                 catch (Exception ex)
                 {
-                    tcs.SetException(ex);
+                    tcs.TrySetException(ex); // Use TrySetException to avoid multiple SetResult calls.
                 }
             });
         }
@@ -74,6 +91,7 @@ public class UnityMainThreadDispatcher : MonoBehaviour
         return tcs.Task;
     }
 
+    // New EnqueueAsync Method for asynchronous tasks
     public Task EnqueueAsync(Func<Task> func)
     {
         var tcs = new TaskCompletionSource<bool>();
@@ -85,11 +103,11 @@ public class UnityMainThreadDispatcher : MonoBehaviour
                 try
                 {
                     await func();
-                    tcs.SetResult(true);
+                    tcs.TrySetResult(true); // Ensure TrySetResult to avoid multiple calls.
                 }
                 catch (Exception ex)
                 {
-                    tcs.SetException(ex);
+                    tcs.TrySetException(ex); // Ensure TrySetException to handle any error.
                 }
             });
         }

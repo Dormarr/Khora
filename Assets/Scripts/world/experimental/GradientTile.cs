@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine.Tilemaps;
 using UnityEngine.Serialization;
 
@@ -71,7 +72,7 @@ namespace UnityEngine.Tilemaps
             newTexture.filterMode = FilterMode.Point;
             newTexture.wrapMode = TextureWrapMode.Clamp;
             newTexture.anisoLevel = 0;
-            newTexture.Compress(false);
+            //newTexture.Compress(false);
             newTexture.Apply();
 
             return newTexture;
