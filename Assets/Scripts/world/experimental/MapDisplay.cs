@@ -8,13 +8,15 @@ public class MapDisplay : MonoBehaviour
     public Tilemap tilemap;
     public Sprite defaultSprite;
     public GradientTile gradientTile;
-
-    public UVColourMap uVColourMap;
+    private Texture2D colourMap;
+    private Color[,] colourData;
 
     public void DrawBiomeMap(Biome[,] biomeMap){
         tilemap.ClearAllTiles();
+        colourMap = BiomeUtility.GetColourMapByName("grass");
         int width = biomeMap.GetLength(0);
         int height = biomeMap.GetLength(1);
+        colourData = TextureUtility.LoadCSVAsColourArray(gradientTile.csvFile, 16, 16);
 
         for (int y = 0; y < height; y++){
             for (int x = 0; x < width; x++){
@@ -31,7 +33,7 @@ public class MapDisplay : MonoBehaviour
 
         for(int x = 0; x < width; x++){
             for(int y = 0; y < height; y++){
-                uVColourMap.ApplyColourToTile(temperatureMap[x,y], precipitationMap[x,y], tilemap, new Vector3Int(x,y,0));
+                UVColourMap.ApplyColourToTile(temperatureMap[x,y], precipitationMap[x,y], tilemap, new Vector3Int(x,y,0), colourMap);
             }
         }
     }
@@ -43,10 +45,10 @@ public class MapDisplay : MonoBehaviour
             for(int y = 1; y < temperatureMap.GetLength(1) -1; y++){
                 Color[] tiles = GetTileNeighbourColours(temperatureMap, precipitationMap, x, y);
 
-                Color[] colours = Utility.Get8WayGradient(tiles);
+                Color[] colours = TextureUtility.Get8WayGradient(tiles);
 
                 GradientTile tile = ScriptableObject.CreateInstance<GradientTile>();
-                tile.Initialize(new Vector3Int(x,y,0), colours, defaultSprite);
+                tile.Initialize(new Vector3Int(x,y,0), colours, defaultSprite, colourData);
 
                 tilemap.SetTile(new Vector3Int(x,y,0), tile);
                 tilemap.RefreshAllTiles();
@@ -74,7 +76,7 @@ public class MapDisplay : MonoBehaviour
                 if (xCoord >= 0 && xCoord < temperatureMap.GetLength(0) && yCoord >= 0 && yCoord < precipitationMap.GetLength(1))
                 {
                     // Get the colour based on the temperature and precipitation map values at this tile
-                    tileColours[index] = uVColourMap.GetColourFromUVMap(temperatureMap[xCoord, yCoord], precipitationMap[xCoord, yCoord]);
+                    tileColours[index] = UVColourMap.GetColourFromUVMap(temperatureMap[xCoord, yCoord], precipitationMap[xCoord, yCoord], colourMap);
                 }
                 else
                 {

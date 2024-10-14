@@ -96,11 +96,23 @@ public static class BiomeUtility
             Debug.LogError($"Tile {name} could not be found.");
             return null;
         }
-        else{
 
-            tile = AssetDatabase.LoadAssetAtPath<GradientTile>(path);
-            return tile;
+        tile = AssetDatabase.LoadAssetAtPath<GradientTile>(path);
+        return tile;
+        
+
+    }
+
+    public static Texture2D GetColourMapByName(string name){
+        Texture2D colourMap;
+        string path = $"Assets/textures/colourmaps/{name}_colourmap.png";
+
+        if(!File.Exists(path)){
+            Debug.LogError($"ColourMap {name} could not be found.");
+            return null;
         }
 
+        colourMap = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        return colourMap;
     }
 }

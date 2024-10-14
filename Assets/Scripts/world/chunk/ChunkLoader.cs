@@ -5,12 +5,14 @@ using UnityEngine.Tilemaps;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine.Profiling;
+using Unity.Collections;
+using Unity.Jobs;
 
 public class ChunkLoader : MonoBehaviour
 {
     public ChunkManager chunkManager;
     public WorldEngine worldEngine;
-    public UVColourMap uVColourMap;
+    public GradientTile tempTile;
 
     public Camera mainCamera;
     public GameObject grid;
@@ -169,6 +171,11 @@ public class ChunkLoader : MonoBehaviour
         // Extract biomeMap from the chunkData and precompute the array
         Biome[,] biomeMap = BiomeUtility.ListToArray(chunkData.biomeMapList, chunkSize, chunkSize);
 
+        //Is there a way to cluster the biome map into different tile types? Like grass and sand and stuff?
+        //For now I'll just pass in the grass stuff.
+
+
+
         // Render the biome map onto the chunk's tilemap
         await Task.Run(() => DrawBiomeMap(biomeMap, chunkTilemap, chunkPosition));
 
@@ -229,6 +236,8 @@ public class ChunkLoader : MonoBehaviour
             return BiomeUtility.GetGradientTileByName("grass");
         });
 
+        // GradientTile selectedTile = tempTile;
+
         // Create a list of tasks for setting tiles
         List<Task> tileTasks = new List<Task>();
 
@@ -249,6 +258,8 @@ public class ChunkLoader : MonoBehaviour
                         continue;
                     }
 
+
+
                     // Only enqueue tile setting on the main thread when necessary
                     tileTasks.Add(UnityMainThreadDispatcher.Instance().EnqueueAsync(() =>
                     {
@@ -263,18 +274,21 @@ public class ChunkLoader : MonoBehaviour
 
         });
 
-        float[,] temperatureMap = worldEngine.temperatureGenerator.GenerateChunkPerlinWithBorder(chunkPosition, WorldDataTransfer.worldSeed);
-        float[,] precipitationMap = worldEngine.precipitationGenerator.GenerateChunkPerlinWithBorder(chunkPosition, WorldDataTransfer.worldSeed);
 
-
-
-
-        await RenderTileColours(temperatureMap, precipitationMap, chunkTilemap, chunkPosition);
+        // await RenderTileColours(chunkTilemap, chunkPosition);
+        await RenderTileColours(chunkTilemap, chunkPosition);
     }
 
 
-    async Task RenderTileColours(float[,] temperatureMap, float[,] precipitationMap, Tilemap chunkTilemap, Vector3Int chunkPosition)
+    Sprite tileSprite;
+    Color[,] colourData;
+
+    async Task RenderTileColours(Tilemap chunkTilemap, Vector3Int chunkPosition)
     {
+
+        float[,] temperatureMap = worldEngine.temperatureGenerator.GenerateChunkPerlinWithBorder(chunkPosition, WorldDataTransfer.worldSeed);
+        float[,] precipitationMap = worldEngine.precipitationGenerator.GenerateChunkPerlinWithBorder(chunkPosition, WorldDataTransfer.worldSeed);
+
         Debug.Log("RenderTileColours: Processing Started.");
 
         int width = Config.chunkSize;
@@ -286,7 +300,16 @@ public class ChunkLoader : MonoBehaviour
         // Find a better way to do this.
         GradientTile selectedTile = await UnityMainThreadDispatcher.Instance().EnqueueAsync(() =>
         {
-            return BiomeUtility.GetGradientTileByName("grass");
+            GradientTile tile = BiomeUtility.GetGradientTileByName("grass");
+            // GradientTile tile = tempTile;
+            tileSprite = tile.mainTexture;
+            return tile;
+
+        });
+
+        colourData = await UnityMainThreadDispatcher.Instance().EnqueueAsync(() =>
+        {
+            return TextureUtility.LoadCSVAsColourArray(selectedTile.csvFile, 16, 16);
         });
 
         List<Task<(Vector3Int pos, GradientTile tile)>> tileTasks = new List<Task<(Vector3Int pos, GradientTile tile)>>();
@@ -294,7 +317,7 @@ public class ChunkLoader : MonoBehaviour
         Debug.Log("RenderTileColours: About to start the loop.");
         
         // Use a regular for loop to handle async tasks properly.
-        for (int x = 0; x < width; x++)         // THE BORDER CODE LIVED HERE!!!
+        for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
@@ -306,19 +329,30 @@ public class ChunkLoader : MonoBehaviour
                 {
                     // Fetch neighbour colors without dispatcher (background thread).
                     //This can't grab from other chunks, so need to work around that.
-                    Color[] neighbourColours = await Task.Run(() => GetTileNeighbourColoursAsync(temperatureMap, precipitationMap, localX, localY));
+                    // Color[] neighbourColours = await Task.Run(() => GetTileNeighbourColoursAsync(temperatureMap, precipitationMap, localX, localY, selectedTile.colourMap));
+                    Color[] neighbourColours = await UnityMainThreadDispatcher.Instance().EnqueueAsync(() =>
+                    {
+                        return GetTileNeighbourColours(temperatureMap, precipitationMap, x, y, tempTile.colourMap);
+                    });
                     
                     // Perform the gradient calculation in the background.
-                    Color[] colours = await Utility.Get8WayGradientAsync(neighbourColours);
+
+                    // I'd like to make this a job.
+                    Color[] colours = await TextureUtility.Get8WayGradientAsync(neighbourColours);
+                    
+                    // Color[] colours = await Task.Run(() =>
+                    // {
+                    //     return Get8WayGradientJob(neighbourColours);
+                    // });
 
                     // Create the tile on the main thread.
                     GradientTile tile = await UnityMainThreadDispatcher.Instance().EnqueueAsync(() =>
                     {
-                        var newTile = ScriptableObject.CreateInstance<GradientTile>();
-                        Vector3Int tilePos = new Vector3Int(chunkOffsetX + localX, chunkOffsetY + localY, 0);
-                        newTile.Initialize(tilePos, colours, selectedTile.mainTexture);
-                        return newTile;
+                        return ScriptableObject.CreateInstance<GradientTile>();
                     });
+                    Vector3Int tilePos = new Vector3Int(chunkOffsetX + localX, chunkOffsetY + localY, 0);
+                    tile.csvFile = selectedTile.csvFile;
+                    await Task.Run(() => tile.Initialize(tilePos, colours, tileSprite, colourData));
 
                     // Return tile data for setting in Tilemap.
                     return (new Vector3Int(chunkOffsetX + localX, chunkOffsetY + localY, 0), tile);
@@ -334,6 +368,7 @@ public class ChunkLoader : MonoBehaviour
         // Set tiles on the main thread.
         UnityMainThreadDispatcher.Instance().Enqueue(() =>
         {
+            
             foreach (var (tilePos, tile) in tiles)
             {
                 chunkTilemap.SetTile(tilePos, tile);
@@ -343,7 +378,36 @@ public class ChunkLoader : MonoBehaviour
         Debug.Log("RenderTileColours: Completed.");
     }
 
-    public async Task<Color[]> GetTileNeighbourColoursAsync(float[,] temperatureMap, float[,] precipitationMap, int x, int y)
+    private Color[] GetTileNeighbourColours(float[,] temperatureMap, float[,] precipitationMap, int x, int y, Texture2D colourMap){
+
+        Color[] tileColours = new Color[9];
+        int mapSize = temperatureMap.GetLength(0);
+
+        int index = 0;
+
+        for(int yOffset = 1; yOffset >= -1; yOffset--){
+            for(int xOffset = -1; xOffset <= 1; xOffset++){
+                int neighbourX = x + xOffset;
+                int neighbourY = y + yOffset;
+
+                if(neighbourX >= 0 && neighbourX < mapSize && neighbourY >= 0 && neighbourY < mapSize){
+                    float temp = temperatureMap[neighbourX, neighbourY];
+                    float precip = precipitationMap[neighbourX, neighbourY];
+
+                    tileColours[index] = UVColourMap.GetColourFromUVMap(temp, precip, colourMap);
+                }
+                else{
+                    tileColours[index] = Color.white;
+                }
+
+                index++;
+            }
+        }
+
+        return tileColours;
+    }
+
+    public async Task<Color[]> GetTileNeighbourColoursAsync(float[,] temperatureMap, float[,] precipitationMap, int x, int y, Texture2D colourMap)
     {
 
         //If I generate noise maps for the chunk with a 1 tile border, then offset the x and y values by 1 inwards...
@@ -376,13 +440,13 @@ public class ChunkLoader : MonoBehaviour
                     // Ensure this is finished before returning and rendering.
                     tileColours[currentIndex] = await dispatcher.EnqueueAsync(() =>
                     {
-                        return uVColourMap.GetColourFromUVMap(temperatureMap[xCoord, yCoord], precipitationMap[xCoord, yCoord]);
+                        return UVColourMap.GetColourFromUVMap(temperatureMap[xCoord, yCoord], precipitationMap[xCoord, yCoord], colourMap);
                     });
                 }
                 else
                 {
                     // Assign a backup color for out-of-bounds tiles
-                    tileColours[index] = Color.white;
+                    tileColours[index] = Color.blue;
                 }
 
                 index++;
@@ -392,4 +456,30 @@ public class ChunkLoader : MonoBehaviour
         return tileColours;
     }
 
+    async Task<Color[]> Get8WayGradientJob(Color[] neighbourColours){
+        NativeArray<Color> neighbourColoursArray = new NativeArray<Color>(9, Allocator.TempJob);
+        NativeArray<Color> gradientColoursArray = new NativeArray<Color>(16, Allocator.TempJob);
+
+        for(int i = 0; i < 9; i++){
+            neighbourColoursArray[i] = neighbourColours[i];
+        }
+
+        GradientColourJob gradientJob = new GradientColourJob
+        {
+            neighbourColours = neighbourColoursArray,
+            gradientColours = gradientColoursArray
+        };
+
+        JobHandle jobHandle = gradientJob.Schedule();
+
+        jobHandle.Complete();
+
+        Color[] resultGradientColours = new Color[16];
+        gradientColoursArray.CopyTo(resultGradientColours);
+
+        neighbourColoursArray.Dispose();
+        gradientColoursArray.Dispose();
+
+        return resultGradientColours;
+    }
 }
