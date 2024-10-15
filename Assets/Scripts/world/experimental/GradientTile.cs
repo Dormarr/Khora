@@ -120,7 +120,7 @@ namespace UnityEngine.Tilemaps
             
 
             // mainTexture = updatedSprite;
-            Debug.Log("Updated tile sprite.");
+            Debug.Log("Finished Rendering Tile.");
             return updatedSprite;
         }
 
@@ -133,13 +133,8 @@ namespace UnityEngine.Tilemaps
                 return null;
             }
 
-            // Create a new texture to store the modified pixels
-            Texture2D newTexture = new Texture2D(16, 16, TextureFormat.RGBA32, false);
-            
-            // Get all pixels from the original texture
-            // Color[] pixels = new Color[256];
-
             Color[] pixels = new Color[256];
+
             Debug.Log($"ReplaceColours: Colour Data Length: {csvColourData.GetLength(0)}, {csvColourData.GetLength(1)}");
             for(int x = 0; x < csvColourData.GetLength(0); x++){
                 for(int y = 0; y < csvColourData.GetLength(1); y++){
@@ -153,8 +148,9 @@ namespace UnityEngine.Tilemaps
                 }
             }
 
-            Debug.Log("ReplaceColours: Starting Configuring Settings.");
+            Debug.Log("ReplaceColours: Started Creating NewTexture.");
 
+            Texture2D newTexture = new Texture2D(16, 16, TextureFormat.RGBA32, false);
             newTexture.SetPixels(pixels);
             newTexture.filterMode = FilterMode.Point;
             newTexture.wrapMode = TextureWrapMode.Clamp;
@@ -162,9 +158,12 @@ namespace UnityEngine.Tilemaps
             newTexture.Compress(false);
             newTexture.Apply();
 
-            Debug.Log("ReplaceColours: Processed NewTexture.");
+            Debug.Log("ReplaceColours: Created NewTexture.");
 
-            Debug.Log("Finished Rendering Tile.");
+            System.GC.Collect();
+
+            Debug.Log("ReplaceColours: Disposed of Temporary Data.");
+
             return newTexture;
         }
 

@@ -5,7 +5,6 @@ using Unity.Jobs;
 using Unity.Collections;
 using Unity.Burst;
 
-[BurstCompile]
 public struct GradientColourJob : IJob
 {
     [ReadOnly] public NativeArray<Color> neighbourColours;
