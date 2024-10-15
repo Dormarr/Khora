@@ -18,13 +18,13 @@ namespace UnityEngine.Tilemaps
     {
         public int id;
         public Sprite mainTexture;
-        private Texture2D mainTexture2D;
+        public Texture2D mainTexture2D;
         public Texture2D colourMap;
         //I would like to add weighted texture variations.
         private Color[] originalColours;
-        public TextAsset csvFile;
-        public string[] csvStrings;
-        public Color[,] csvColourData;
+        // public TextAsset csvFile;
+        // public string[] csvStrings;
+        // public Color[,] csvColourData;
         // private Color[] csvColourDataFlat;
 
 
@@ -35,14 +35,14 @@ namespace UnityEngine.Tilemaps
         //     mainTexture = await Task.Run(() => ApplyGradientToTile(inputColours));
         // }
 
-        public async Task Initialize(Vector3Int position, Color[] inputColours, Sprite inputSprite, Color[,] colourData)
+        public void Initialize(Vector3Int position, Color[] inputColours, Sprite inputSprite)
         {
             Debug.Log("Initialize: Starting initialization.");
 
             // Assign input sprite to mainTexture
             mainTexture = inputSprite;
 
-            csvColourData = colourData;
+            // csvColourData = colourData;
 
             
             // csvColourData = await UnityMainThreadDispatcher.Instance().EnqueueAsync(() => 
@@ -51,10 +51,6 @@ namespace UnityEngine.Tilemaps
             // });
 
             // Ensure mainTexture and colours are valid
-
-            if(csvColourData == null){
-                Debug.LogError("CSVColourData is Empty.");
-            }
 
             if (mainTexture == null)
             {
@@ -68,17 +64,11 @@ namespace UnityEngine.Tilemaps
                 return;
             }
 
-            //This is temporary.
-            SetTileColours(ColourLibrary.grassUV);
-
 
             // Need to set on main thread. ----------------------------
 
-            mainTexture = await UnityMainThreadDispatcher.Instance().EnqueueAsync(() =>
-            {
-                return ApplyGradientToTile(inputColours);
-            });
-
+            mainTexture = ApplyGradientToTile(inputColours);
+            
             // --------------------------------------------------------
 
             // Check if the texture was successfully updated
@@ -133,20 +123,27 @@ namespace UnityEngine.Tilemaps
                 return null;
             }
 
-            Color[] pixels = new Color[256];
+            // Color[] pixels = new Color[256];
 
-            Debug.Log($"ReplaceColours: Colour Data Length: {csvColourData.GetLength(0)}, {csvColourData.GetLength(1)}");
-            for(int x = 0; x < csvColourData.GetLength(0); x++){
-                for(int y = 0; y < csvColourData.GetLength(1); y++){
-                    for(int j = 0; j < inputColours.Length; j++){
-                        if(CompareColour(csvColourData[x,y], inputColours[j])){
-                            pixels[x+y * csvColourData.GetLength(0)] = inputColours[j];
-                            Debug.Log("ReplaceColours: Successfully Replaced Colour.");
-                        }
-                        Debug.Log("CompareColour Loop: No Match Found.");
-                    }
-                }
-            }
+            // Debug.Log($"ReplaceColours: Colour Data Length: {csvColourData.GetLength(0)}, {csvColourData.GetLength(1)}");
+            // for(int x = 0; x < csvColourData.GetLength(0); x++){
+            //     for(int y = 0; y < csvColourData.GetLength(1); y++){
+            //         for(int j = 0; j < inputColours.Length; j++){
+                        // This calls nearly 17 million times. Let's trim that down eh?
+
+                        //I'll migrate to a new csvData method, using a generated array in texture config.
+
+            //             if(CompareColour(csvColourData[x,y], inputColours[j])){
+            //                 pixels[x+y * csvColourData.GetLength(0)] = inputColours[j];
+            //                 Debug.Log("ReplaceColours: Successfully Replaced Colour.");
+            //             }
+            //             Debug.Log("CompareColour Loop: No Match Found.");
+            //         }
+            //     }
+            // }
+
+
+            Color[] pixels = CycleColours(inputColours, Config.tileSize);
 
             Debug.Log("ReplaceColours: Started Creating NewTexture.");
 
@@ -160,7 +157,7 @@ namespace UnityEngine.Tilemaps
 
             Debug.Log("ReplaceColours: Created NewTexture.");
 
-            System.GC.Collect();
+            // System.GC.Collect();
 
             Debug.Log("ReplaceColours: Disposed of Temporary Data.");
 
@@ -175,7 +172,81 @@ namespace UnityEngine.Tilemaps
                 Mathf.Pow(colorA.b - colorB.b, 2) +
                 Mathf.Pow(colorA.a - colorB.a, 2);
 
-            return sqrDistance < 0.0001f;
+            return sqrDistance < 0.0001f * 0.0001f;
+        }
+
+        public Color[] CycleColours(Color[] inputColours, int tileSize){// Pass in a name for different tile lookups.
+
+            string name = "grass";
+            Debug.Log($"CycleColours: Started generated colour array for {name}.");            
+
+
+            GradientTile tile = BiomeUtility.GetGradientTileByName(name);
+            int[] uvInts = TextureManager.GetTextureInts(name);
+            Color[] colours = new Color[tileSize * tileSize];
+            // Color[] uvColours = ColourLibrary.Get(name);
+
+            for(int i = 0; i < tileSize * tileSize; i++){
+                switch (uvInts[i]){
+                    case 0:
+                        colours[i] = inputColours[0];
+                        break;
+                    case 1:
+                        colours[i] = inputColours[1];
+                        break;
+                    case 2:
+                        colours[i] = inputColours[2];
+                        break;
+                    case 3:
+                        colours[i] = inputColours[3];
+                        break;
+                    case 4:
+                        colours[i] = inputColours[4];
+                        break;
+                    case 5:
+                        colours[i] = inputColours[5];
+                        break;
+                    case 6:
+                        colours[i] = inputColours[6];
+                        break;
+                    case 7:
+                        colours[i] = inputColours[7];
+                        break;
+                    case 8:
+                        colours[i] = inputColours[8];
+                        break;
+                    case 9:
+                        colours[i] = inputColours[9];
+                        break;
+                    case 10:
+                        colours[i] = inputColours[10];
+                        break;
+                    case 11:
+                        colours[i] = inputColours[11];
+                        break;
+                    case 12:
+                        colours[i] = inputColours[12];
+                        break;
+                    case 13:
+                        colours[i] = inputColours[13];
+                        break;
+                    case 14:
+                        colours[i] = inputColours[14];
+                        break;
+                    case 15:
+                        colours[i] = inputColours[15];
+                        break;
+                    case -1:
+                        colours[i] = Color.blue;
+                        break;
+                    default:
+                        colours[i] = Color.red;
+                        break;
+                }
+
+            }
+
+            return colours;
         }
         
     }
@@ -189,12 +260,12 @@ public class GradientTileEditor : Editor{
 
         DrawDefaultInspector();
 
-        if(GUILayout.Button("Process CSV.")){
-            gradientTile.csvColourData = TextureUtility.LoadCSVAsColourArray(gradientTile.csvFile, 16, 16);
-            Debug.Log("Successfully processed CSV data to colour array.");
+        // if(GUILayout.Button("Process CSV.")){
+        //     gradientTile.csvColourData = TextureUtility.LoadCSVAsColourArray(gradientTile.csvFile, 16, 16);
+        //     Debug.Log("Successfully processed CSV data to colour array.");
 
-            //gradientTile.csvStrings = TextureUtility.LoadPixelValues(gradientTile.csvFile, 16);
+        //     gradientTile.csvStrings = TextureUtility.LoadPixelValues(gradientTile.csvFile, 16);
 
-        }
+        // }
     }
 }

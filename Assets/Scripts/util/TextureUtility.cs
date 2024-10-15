@@ -287,4 +287,56 @@ public static class TextureUtility
 
         return flatColours;
     }
+
+    public static int[] ConvertTextureToInts(Texture2D texture, string tileName){
+        Color[] pixels = texture.GetPixels();
+        int width = texture.width;
+        int height = texture.height;
+
+        // Loop through the textures pixels and replace using...
+        // a switch statement 1-16 to match each colour.
+
+        int[] pixelIndices = new int[width*height];
+
+        for(int x = 0; x < width; x++){
+            for(int y = 0; y < height; y++){
+                // Compare the colour from pixels[x + y * width] to the colours in a colourlibrary array.
+                // Then add the index of the colourlibrary array to an int array.
+
+                Color pixelColour = pixels[x + y * width];
+
+                int matchedIndex = FindMatchingColourIndex(pixelColour, ColourLibrary.Get(tileName));
+
+                if(matchedIndex != -1){
+                    pixelIndices[x + y * width] = matchedIndex;
+                }
+                else{
+                    Debug.LogWarning($"No matching colour found for pixel at ({x}, {y})");
+                }
+            }
+        }
+
+        return pixelIndices;
+    }
+
+    public static int FindMatchingColourIndex(Color colour, Color[] uvColours){
+        
+        for(int i = 0; i < uvColours.Length; i++){
+            if(CompareColours(colour, uvColours[i])){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public static bool CompareColours(Color colorA, Color colorB)
+    {
+        float sqrDistance = 
+            Mathf.Pow(colorA.r - colorB.r, 2) + 
+            Mathf.Pow(colorA.g - colorB.g, 2) + 
+            Mathf.Pow(colorA.b - colorB.b, 2) +
+            Mathf.Pow(colorA.a - colorB.a, 2);
+
+        return sqrDistance < 0.0001f * 0.0001f;
+    }
 }

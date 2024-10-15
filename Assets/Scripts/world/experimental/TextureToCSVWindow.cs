@@ -32,6 +32,10 @@ public class TextureToCSVWindow : EditorWindow
                 Debug.LogError("Please assign a texture first!");
             }
         }
+
+        if(GUILayout.Button("Convert to Indices")){
+
+        }
     }
 
     private void ConvertTextureToCSV(Texture2D texture, string filePath)
@@ -61,4 +65,16 @@ public class TextureToCSVWindow : EditorWindow
 
         Debug.Log($"CSV saved at {filePath}");
     }
+
+    bool CompareColours(Color colorA, Color colorB)
+    {
+        float sqrDistance = 
+            Mathf.Pow(colorA.r - colorB.r, 2) + 
+            Mathf.Pow(colorA.g - colorB.g, 2) + 
+            Mathf.Pow(colorA.b - colorB.b, 2) +
+            Mathf.Pow(colorA.a - colorB.a, 2);
+
+        return sqrDistance < 0.0001f * 0.0001f;
+    }
 }
+

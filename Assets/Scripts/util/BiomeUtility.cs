@@ -99,8 +99,19 @@ public static class BiomeUtility
 
         tile = AssetDatabase.LoadAssetAtPath<GradientTile>(path);
         return tile;
-        
+    }
 
+    public static Texture2D GetGradientTextureByName(string name){
+        GradientTile tile;
+        string path = $"Assets/textures/world/tiles/natural/{name}.asset";
+
+        if(!File.Exists(path)){
+            Debug.LogError($"Tile {name} could not be found.");
+            return null;
+        }
+
+        tile = AssetDatabase.LoadAssetAtPath<GradientTile>(path);
+        return tile.mainTexture2D;
     }
 
     public static Texture2D GetColourMapByName(string name){

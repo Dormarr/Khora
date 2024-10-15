@@ -28,6 +28,8 @@ public static class GlobalRegistry
 
         InitializeRegistry<NaturalFeature>("naturalFeatures", FeatureManager.InitializeNaturalFeatures);
         InitializeRegistry<Biome>("biomes", BiomeManager.InitializeBiomes);
+        InitializeRegistry<int[]>("textures", TextureManager.InitializeTextureInts);
+
 
         Debug.Log("Initialized GlobalRegistry");
     }

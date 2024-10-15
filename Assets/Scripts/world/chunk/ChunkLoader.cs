@@ -155,15 +155,12 @@ public class ChunkLoader : MonoBehaviour
         chunkManager.AddChunk(chunkPosition, chunk);
 
         // Render the chunk.
-        await Task.Run(async () =>
-        {
-            await RenderChunk(chunkData, modChunkData, chunkPosition, chunkTilemap, chunkChildTilemap);
-        });
+        RenderChunk(chunkData, modChunkData, chunkPosition, chunkTilemap, chunkChildTilemap);
 
         Debug.Log($"Chunk at {chunkPosition} successfully loaded.");
     }
 
-    async Task RenderChunk(ChunkData chunkData, ChunkData modChunkData, Vector3Int chunkPosition, Tilemap chunkTilemap, Tilemap chunkChildTilemap)
+    void RenderChunk(ChunkData chunkData, ChunkData modChunkData, Vector3Int chunkPosition, Tilemap chunkTilemap, Tilemap chunkChildTilemap)
     {
         // Begin profiling the entire chunk rendering process
         Debug.Log("RenderChunk: Processing Started.");
@@ -177,12 +174,12 @@ public class ChunkLoader : MonoBehaviour
 
 
         // Render the biome map onto the chunk's tilemap
-        await Task.Run(() => DrawBiomeMap(biomeMap, chunkTilemap, chunkPosition));
+        DrawBiomeMap(biomeMap, chunkTilemap, chunkPosition);
 
         // If there is modification data, apply it to the child tilemap
         if (modChunkData != null)
         {
-            await Task.Run(() => DrawModificationMap(modChunkData.tileDataList, chunkChildTilemap, chunkPosition));
+            DrawModificationMap(modChunkData.tileDataList, chunkChildTilemap, chunkPosition);
         }
 
         // End profiling for the entire chunk rendering process
@@ -208,82 +205,53 @@ public class ChunkLoader : MonoBehaviour
             return;
         }
 
-        await Task.Run(() =>
-        {
-            for(int i = 0; i < tileDataList.Count; i++){
-                TileData tileData = tileDataList[i];
+        for(int i = 0; i < tileDataList.Count; i++){
+            TileData tileData = tileDataList[i];
 
-                int x = tileData.x;
-                int y = tileData.y;
-                
-                Vector3Int tilePosition = new Vector3Int(x, y, 0);
+            int x = tileData.x;
+            int y = tileData.y;
+            
+            Vector3Int tilePosition = new Vector3Int(x, y, 0);
 
-                chunkTilemap.SetTile(tilePosition, blankTile);
-                UnityMainThreadDispatcher.Instance().Enqueue(() => {
-                });
-            }
-        });
-
+            chunkTilemap.SetTile(tilePosition, blankTile);
+        }
     }
-    async Task DrawBiomeMap(Biome[,] biomeMap, Tilemap chunkTilemap, Vector3Int chunkPosition)
+    void DrawBiomeMap(Biome[,] biomeMap, Tilemap chunkTilemap, Vector3Int chunkPosition)
     {
         int width = biomeMap.GetLength(0);
         int height = biomeMap.GetLength(1);
 
-        // Get the selected tile only once from the main thread
-        GradientTile selectedTile = await UnityMainThreadDispatcher.Instance().EnqueueAsync(() =>
-        {
-            return BiomeUtility.GetGradientTileByName("grass");
-        });
-
-        // GradientTile selectedTile = tempTile;
-
-        // Create a list of tasks for setting tiles
-        List<Task> tileTasks = new List<Task>();
+        GradientTile selectedTile = BiomeUtility.GetGradientTileByName("grass");
 
 
         int localX = chunkPosition.x * width;
         int localY = chunkPosition.y * height;
 
         // Process the biome map asynchronously and only set tiles on the main thread
-        await Task.Run(() =>
+        for (int y = 0; y < height; y++)
         {
-            for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++)
             {
-                for (int x = 0; x < width; x++)
-                {
-                    Vector3Int tilePosition = new Vector3Int(localX + x, localY + y, 0);
+                Vector3Int tilePosition = new Vector3Int(localX + x, localY + y, 0);
 
-                    if(tilePosition.x > localX + width || tilePosition.x < localX || tilePosition.y > localY + height || tilePosition.y < localY){
-                        continue;
-                    }
-
-
-
-                    // Only enqueue tile setting on the main thread when necessary
-                    tileTasks.Add(UnityMainThreadDispatcher.Instance().EnqueueAsync(() =>
-                    {
-                        chunkTilemap.SetTile(tilePosition, selectedTile);
-                        return Task.CompletedTask;
-                    }));
+                if(tilePosition.x > localX + width || tilePosition.x < localX || tilePosition.y > localY + height || tilePosition.y < localY){
+                    continue;
                 }
+
+                chunkTilemap.SetTile(tilePosition, selectedTile);
             }
-            // Generate temperature and precipitation maps asynchronously
-
-            // Call RenderTileColours with temperature and precipitation maps asynchronously
-
-        });
+        }
+        // Generate temperature and precipitation maps asynchronously
 
 
-        // await RenderTileColours(chunkTilemap, chunkPosition);
-        await RenderTileColours(chunkTilemap, chunkPosition);
+        RenderTileColours(chunkTilemap, chunkPosition);
     }
 
 
     Sprite tileSprite;
     Color[,] colourData;
 
-    async Task RenderTileColours(Tilemap chunkTilemap, Vector3Int chunkPosition)
+    void RenderTileColours(Tilemap chunkTilemap, Vector3Int chunkPosition)
     {
 
         float[,] temperatureMap = worldEngine.temperatureGenerator.GenerateChunkPerlinWithBorder(chunkPosition, WorldDataTransfer.worldSeed);
@@ -298,21 +266,11 @@ public class ChunkLoader : MonoBehaviour
         int chunkOffsetY = chunkPosition.y * Config.chunkSize;
 
         // Find a better way to do this.
-        GradientTile selectedTile = await UnityMainThreadDispatcher.Instance().EnqueueAsync(() =>
-        {
-            GradientTile tile = BiomeUtility.GetGradientTileByName("grass");
-            // GradientTile tile = tempTile;
-            tileSprite = tile.mainTexture;
-            return tile;
+        GradientTile selectedTile = BiomeUtility.GetGradientTileByName("grass");
+        // GradientTile selectedTile = tempTile;
+        tileSprite = selectedTile.mainTexture;
 
-        });
-
-        colourData = await UnityMainThreadDispatcher.Instance().EnqueueAsync(() =>
-        {
-            return TextureUtility.LoadCSVAsColourArray(selectedTile.csvFile, 16, 16);
-        });
-
-        List<Task<(Vector3Int pos, GradientTile tile)>> tileTasks = new List<Task<(Vector3Int pos, GradientTile tile)>>();
+        List<(Vector3Int pos, GradientTile tile)> tiles = new List<(Vector3Int pos, GradientTile tile)>();
 
         Debug.Log("RenderTileColours: About to start the loop.");
         
@@ -321,60 +279,27 @@ public class ChunkLoader : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                int localX = x;
-                int localY = y;
 
-                // Offload the task of getting neighbor colors and creating tiles to background threads.
-                var tileTask = Task.Run(async () =>
-                {
-                    // Fetch neighbour colors without dispatcher (background thread).
-                    //This can't grab from other chunks, so need to work around that.
-                    // Color[] neighbourColours = await Task.Run(() => GetTileNeighbourColoursAsync(temperatureMap, precipitationMap, localX, localY, selectedTile.colourMap));
-                    Color[] neighbourColours = await UnityMainThreadDispatcher.Instance().EnqueueAsync(() =>
-                    {
-                        return GetTileNeighbourColours(temperatureMap, precipitationMap, x, y, tempTile.colourMap);
-                    });
-                    
-                    // Perform the gradient calculation in the background.
+                Color[] neighbourColours = GetTileNeighbourColours(temperatureMap, precipitationMap, x, y, selectedTile.colourMap);
+                
+                Color[] colours = TextureUtility.Get8WayGradient(neighbourColours);
+                
+                GradientTile tile = ScriptableObject.CreateInstance<GradientTile>();
+                
+                Vector3Int tilePos = new Vector3Int(chunkOffsetX + x, chunkOffsetY + y, 0);
+                // tile.csvFile = selectedTile.csvFile;
+                tile.Initialize(tilePos, colours, tileSprite);
 
-                    // I'd like to make this a job.
-                    Color[] colours = await TextureUtility.Get8WayGradientAsync(neighbourColours);
-                    
-                    // Color[] colours = await Task.Run(() =>
-                    // {
-                    //     return Get8WayGradientJob(neighbourColours);
-                    // });
-
-                    // Create the tile on the main thread.
-                    GradientTile tile = await UnityMainThreadDispatcher.Instance().EnqueueAsync(() =>
-                    {
-                        return ScriptableObject.CreateInstance<GradientTile>();
-                    });
-                    Vector3Int tilePos = new Vector3Int(chunkOffsetX + localX, chunkOffsetY + localY, 0);
-                    tile.csvFile = selectedTile.csvFile;
-                    await Task.Run(() => tile.Initialize(tilePos, colours, tileSprite, colourData));
-
-                    // Return tile data for setting in Tilemap.
-                    return (new Vector3Int(chunkOffsetX + localX, chunkOffsetY + localY, 0), tile);
-                });
-
-                tileTasks.Add(tileTask);
+                // Return tile data for setting in Tilemap.
+                tiles.Add((tilePos, tile));
             }
         }
 
-        // Wait for all tasks to complete.
-        var tiles = await Task.WhenAll(tileTasks);
-
-        // Set tiles on the main thread.
-        UnityMainThreadDispatcher.Instance().Enqueue(() =>
+        foreach (var (tilePos, tile) in tiles)
         {
-            
-            foreach (var (tilePos, tile) in tiles)
-            {
-                chunkTilemap.SetTile(tilePos, tile);
-            }
-        });
-
+            chunkTilemap.SetTile(tilePos, tile);
+        }
+        
         Debug.Log("RenderTileColours: Completed.");
     }
 
@@ -387,10 +312,12 @@ public class ChunkLoader : MonoBehaviour
 
         for(int yOffset = 1; yOffset >= -1; yOffset--){
             for(int xOffset = -1; xOffset <= 1; xOffset++){
-                int neighbourX = x + xOffset;
-                int neighbourY = y + yOffset;
+
+                int neighbourX = x + xOffset + 1;
+                int neighbourY = y + yOffset + 1;
 
                 if(neighbourX >= 0 && neighbourX < mapSize && neighbourY >= 0 && neighbourY < mapSize){
+
                     float temp = temperatureMap[neighbourX, neighbourY];
                     float precip = precipitationMap[neighbourX, neighbourY];
 

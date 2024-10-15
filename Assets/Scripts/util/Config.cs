@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Reflection;
+using System;
 
 public static class Config
 {
@@ -22,9 +24,25 @@ public static class Gates
 
 public static class ColourLibrary
 {
-    // list the colours used throughout the project.
+    public static Color[] Get(string name)
+    {
+        // Get the type of the ColourLibrary class
+        Type type = typeof(ColourLibrary);
 
-    public static Color[] grassUV = new Color[16] 
+        // Find the field with the name passed in
+        FieldInfo field = type.GetField(name, BindingFlags.Public | BindingFlags.Static);
+
+        if (field == null)
+        {
+            Debug.LogError($"No color array found with the name '{name}'.");
+            return null;
+        }
+
+        // Return the value of the field as a Color[]
+        return field.GetValue(null) as Color[];
+    }
+
+    public static Color[] grass = new Color[16] 
     {
         new Color(0.9608f, 0.8235f, 0.3882f, 1f),
         new Color(0.4000f, 0.8627f, 0.5608f, 1f),

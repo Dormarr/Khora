@@ -24,7 +24,6 @@ public static class FeatureManager
     }
 
     public static NaturalFeature GetNaturalFeature(string id){
-        //do I even need this? I'm just making sure, I'd like to streamline the process.
         return naturalFeatureRegistry.Get(id);
     }
 
