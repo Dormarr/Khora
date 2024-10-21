@@ -7,7 +7,9 @@ public class ChunkManager : MonoBehaviour
 {
     [SerializeField] private ChunkLoader chunkLoader;
     [SerializeField] private WorldEngine worldEngine;
-
+    [SerializeField] private GameObject grid;
+    public ChunkPool chunkPool;
+    private GameObject chunkPrefab;
     public Dictionary<Vector3Int, GameObject> chunkCache = new Dictionary<Vector3Int, GameObject>();
     public Dictionary<Vector3Int, GameObject> softChunkCache = new Dictionary<Vector3Int, GameObject>();
 
@@ -19,13 +21,38 @@ public class ChunkManager : MonoBehaviour
         softChunkCache.Clear();
         modificationCache.Clear();
 
+        chunkPrefab = CreateChunk(grid);
         GlobalRegistry.Bootstrap();
     }
 
     void Start(){
+        chunkPool = new ChunkPool(chunkPrefab, Config.maxChunks, grid);
+
         chunkLoader.Initialize();
         MenuUtility.Initialize();
         MenuUtility.Resume();
+    }
+
+    public GameObject CreateChunk(GameObject parent){
+        GameObject chunk = new GameObject($"Chunk");
+        // chunk.isStatic = true;
+        chunk.transform.parent = parent.transform;
+
+        //Generation tilemap.
+        Tilemap chunkTilemap = chunk.AddComponent<Tilemap>();
+        TilemapRenderer chunkRenderer = chunk.AddComponent<TilemapRenderer>();
+
+        //Modification tilemap.
+        GameObject chunkChild = new GameObject($"Modifications");
+        chunkChild.transform.parent = chunk.transform;
+        Tilemap chunkChildTilemap = chunkChild.AddComponent<Tilemap>();
+        TilemapRenderer chunkChildRenderer = chunkChild.AddComponent<TilemapRenderer>();
+        chunkChildRenderer.sortingOrder = 1;
+
+        chunkTilemap.tileAnchor = new Vector3(0.5f, 0.5f, 0);
+
+        
+        return chunk;
     }
 
     public void AddChunk(Vector3Int chunkPosition, GameObject chunk)

@@ -48,7 +48,7 @@ public class PlayerController : MonoBehaviour
         vCam.m_Lens.OrthographicSize = Mathf.Clamp(newZoom, maxZoom, minZoom);
     }
 
-    void OnMouseDown(InputValue value){
+    void OnLeftMouseDown(InputValue value){
 
         if(Config.isPaused){
             return;
@@ -63,7 +63,7 @@ public class PlayerController : MonoBehaviour
         //If tool, check if valid action before acting, else do nothing.
 
         chunkManager.modificationCache.Add(new TileData(mouseGridPos.x, mouseGridPos.y, blankTile.name));
-        targetChunk.GetComponentInChildren<Tilemap>().SetTile(mouseGridPos, blankTile);        
+        targetChunk.GetComponentInChildren<Tilemap>().SetTile(mouseGridPos, blankTile);
     }
 
     void OnEsc(){
@@ -73,6 +73,10 @@ public class PlayerController : MonoBehaviour
         else{
             MenuUtility.Pause();
         }
+    }
+
+    void OnRightMouseDown(InputValue value){
+        Debug.Log("----*RIGHT MOUSE DOWN*----");
     }
 
 

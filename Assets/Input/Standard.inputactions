@@ -11,7 +11,8 @@
                     "id": "ef893516-6c84-416d-b95c-911b611e0a32",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": ""
+                    "interactions": "",
+                    "initialStateCheck": false
                 },
                 {
                     "name": "MousePos",
@@ -19,7 +20,8 @@
                     "id": "652c67e9-d7ac-411c-a076-8e756aa9e611",
                     "expectedControlType": "Vector2",
                     "processors": "",
-                    "interactions": ""
+                    "interactions": "",
+                    "initialStateCheck": true
                 },
                 {
                     "name": "Zoom",
@@ -27,15 +29,17 @@
                     "id": "bce7b361-42a7-4f15-9716-248622eb22d3",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": ""
+                    "interactions": "",
+                    "initialStateCheck": true
                 },
                 {
-                    "name": "MouseDown",
-                    "type": "Value",
+                    "name": "LeftMouseDown",
+                    "type": "Button",
                     "id": "388c95b8-c806-4503-8715-d93856d7e11b",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
-                    "interactions": ""
+                    "interactions": "",
+                    "initialStateCheck": true
                 },
                 {
                     "name": "Esc",
@@ -43,7 +47,17 @@
                     "id": "3fdc67f2-66d4-4dd6-a334-4e4e9e77ecf2",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": ""
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "RightMouseDown",
+                    "type": "Button",
+                    "id": "8903bc82-ec90-433b-847d-271359eea47c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -131,7 +145,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "MouseDown",
+                    "action": "LeftMouseDown",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -143,6 +157,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Esc",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a71983ec-13d4-4733-8dce-4cb21f6874a2",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "RightMouseDown",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

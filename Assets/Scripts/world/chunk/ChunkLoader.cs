@@ -33,6 +33,10 @@ public class ChunkLoader : MonoBehaviour
     private Vector2 playerPosition;
     [SerializeField] private GameObject player;
 
+    LinkedList<Vector3Int> chunkLRU = new LinkedList<Vector3Int>();
+    Dictionary<Vector3Int, GameObject> activeChunks = new Dictionary<Vector3Int, GameObject>();
+    int maxActiveChunks => Config.maxChunks;
+
     public void Initialize()
     {
         seed = WorldDataTransfer.worldSeed;
@@ -60,6 +64,7 @@ public class ChunkLoader : MonoBehaviour
     void LoadChunksAroundPlayer()
     {
         List<Vector3Int> chunksToLoad = new List<Vector3Int>();
+        List<Vector3Int> softChunksToLoad = new List<Vector3Int>();
 
         Vector3 bottomLeft = mainCamera.ViewportToWorldPoint(new Vector3(0, 0, mainCamera.nearClipPlane));
         Vector3 topRight = mainCamera.ViewportToWorldPoint(new Vector3(1, 1, mainCamera.nearClipPlane));
@@ -69,62 +74,113 @@ public class ChunkLoader : MonoBehaviour
         int maxX = Mathf.FloorToInt((topRight.x + padding) / chunkSize);
         int minY = Mathf.FloorToInt((bottomLeft.y - padding) / chunkSize);
         int maxY = Mathf.FloorToInt((topRight.y + padding) / chunkSize);
-
-        //add in the extra padding for the generated chunks.
+        
 
         for (int x = minX; x <= maxX; x++)
         {
             for (int y = minY; y <= maxY; y++)
             {
                 Vector3Int chunkPosition = new Vector3Int(x, y, 0);
-
-                if (!chunkManager.chunkCache.ContainsKey(chunkPosition))
-                {
-                    LoadChunk(chunkPosition);
-                }
-
                 chunksToLoad.Add(chunkPosition);
             }
         }
 
-        //Add in another round of chunks to load without rendering.
+        int softLoadPadding = 1;
+        int softMinX = minX - softLoadPadding;
+        int softMaxX = maxX + softLoadPadding;
+        int softMinY = minY - softLoadPadding;
+        int softMaxY = maxY + softLoadPadding;
+
+        for(int x = softMinX; x <= softMaxX; x++)
+        {
+            for(int y = softMinY; y <= softMaxY; y++)
+            {
+                Vector3Int chunkPosition = new Vector3Int(x, y, 0);
+                if(!chunksToLoad.Contains(chunkPosition))
+                {
+                    softChunksToLoad.Add(chunkPosition);
+                }
+            }
+        }
 
         List<Vector3Int> chunksToUnload = new List<Vector3Int>();
 
         foreach(var chunk in chunkManager.chunkCache.Keys)
         {
-            if (!chunksToLoad.Contains(chunk))
+            if (!chunksToLoad.Contains(chunk) && !softChunksToLoad.Contains(chunk))
             {
                 chunksToUnload.Add(chunk);
             }
         }
 
-        foreach(var chunk in chunksToUnload)
+        // StartCoroutine(LoadChunksAroundPlayerCoroutine(chunksToLoad, softChunksToLoad, chunksToUnload));
+
+        foreach(var chunkPosition in chunksToLoad)
         {
-            UnloadChunk(chunk);
+            if (!chunkManager.chunkCache.ContainsKey(chunkPosition))
+            {
+                LoadChunk(chunkPosition);  // This can still be async
+            }
+            else{
+                chunkLRU.Remove(chunkPosition);
+                chunkLRU.AddFirst(chunkPosition);
+            }
+        }
+
+        foreach(var chunkPosition in softChunksToLoad){
+            if(!chunkManager.chunkCache.ContainsKey(chunkPosition))
+            {
+                LoadChunk(chunkPosition, softLoad: true);
+                chunkLRU.Remove(chunkPosition);
+                chunkLRU.AddFirst(chunkPosition);
+            }
         }
     }
 
+    // Spread out chunk loading across multiple frames
+    IEnumerator LoadChunksAroundPlayerCoroutine(List<Vector3Int> chunksToLoad, List<Vector3Int> softChunksToLoad, List<Vector3Int> chunksToUnload)
+    {
+        // Loop through the chunks, adding a yield statement to spread the workload
+        foreach(var chunkPosition in chunksToLoad)
+        {
+            if (!chunkManager.chunkCache.ContainsKey(chunkPosition))
+            {
+                LoadChunk(chunkPosition);  // This can still be async
+                yield return null;  // Spread the workload across frames
+            }
+            else{
+                chunkLRU.Remove(chunkPosition);
+                chunkLRU.AddFirst(chunkPosition);
+            }
+        }
+
+        foreach(var chunkPosition in softChunksToLoad){
+            if(!chunkManager.chunkCache.ContainsKey(chunkPosition))
+            {
+                LoadChunk(chunkPosition, softLoad: true);
+                yield return null;
+                chunkLRU.Remove(chunkPosition);
+                chunkLRU.AddFirst(chunkPosition);
+            }
+        }
+    }
+
+
     async void LoadChunk(Vector3Int chunkPosition, bool softLoad = false)
     {
-        //Create game object.
-        GameObject chunk = new GameObject($"Chunk_{chunkPosition}");
-        chunk.isStatic = true;
-        chunk.transform.parent = grid.transform;
+        if(softLoad){
+            Debug.Log("SoftLoad is currently not in use.");
+            return;
+        }
 
-        //Generation tilemap.
-        Tilemap chunkTilemap = chunk.AddComponent<Tilemap>();
-        TilemapRenderer chunkRenderer = chunk.AddComponent<TilemapRenderer>();
+        GameObject chunk = chunkManager.chunkPool.GetChunk();
+        // chunk.transform.parent = grid.transform;
+        string softLoadString = softLoad ? "_softLoad" : "";
+        chunk.name = $"Chunk_{chunkPosition}{softLoadString}";
 
-        //Modification tilemap.
-        GameObject chunkChild = new GameObject($"Modified_{chunkPosition}");
-        chunkChild.transform.parent = chunk.transform;
-
-        Tilemap chunkChildTilemap = chunkChild.AddComponent<Tilemap>();
-        TilemapRenderer chunkChildRenderer = chunkChild.AddComponent<TilemapRenderer>();
-        chunkChildRenderer.sortingOrder = 1;
-
-        chunkTilemap.tileAnchor = new Vector3(0.5f, 0.5f, 0);
+        Tilemap chunkTilemap = chunk.GetComponent<Tilemap>();
+        GameObject child = chunk.transform.Find("Modifications").gameObject;
+        Tilemap chunkChildTilemap = child.GetComponent<Tilemap>();
 
         if(chunkManager.chunkCache.ContainsKey(chunkPosition)){
             Debug.LogWarning($"Chunk at position {chunkPosition} already exists.");
@@ -140,24 +196,55 @@ public class ChunkLoader : MonoBehaviour
             return;
         }
 
-        // Load modification data synchronously (assuming this is quick).
+        if(activeChunks.ContainsKey(chunkPosition)){
+            chunkLRU.Remove(chunkPosition);
+            chunkLRU.AddFirst(chunkPosition);
+            return;
+        }
+
         ChunkData modChunkData = chunkManager.LoadChunk(chunkPosition);
 
-        // Soft loaded chunks exist to supply data to the rendering process.
-        // They exist computationally only (unrendered), but otherwise function as main chunks.
         if(softLoad){
             Debug.Log($"Chunk {chunkPosition} was Loaded Softly.");
-            chunkManager.AddSoftChunk(chunkPosition, chunk);
+            //chunkManager.AddSoftChunk(chunkPosition, chunk);
             return;
         }
 
         // Add the chunk to the cache.
+        activeChunks.Add(chunkPosition, chunk);
         chunkManager.AddChunk(chunkPosition, chunk);
 
         // Render the chunk.
         RenderChunk(chunkData, modChunkData, chunkPosition, chunkTilemap, chunkChildTilemap);
 
-        Debug.Log($"Chunk at {chunkPosition} successfully loaded.");
+        chunkLRU.AddFirst(chunkPosition);
+
+        if(chunkLRU.Count > maxActiveChunks){
+            Vector3Int chunkToEvict = chunkLRU.Last.Value;
+            chunkLRU.RemoveLast();
+            UnloadChunk(chunkToEvict);
+        }
+
+        Debug.Log($"Chunk at {chunkPosition} Successfully Loaded.");
+    }
+
+    void UnloadChunk(Vector3Int chunkPosition)
+    {
+        //rejig to unload only once a certain distance away.
+        //Maybe unrender but don't have to completely unload it.
+
+        if(!activeChunks.TryGetValue(chunkPosition, out GameObject chunkGO)){
+            return;
+        }
+
+        if(chunkManager.chunkCache.TryGetValue(chunkPosition, out GameObject chunk))
+        {
+            chunkManager.SaveModifications();
+            chunkManager.RemoveChunk(chunkPosition, chunk);
+            activeChunks.Remove(chunkPosition);
+            chunkManager.chunkPool.ReturnChunk(chunk);
+            // Destroy(chunk);
+        }
     }
 
     void RenderChunk(ChunkData chunkData, ChunkData modChunkData, Vector3Int chunkPosition, Tilemap chunkTilemap, Tilemap chunkChildTilemap)
@@ -168,13 +255,9 @@ public class ChunkLoader : MonoBehaviour
         // Extract biomeMap from the chunkData and precompute the array
         Biome[,] biomeMap = BiomeUtility.ListToArray(chunkData.biomeMapList, chunkSize, chunkSize);
 
-        //Is there a way to cluster the biome map into different tile types? Like grass and sand and stuff?
-        //For now I'll just pass in the grass stuff.
-
-
-
         // Render the biome map onto the chunk's tilemap
-        DrawBiomeMap(biomeMap, chunkTilemap, chunkPosition);
+        // DrawBiomeMap(biomeMap, chunkTilemap, chunkPosition);
+        RenderTileColours(chunkTilemap, chunkPosition);
 
         // If there is modification data, apply it to the child tilemap
         if (modChunkData != null)
@@ -184,19 +267,6 @@ public class ChunkLoader : MonoBehaviour
 
         // End profiling for the entire chunk rendering process
         Debug.Log("RenderChunk: Processing Finished.");
-    }
-
-    void UnloadChunk(Vector3Int chunkPosition)
-    {
-        //rejig to unload only once a certain distance away.
-        //Maybe unrender but don't have to completely unload it.
-
-        if(chunkManager.chunkCache.TryGetValue(chunkPosition, out GameObject chunk))
-        {
-            chunkManager.SaveModifications();
-            chunkManager.RemoveChunk(chunkPosition, chunk);
-            Destroy(chunk);
-        }
     }
 
     async void DrawModificationMap(List<TileData> tileDataList, Tilemap chunkTilemap, Vector3Int chunkPosition){
@@ -218,6 +288,8 @@ public class ChunkLoader : MonoBehaviour
     }
     void DrawBiomeMap(Biome[,] biomeMap, Tilemap chunkTilemap, Vector3Int chunkPosition)
     {
+        //DEPRECATED
+
         int width = biomeMap.GetLength(0);
         int height = biomeMap.GetLength(1);
 
@@ -227,7 +299,6 @@ public class ChunkLoader : MonoBehaviour
         int localX = chunkPosition.x * width;
         int localY = chunkPosition.y * height;
 
-        // Process the biome map asynchronously and only set tiles on the main thread
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
@@ -241,15 +312,9 @@ public class ChunkLoader : MonoBehaviour
                 chunkTilemap.SetTile(tilePosition, selectedTile);
             }
         }
-        // Generate temperature and precipitation maps asynchronously
-
 
         RenderTileColours(chunkTilemap, chunkPosition);
     }
-
-
-    Sprite tileSprite;
-    Color[,] colourData;
 
     void RenderTileColours(Tilemap chunkTilemap, Vector3Int chunkPosition)
     {
@@ -268,7 +333,7 @@ public class ChunkLoader : MonoBehaviour
         // Find a better way to do this.
         GradientTile selectedTile = BiomeUtility.GetGradientTileByName("grass");
         // GradientTile selectedTile = tempTile;
-        tileSprite = selectedTile.mainTexture;
+        Sprite tileSprite = selectedTile.mainTexture;
 
         List<(Vector3Int pos, GradientTile tile)> tiles = new List<(Vector3Int pos, GradientTile tile)>();
 
@@ -284,6 +349,7 @@ public class ChunkLoader : MonoBehaviour
                 
                 Color[] colours = TextureUtility.Get8WayGradient(neighbourColours);
                 
+                
                 GradientTile tile = ScriptableObject.CreateInstance<GradientTile>();
                 
                 Vector3Int tilePos = new Vector3Int(chunkOffsetX + x, chunkOffsetY + y, 0);
@@ -298,8 +364,8 @@ public class ChunkLoader : MonoBehaviour
         foreach (var (tilePos, tile) in tiles)
         {
             chunkTilemap.SetTile(tilePos, tile);
+            
         }
-        
         Debug.Log("RenderTileColours: Completed.");
     }
 
@@ -332,81 +398,5 @@ public class ChunkLoader : MonoBehaviour
         }
 
         return tileColours;
-    }
-
-    public async Task<Color[]> GetTileNeighbourColoursAsync(float[,] temperatureMap, float[,] precipitationMap, int x, int y, Texture2D colourMap)
-    {
-
-        //If I generate noise maps for the chunk with a 1 tile border, then offset the x and y values by 1 inwards...
-        //I can get rid of the border colour issue.
-
-        var dispatcher = UnityMainThreadDispatcher.Instance();
-
-        Color[] tileColours = new Color[9];
-        int index = 0;
-
-        // [0,1,2]
-        // [3,4,5]
-        // [6,7,8]
-
-        // Run the tile colour fetching on the main thread
-        // Iterate over neighboring tiles to collect colors
-        for (int yOffset = 1; yOffset >= -1; yOffset--)
-        {
-            for (int xOffset = -1; xOffset <= 1; xOffset++)
-            {
-                int xCoord = x + xOffset + 1;
-                int yCoord = y + yOffset + 1;
-
-                // Ensure we don't go out of bounds
-                if (xCoord >= 0 && xCoord < temperatureMap.GetLength(0) && yCoord >= 0 && yCoord < precipitationMap.GetLength(1))
-                {
-                    // Call GetColourFromUVMap on the main thread
-                    int currentIndex = index;  // Capture the index for the closure
-
-                    // Ensure this is finished before returning and rendering.
-                    tileColours[currentIndex] = await dispatcher.EnqueueAsync(() =>
-                    {
-                        return UVColourMap.GetColourFromUVMap(temperatureMap[xCoord, yCoord], precipitationMap[xCoord, yCoord], colourMap);
-                    });
-                }
-                else
-                {
-                    // Assign a backup color for out-of-bounds tiles
-                    tileColours[index] = Color.blue;
-                }
-
-                index++;
-            }
-        }
-
-        return tileColours;
-    }
-
-    async Task<Color[]> Get8WayGradientJob(Color[] neighbourColours){
-        NativeArray<Color> neighbourColoursArray = new NativeArray<Color>(9, Allocator.TempJob);
-        NativeArray<Color> gradientColoursArray = new NativeArray<Color>(16, Allocator.TempJob);
-
-        for(int i = 0; i < 9; i++){
-            neighbourColoursArray[i] = neighbourColours[i];
-        }
-
-        GradientColourJob gradientJob = new GradientColourJob
-        {
-            neighbourColours = neighbourColoursArray,
-            gradientColours = gradientColoursArray
-        };
-
-        JobHandle jobHandle = gradientJob.Schedule();
-
-        jobHandle.Complete();
-
-        Color[] resultGradientColours = new Color[16];
-        gradientColoursArray.CopyTo(resultGradientColours);
-
-        neighbourColoursArray.Dispose();
-        gradientColoursArray.Dispose();
-
-        return resultGradientColours;
     }
 }
