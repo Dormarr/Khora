@@ -339,4 +339,17 @@ public static class TextureUtility
 
         return sqrDistance < 0.0001f * 0.0001f;
     }
+
+    public static TileBase GetTestSpriteByInt(int i){
+
+        string path = $"Assets/textures/test/tiles/tileAssets/{i}.asset";
+
+        if(!File.Exists(path)){
+            Debug.LogError($"Tile {i} could not be found.");
+            return null;
+        }
+
+        TileBase tile= AssetDatabase.LoadAssetAtPath<TileBase>(path);
+        return tile;
+    }
 }

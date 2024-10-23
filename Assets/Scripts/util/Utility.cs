@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Text;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System;
 using UnityEngine.Tilemaps;
@@ -100,5 +101,39 @@ public static class Utility
 
     public static string GetDateTimeString(){
         return System.DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+    }
+
+    public static string GenerateWorldName(string worldNameIn){
+        if(string.IsNullOrEmpty(worldNameIn)){
+            return WorldDataTransfer.worldName;
+        }
+        
+        int highestNumber = 0;
+
+        WorldSaveData[] wsds = GetWorldDataFiles();
+        List<string> worldNames = new List<string>();
+
+        foreach(WorldSaveData wsd in wsds){
+            worldNames.Add(wsd.name);
+        }
+
+        Regex regex = new Regex(@"New_World_(\d+)");
+
+        foreach(string worldName in worldNames){
+            string fileName = Path.GetFileNameWithoutExtension(worldName);
+
+            Match match = regex.Match(fileName);
+            if(match.Success){
+                int currentNumber = int.Parse(match.Groups[1].Value);
+
+                if(currentNumber > highestNumber){
+                    highestNumber = currentNumber;
+                }
+            }
+        }
+
+        string finalWorldName = $"New_World_{highestNumber + 1}";
+        WorldDataTransfer.worldName = finalWorldName;
+        return finalWorldName;
     }
 }

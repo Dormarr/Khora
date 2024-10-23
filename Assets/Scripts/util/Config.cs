@@ -9,6 +9,7 @@ public static class Config
     //Establish the constants
     public const string version = "0.2.3";
     public const int chunkSize = 32;
+    public const int regionSize = 32;
     public const int tileSize = 16;
     public const int maxChunks = 4;
 

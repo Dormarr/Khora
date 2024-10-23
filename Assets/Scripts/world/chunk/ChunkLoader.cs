@@ -18,13 +18,7 @@ public class ChunkLoader : MonoBehaviour
     public GameObject grid;
     public Tile blankTile;
     public float noiseScale;
-    public int octaves;
-    [Range(0, 1)]
-    public float persistance;
-    public float lacunarity;
-
     public int seed;
-    public Vector2 offset;
 
     private int chunkSize => Config.chunkSize;
     public float padding;
