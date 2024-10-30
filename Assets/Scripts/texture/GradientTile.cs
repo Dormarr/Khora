@@ -10,6 +10,7 @@ using UnityEngine;
 using Unity.Jobs;
 using Unity.Collections;
 using UnityEditor;
+using System.Diagnostics;
 
 namespace UnityEngine.Tilemaps
 {
@@ -22,22 +23,23 @@ namespace UnityEngine.Tilemaps
         public Texture2D colourMap;
         //I would like to add weighted texture variations.
         private Color[] originalColours;
+        private string Name;
+        private int textureSize;
 
-
-        public void Initialize(Vector3Int position, Color[] inputColours, Sprite inputSprite)
+        public void Initialize(Vector3Int position, Color[] inputColours, Sprite inputSprite, string name)
         {
+
+            var stopwatch = new Stopwatch();
+            stopwatch.Stop();
+
             Debug.Log("Initialize: Starting initialization.");
 
             // Assign input sprite to mainTexture
             mainTexture = inputSprite;
+            Name = name;
+            textureSize = mainTexture.texture.width;
 
             // Ensure mainTexture and colours are valid
-
-            if (mainTexture == null)
-            {
-                Debug.LogError("Initialize: inputSprite is null.");
-                return;
-            }
 
             if (inputColours == null || inputColours.Length == 0)
             {
@@ -54,7 +56,9 @@ namespace UnityEngine.Tilemaps
                 return;
             }
 
-            Debug.Log("Initialize: Completed initialization successfully.");
+            stopwatch.Stop();
+
+            Debug.Log($"GradientTile.Initialize: Completed initialization successfully. \n Time taken: {stopwatch.ElapsedMilliseconds} ms.");
         }
         public override void GetTileData(Vector3Int position, ITilemap tilemap, ref TileData tileData)
         {
@@ -76,23 +80,30 @@ namespace UnityEngine.Tilemaps
             Debug.Log("ApplyGradientToTile: Processing Started.");
             if (mainTexture == null)
             {
-                Debug.LogError("Tile does not have a valid texture.");
+                Debug.LogError("ApplyGradientToTile:: Tile does not have a valid texture.");
                 return null;
             }
-
             Texture2D updatedTexture = ReplaceColours(inputColours);
 
-            Sprite updatedSprite = Sprite.Create(updatedTexture, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            Sprite updatedSprite = Sprite.Create(updatedTexture, new Rect(0, 0, textureSize, textureSize), new Vector2(0.5f, 0.5f), textureSize);
             
+            stopwatch.Stop();
 
             // mainTexture = updatedSprite;
-            Debug.Log("Finished Rendering Tile.");
+            Debug.Log($"GradientTile.ApplyGradientToTile: Finished Rendering Tile. \n Time taken: {stopwatch.ElapsedMilliseconds} ms.");
             return updatedSprite;
         }
 
         public Texture2D ReplaceColours(Color[] inputColours)
         {
             Debug.Log("ReplaceColours: Processing Started.");
+
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             if (inputColours.Length != 16)
             {
                 Debug.LogError("Input color array must have exactly 16 colors.");
@@ -102,14 +113,13 @@ namespace UnityEngine.Tilemaps
             // Color[] pixels = CycleColours(inputColours, Config.tileSize);
 
             // ---------------------------------------------------------------------
-            string name = "grass";
-            int[] uvInts = TextureManager.GetTextureInts(name);
-            Color[] pixels = CycleColoursJob(inputColours, uvInts, Config.tileSize);
+            int[] uvInts = TextureManager.GetTextureInts(Name);
+            Color[] pixels = CycleColoursJob(inputColours, uvInts, textureSize);
             // ---------------------------------------------------------------------
 
             Debug.Log("ReplaceColours: Started Creating NewTexture.");
 
-            Texture2D newTexture = new Texture2D(16, 16, TextureFormat.RGBA32, false);
+            Texture2D newTexture = new Texture2D(textureSize, textureSize, TextureFormat.RGBA32, false);
             newTexture.SetPixels(pixels);
             newTexture.filterMode = FilterMode.Point;
             newTexture.wrapMode = TextureWrapMode.Clamp;
@@ -118,23 +128,23 @@ namespace UnityEngine.Tilemaps
             // newTexture.Apply(updateMipmaps: true);
             newTexture.Apply();
 
-            Debug.Log("ReplaceColours: Created NewTexture.");
+            stopwatch.Stop();
+            Debug.Log($"GradientTile.ReplaceColours: Created NewTexture. \n Time taken: {stopwatch.ElapsedMilliseconds} ms.");
 
             return newTexture;
         }
 
-        public Color[] CycleColours(Color[] inputColours, int tileSize)
+        public Color[] CycleColours(Color[] inputColours, int textureSize)
         {
-            string name = "grass";
-            Debug.Log($"CycleColours: Started Generated Colour Array for {name}.");            
+            Debug.Log($"CycleColours: Started Generated Colour Array for {Name}.");            
 
-            int[] uvInts = TextureManager.GetTextureInts(name);
-            Color[] colours = new Color[tileSize * tileSize];
+            int[] uvInts = TextureManager.GetTextureInts(Name);
+            Color[] colours = new Color[textureSize * textureSize];
 
             // Cache the input colours length to avoid repeated length checks
             int inputLength = inputColours.Length;
 
-            for (int i = 0; i < tileSize * tileSize; i++)
+            for (int i = 0; i < textureSize * textureSize; i++)
             {
                 int uvIndex = uvInts[i];
                 
@@ -156,10 +166,10 @@ namespace UnityEngine.Tilemaps
             return colours;
         }
 
-        public Color[] CycleColoursJob(Color[] inputColours, int[] uvInts, int tileSize){
+        public Color[] CycleColoursJob(Color[] inputColours, int[] uvInts, int textureSize){
             NativeArray<int> uvIntsNative = new NativeArray<int>(uvInts, Allocator.TempJob);
             NativeArray<Color> inputColoursNative = new NativeArray<Color>(inputColours, Allocator.TempJob);
-            NativeArray<Color> outputColoursNative = new NativeArray<Color>(tileSize * tileSize, Allocator.TempJob);
+            NativeArray<Color> outputColoursNative = new NativeArray<Color>(textureSize * textureSize, Allocator.TempJob);
 
             ColourCyclingJob job = new ColourCyclingJob{
                 uvInts = uvIntsNative,
@@ -167,7 +177,7 @@ namespace UnityEngine.Tilemaps
                 outputColours = outputColoursNative
             };
 
-            JobHandle jobHandle = job.Schedule(tileSize * tileSize, 64);
+            JobHandle jobHandle = job.Schedule(textureSize * textureSize, 64);
             jobHandle.Complete();
 
             Color[] outputColours = outputColoursNative.ToArray();

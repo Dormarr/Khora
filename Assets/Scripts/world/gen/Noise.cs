@@ -4,6 +4,13 @@ using UnityEngine;
 
 public static class Noise
 {
+
+    private static float MaxPossibleHeight = -0.8f;
+
+    public static float[,] GenerateNoiseMapFromSettings(PerlinSettings ps, int seed){
+        return GenerateNoiseMap(ps.Size, ps.Size, seed, ps.Scale, ps.Octaves, ps.Persistence, ps.Lacunarity, ps.Offset);
+    }
+
     public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, int seed, float scale, int octaves, float persistance, float lacunarity, Vector2 offset)
     {
         //Still used for editor preview tilemap for testing perlin settings.
@@ -71,6 +78,10 @@ public static class Noise
         return noiseMap;
     }
 
+    public static float[,] GenerateChunkNoiseMapFromSettings(Vector3Int chunkPosition, int seed, PerlinSettings ps){
+        return GenerateChunkNoiseMap(chunkPosition, ps.Size, seed, ps.Scale, ps.Octaves, ps.Persistence, ps.Lacunarity, ps.Offset);
+    }
+
     public static float[,] GenerateChunkNoiseMap(Vector3Int chunkPosition, int chunkSize, int seed, float scale, int octaves, float persistance, float lacunarity, Vector2 offset)
     {
         float[,] noiseMap = new float[chunkSize, chunkSize];
@@ -79,7 +90,7 @@ public static class Noise
         Vector2[] octaveOffsets = new Vector2[octaves];
 
         float amplitude = 1;
-        float maxPossibleHeight = -1f;
+        float maxPossibleHeight = MaxPossibleHeight;
 
         for (int i = 0; i < octaves; i++)
         {
@@ -151,7 +162,11 @@ public static class Noise
         return noiseMap;
     }
 
-        public static float[,] GenerateChunkNoiseMapWithBorder(Vector3Int chunkPosition, int chunkSize, int seed, float scale, int octaves, float persistance, float lacunarity, Vector2 offset)
+    public static float[,] GenerateChunkNoiseMapWithBorderFromSettings(Vector3Int chunkPosition, int seed, PerlinSettings ps){
+        return GenerateChunkNoiseMapWithBorder(chunkPosition, seed, ps.Size, ps.Scale, ps.Octaves, ps.Persistence, ps.Lacunarity, ps.Offset);
+    }
+
+    public static float[,] GenerateChunkNoiseMapWithBorder(Vector3Int chunkPosition, int seed, int chunkSize, float scale, int octaves, float persistance, float lacunarity, Vector2 offset)
     {
         int mapSize = chunkSize + 2;
         float[,] noiseMap = new float[mapSize, mapSize];
@@ -160,7 +175,7 @@ public static class Noise
         Vector2[] octaveOffsets = new Vector2[octaves];
 
         float amplitude = 1;
-        float maxPossibleHeight = 0f;
+        float maxPossibleHeight = MaxPossibleHeight;
 
         for (int i = 0; i < octaves; i++)
         {
@@ -232,13 +247,17 @@ public static class Noise
         return noiseMap;
     }
 
+    public static float GenerateCoordinateNoiseFromSettings(Vector3Int coordinate, int seed, PerlinSettings ps){
+        return GenerateCoordinateNoise(coordinate, seed, ps.Scale, ps.Octaves, ps.Persistence, ps.Lacunarity, ps.Offset);
+    }
+
     public static float GenerateCoordinateNoise(Vector3Int coordinate, int seed, float scale, int octaves, float persistance, float lacunarity, Vector2 offset)
     {
         System.Random prng = new System.Random(seed);
         Vector2[] octaveOffsets = new Vector2[octaves];
 
         float amplitude = 1;
-        float maxPossibleHeight = -1f;
+        float maxPossibleHeight = MaxPossibleHeight;
 
         // Generate octave offsets based on the seed
         for (int i = 0; i < octaves; i++)

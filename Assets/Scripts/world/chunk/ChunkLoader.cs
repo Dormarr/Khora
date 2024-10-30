@@ -287,7 +287,7 @@ public class ChunkLoader : MonoBehaviour
         int width = biomeMap.GetLength(0);
         int height = biomeMap.GetLength(1);
 
-        GradientTile selectedTile = BiomeUtility.GetGradientTileByName("grass");
+        GradientTile selectedTile = TextureUtility.GetGradientTileByName("grass", "natural");
 
 
         int localX = chunkPosition.x * width;
@@ -321,11 +321,11 @@ public class ChunkLoader : MonoBehaviour
         int width = Config.chunkSize;
         int height = Config.chunkSize;
 
-        int chunkOffsetX = chunkPosition.x * Config.chunkSize;
-        int chunkOffsetY = chunkPosition.y * Config.chunkSize;
+        int chunkOffsetX = chunkPosition.x * width;
+        int chunkOffsetY = chunkPosition.y * height;
 
         // Find a better way to do this.
-        GradientTile selectedTile = BiomeUtility.GetGradientTileByName("grass");
+        GradientTile selectedTile = TextureUtility.GetGradientTileByName("grass", "natural");
         // GradientTile selectedTile = tempTile;
         Sprite tileSprite = selectedTile.mainTexture;
 
@@ -348,7 +348,7 @@ public class ChunkLoader : MonoBehaviour
                 
                 Vector3Int tilePos = new Vector3Int(chunkOffsetX + x, chunkOffsetY + y, 0);
                 // tile.csvFile = selectedTile.csvFile;
-                tile.Initialize(tilePos, colours, tileSprite);
+                tile.Initialize(tilePos, colours, tileSprite, "grass");
 
                 // Return tile data for setting in Tilemap.
                 tiles.Add((tilePos, tile));

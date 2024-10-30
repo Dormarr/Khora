@@ -25,12 +25,12 @@ public class PerlinGenerator : MonoBehaviour
 
     public float[,] GenerateChunkPerlin(Vector3Int chunkPosition, int seed)
     {
-        return Noise.GenerateChunkNoiseMap(chunkPosition, chunkSize, seed, noiseScale, octaves, persistence, lacunarity, offset);
+        return Noise.GenerateChunkNoiseMap(chunkPosition, seed, chunkSize, noiseScale, octaves, persistence, lacunarity, offset);
     }
 
     public float[,] GenerateChunkPerlinWithBorder(Vector3Int chunkPosition, int seed)
     {
-        return Noise.GenerateChunkNoiseMapWithBorder(chunkPosition, chunkSize, seed, noiseScale, octaves, persistence, lacunarity, offset);
+        return Noise.GenerateChunkNoiseMapWithBorder(chunkPosition, seed, chunkSize, noiseScale, octaves, persistence, lacunarity, offset);
     }
 
     public float GenerateCoordinatePerlin(Vector3Int coordinate, int seed)

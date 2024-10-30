@@ -13,7 +13,7 @@ public class MapDisplay : MonoBehaviour
 
     public void DrawBiomeMap(Biome[,] biomeMap){
         tilemap.ClearAllTiles();
-        colourMap = BiomeUtility.GetColourMapByName("grass");
+        colourMap = TextureUtility.GetColourMapByName("grass");
         int width = biomeMap.GetLength(0);
         int height = biomeMap.GetLength(1);
         // colourData = TextureUtility.LoadCSVAsColourArray(gradientTile.csvFile, 16, 16);
@@ -48,7 +48,7 @@ public class MapDisplay : MonoBehaviour
                 Color[] colours = TextureUtility.Get8WayGradient(tiles);
 
                 GradientTile tile = ScriptableObject.CreateInstance<GradientTile>();
-                tile.Initialize(new Vector3Int(x,y,0), colours, defaultSprite);
+                tile.Initialize(new Vector3Int(x,y,0), colours, defaultSprite, "grass");
 
                 tilemap.SetTile(new Vector3Int(x,y,0), tile);
                 tilemap.RefreshAllTiles();

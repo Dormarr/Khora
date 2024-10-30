@@ -86,44 +86,4 @@ public static class BiomeUtility
     public static void GetNeighbouringTiles(){
         //I don't even know what this should return.
     }
-
-    public static GradientTile GetGradientTileByName(string name){
-
-        GradientTile tile;
-        string path = $"Assets/textures/world/tiles/natural/{name}.asset";
-
-        if(!File.Exists(path)){
-            Debug.LogError($"Tile {name} could not be found.");
-            return null;
-        }
-
-        tile = AssetDatabase.LoadAssetAtPath<GradientTile>(path);
-        return tile;
-    }
-
-    public static Texture2D GetGradientTextureByName(string name){
-        GradientTile tile;
-        string path = $"Assets/textures/world/tiles/natural/{name}.asset";
-
-        if(!File.Exists(path)){
-            Debug.LogError($"Tile {name} could not be found.");
-            return null;
-        }
-
-        tile = AssetDatabase.LoadAssetAtPath<GradientTile>(path);
-        return tile.mainTexture2D;
-    }
-
-    public static Texture2D GetColourMapByName(string name){
-        Texture2D colourMap;
-        string path = $"Assets/textures/colourmaps/{name}_colourmap.png";
-
-        if(!File.Exists(path)){
-            Debug.LogError($"ColourMap {name} could not be found.");
-            return null;
-        }
-
-        colourMap = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
-        return colourMap;
-    }
 }

@@ -987,7 +987,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 6
+  orthographic size: 30
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -1155,11 +1155,7 @@ MonoBehaviour:
   grid: {fileID: 907529163}
   blankTile: {fileID: 11400000, guid: 2ae6689829c0eec469baacc795fc81c4, type: 2}
   noiseScale: 30
-  octaves: 4
-  persistance: 0.4
-  lacunarity: 2
   seed: 0
-  offset: {x: 0, y: 0}
   padding: 0
   player: {fileID: 1269152981}
 --- !u!4 &637868683
@@ -1560,7 +1556,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -145.59558}
+  m_AnchoredPosition: {x: 0, y: -145.63821}
   m_SizeDelta: {x: 96.01, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &865651162
@@ -1857,7 +1853,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -290.3306}
+  m_AnchoredPosition: {x: 0, y: -290.37323}
   m_SizeDelta: {x: 120.01, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1175152013
@@ -2171,7 +2167,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -214.24559}
+  m_AnchoredPosition: {x: 0, y: -214.28822}
   m_SizeDelta: {x: 120.01, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1352303523
@@ -2789,7 +2785,7 @@ MonoBehaviour:
   m_Follow: {fileID: 1269152982}
   m_Lens:
     FieldOfView: 60
-    OrthographicSize: 6
+    OrthographicSize: 30
     NearClipPlane: 0.1
     FarClipPlane: 1000
     Dutch: 0

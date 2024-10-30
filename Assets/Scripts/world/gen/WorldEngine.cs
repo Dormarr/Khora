@@ -130,25 +130,3 @@ public class WorldEngine : MonoBehaviour
         return topologyMap;
     }
 }
-
-public static class BiomeGenerator
-{
-    public static Biome GetBiome(float temperature, float precipitation)
-    {
-        Biome biome = BiomeClimateRegistry.GetBiome(temperature, precipitation);
-        if(biome != null){
-            return biome;
-        }
-        
-        throw new Exception("Big whoops, cannot find biome in registry.");
-    }
-}
-
-public static class TopologyGenerator
-{
-    public static float GetTopology(float elevation, float erosion, float erosionStrength)
-    {
-        float erodedElevation = elevation - (erosion * erosionStrength);
-        return Mathf.Clamp01(erodedElevation);
-    }
-}

@@ -9,18 +9,10 @@ using System;
 using UnityEngine.Tilemaps;
 using System.IO;
 using UnityEditor;
+using System.Diagnostics;
 
 public static class TextureUtility
 {
-
-
-    public static Color[] LerpBetweenColours(Color colourA, Color colourB, int steps)
-    {
-        //return an array the size of steps, consisting of colours equal between colourA and colourB.
-
-        return null;
-    }
-
     public static Color[] Get4WayGradient(Color topLeft, Color topRight, Color bottomLeft, Color bottomRight)
     {
         Color[] colours = new Color[16];
@@ -39,67 +31,15 @@ public static class TextureUtility
         return colours;
     }
 
-    public static async Task<Color[]> Get8WayGradientAsync(Color[] neighbourColours)
-    {
-        // Color array structure
-        // [ 0, 1, 2 ]
-        // [ 3, 4, 5 ]
-        // [ 6, 7, 8 ]
-        
-        Color topLeft = neighbourColours[0];
-        Color top = neighbourColours[1];
-        Color topRight = neighbourColours[2];
-        Color left = neighbourColours[3];
-        Color center = neighbourColours[4]; // The tile's own color
-        Color right = neighbourColours[5];
-        Color bottomLeft = neighbourColours[6];
-        Color bottom = neighbourColours[7];
-        Color bottomRight = neighbourColours[8];
-
-        // We will create a 4x4 grid to smoothly blend colors across the tile
-
-        Color[] gradientColours = new Color[16];
-
-        // [ 0,  1,  2,  3, ]
-        // [ 4,  5,  6,  7, ]
-        // [ 8,  9,  10, 11,]
-        // [ 12, 13, 14, 15 ]
-
-
-        await Task.Run(() => {
-
-            // Corners
-            gradientColours[0]  =   Color.Lerp(top, left, 0.5f);
-            gradientColours[3]  =   Color.Lerp(top, right, 0.5f);
-            gradientColours[15] =   Color.Lerp(bottom, right, 0.5f);
-            gradientColours[12] =   Color.Lerp(bottom, left, 0.5f);
-
-            //Edges
-            gradientColours[1]  =   Color.Lerp(center, top, 0.4f);
-            gradientColours[2]  =   Color.Lerp(center, top, 0.4f);
-            gradientColours[4]  =   Color.Lerp(center, left, 0.4f);
-            gradientColours[8]  =   Color.Lerp(center, left, 0.4f);
-            gradientColours[7]  =   Color.Lerp(center, right, 0.6f);
-            gradientColours[11] =   Color.Lerp(center, right, 0.6f);
-            gradientColours[13] =   Color.Lerp(center, bottom, 0.6f);
-            gradientColours[14] =   Color.Lerp(center, bottom, 0.6f);
-            
-            //Center
-            gradientColours[5]  =   ApplyNoiseToColour(Color.Lerp(center, gradientColours[1], 0.5f), 0.025f);
-            gradientColours[10] =   ApplyNoiseToColour(Color.Lerp(center, gradientColours[14], 0.5f), 0.025f);
-            gradientColours[9]  =   ApplyNoiseToColour(center, 0.02f);
-            gradientColours[6]  =   ApplyNoiseToColour(center, 0.02f);
-        });
-
-        return gradientColours;
-    }
-
     public static Color[] Get8WayGradient(Color[] neighbourColours)
     {
         // Color array structure
         // [ 0, 1, 2 ]
         // [ 3, 4, 5 ]
         // [ 6, 7, 8 ]
+
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
         
         Color topLeft = neighbourColours[0];
         Color top = neighbourColours[1];
@@ -141,6 +81,9 @@ public static class TextureUtility
         gradientColours[10] =   ApplyNoiseToColour(Color.Lerp(center, gradientColours[14], 0.5f), 0.025f);
         gradientColours[9]  =   ApplyNoiseToColour(center, 0.02f);
         gradientColours[6]  =   ApplyNoiseToColour(center, 0.02f);
+
+        stopwatch.Stop();
+        Debug.Log($"TextureUtility.Get8WayGradient: Generated 8 way gradient. \n Time taken: {stopwatch.ElapsedMilliseconds} ms.");
 
         return gradientColours;
     }
@@ -351,5 +294,45 @@ public static class TextureUtility
 
         TileBase tile= AssetDatabase.LoadAssetAtPath<TileBase>(path);
         return tile;
+    }
+
+        public static GradientTile GetGradientTileByName(string name, string category){
+
+        GradientTile tile;
+        string path = $"Assets/textures/world/tiles/{category}/{name}.asset";
+
+        if(!File.Exists(path)){
+            Debug.LogError($"Tile {category}/{name} could not be found.");
+            return null;
+        }
+
+        tile = AssetDatabase.LoadAssetAtPath<GradientTile>(path);
+        return tile;
+    }
+
+    public static Texture2D GetGradientTextureByName(string name, string category){
+        GradientTile tile;
+        string path = $"Assets/textures/world/tiles/{category}/{name}.asset";
+
+        if(!File.Exists(path)){
+            Debug.LogError($"Tile {category}/{name} could not be found.");
+            return null;
+        }
+
+        tile = AssetDatabase.LoadAssetAtPath<GradientTile>(path);
+        return tile.mainTexture2D;
+    }
+
+    public static Texture2D GetColourMapByName(string name){
+        Texture2D colourMap;
+        string path = $"Assets/textures/colourmaps/{name}_colourmap.png";
+
+        if(!File.Exists(path)){
+            Debug.LogError($"ColourMap {name} could not be found.");
+            return null;
+        }
+
+        colourMap = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        return colourMap;
     }
 }

@@ -64,7 +64,7 @@ public class Debug : MonoBehaviour
         // }
 
         if(biome == null){
-            Debug.Log($"Biome is null at.");
+            Debug.Log($"Debug: Biome is null.");
             return;
         }
 

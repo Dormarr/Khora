@@ -11,7 +11,9 @@ public class GameManager : MonoBehaviour{
 
     void Start(){
 
-        // WorldManager.activeChunks.Clear();
+        GlobalRegistry.Bootstrap();
+        // MenuUtility.Initialize();
+        // MenuUtility.Resume();
 
         ctSource = new CancellationTokenSource();
 
@@ -23,6 +25,7 @@ public class GameManager : MonoBehaviour{
     }
 
     private void OnDestroy(){
+        WorldManager.activeChunks.Clear();
         ctSource.Cancel();
     }
 

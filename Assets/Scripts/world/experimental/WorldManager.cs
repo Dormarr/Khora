@@ -11,7 +11,7 @@ public static class WorldManager
     // Do I need to have the chunks cached here as before?
 
     // Make these a bit more dynamic down the line.
-    private static readonly int _fullyLoadDistance = 2;
+    private static readonly int _fullyLoadDistance = 1;
     private static readonly int _entityTickDistance = 3;
     private static readonly int _tileTickDistance = 4;
     private static readonly int _softLoadDistance = 5;
@@ -43,15 +43,20 @@ public static class WorldManager
         }
     }
 
+    // Check active chunks, if null, then check save data for stuff you might need.
+
+
     private static void LoadChunk(Vector3Int chunkPosition, int testTileIndex = 0){
         Debug.Log($"WorldManager.LoadChunk: Called to load chunk {chunkPosition}");
         if(activeChunks.ContainsKey(chunkPosition)){
-            UnloadChunk(chunkPosition);
+            //UnloadChunk(chunkPosition);
+            return;
         }
         if(!activeChunks.ContainsKey(chunkPosition)){
             Chunk chunk = AddChunk(chunkPosition);
             if(chunk != null){
-                WorldRenderer.RenderChunk(chunk, testTileIndex);
+                // WorldRenderer.RenderTestChunk(chunk, testTileIndex);
+                WorldRenderer.RenderChunk(chunk);
             }
             else{
                 Debug.LogWarning($"WorldManager.LoadChunk: Chunk {chunkPosition} cannot be rendered as it is null.");
@@ -63,21 +68,21 @@ public static class WorldManager
     private static void TickEntitiesInChunk(Vector3Int chunkPosition){
         // Will implement more specific functionality later. Right now, will just load chunks.
         UnloadChunk(chunkPosition);
-        LoadChunk(chunkPosition, 1);
+        // LoadChunk(chunkPosition, 1);
 
         // Load with different gamerules in place.
     }
     private static void TickTilesInChunk(Vector3Int chunkPosition){
         // Will implement more specific functionality later. Right now, will just load chunks.
         UnloadChunk(chunkPosition);
-        LoadChunk(chunkPosition, 2);
+        // LoadChunk(chunkPosition, 2);
 
         // Load with different gamerules in place.
     }
     private static void SoftLoadChunk(Vector3Int chunkPosition){
         // Will implement more specific functionality later. Right now, will just load chunks.
         UnloadChunk(chunkPosition);
-        LoadChunk(chunkPosition, 3);
+        // LoadChunk(chunkPosition, 3);
 
         // Load with minimal sim and reduced rendering.
     }
