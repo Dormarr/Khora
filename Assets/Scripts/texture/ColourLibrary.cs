@@ -16,7 +16,7 @@ public static class ColourLibrary
 
         if (field == null)
         {
-            Debug.LogError($"No color array found with the name '{name}'.");
+            Debug.LogError($"No colour array found with the name '{name}'.");
             return null;
         }
 

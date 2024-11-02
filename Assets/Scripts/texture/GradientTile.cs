@@ -58,7 +58,7 @@ namespace UnityEngine.Tilemaps
 
             stopwatch.Stop();
 
-            Debug.Log($"GradientTile.Initialize: Completed initialization successfully. \n Time taken: {stopwatch.ElapsedMilliseconds} ms.");
+            Debug.Log($"GradientTile.Initialize: Completed initialization successfully in \b{stopwatch.ElapsedMilliseconds} ms.");
         }
         public override void GetTileData(Vector3Int position, ITilemap tilemap, ref TileData tileData)
         {
@@ -93,7 +93,7 @@ namespace UnityEngine.Tilemaps
             stopwatch.Stop();
 
             // mainTexture = updatedSprite;
-            Debug.Log($"GradientTile.ApplyGradientToTile: Finished Rendering Tile. \n Time taken: {stopwatch.ElapsedMilliseconds} ms.");
+            Debug.Log($"GradientTile.ApplyGradientToTile: Finished Rendering Tile in \b{stopwatch.ElapsedMilliseconds} ms.");
             return updatedSprite;
         }
 
@@ -129,7 +129,7 @@ namespace UnityEngine.Tilemaps
             newTexture.Apply();
 
             stopwatch.Stop();
-            Debug.Log($"GradientTile.ReplaceColours: Created NewTexture. \n Time taken: {stopwatch.ElapsedMilliseconds} ms.");
+            Debug.Log($"GradientTile.ReplaceColours: Created NewTexture in \b{stopwatch.ElapsedMilliseconds} ms.");
 
             return newTexture;
         }

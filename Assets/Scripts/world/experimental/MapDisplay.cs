@@ -5,11 +5,13 @@ using UnityEngine.Tilemaps;
 
 public class MapDisplay : MonoBehaviour
 {
+    public TileColourManager tcm;
     public Tilemap tilemap;
     public Sprite defaultSprite;
     public GradientTile gradientTile;
     private Texture2D colourMap;
     private Color[,] colourData;
+
 
     public void DrawBiomeMap(Biome[,] biomeMap){
         tilemap.ClearAllTiles();
@@ -51,10 +53,12 @@ public class MapDisplay : MonoBehaviour
                 tile.Initialize(new Vector3Int(x,y,0), colours, defaultSprite, "grass");
 
                 tilemap.SetTile(new Vector3Int(x,y,0), tile);
-                tilemap.RefreshAllTiles();
+                // tilemap.RefreshAllTiles();
+                // tcm.ApplyTileColours();
             }
         }
     }
+
 
     public Color[] GetTileNeighbourColours(float[,] temperatureMap, float[,] precipitationMap, int x, int y){
 

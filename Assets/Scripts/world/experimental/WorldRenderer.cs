@@ -33,7 +33,7 @@ public static class WorldRenderer{
         }
 
         stopwatch.Stop();
-        Debug.Log($"WorldRenderer.RenderChunk: Succesfully rendered chunk {chunk.Position}. \n Time Taken: {stopwatch.ElapsedMilliseconds} ms.");
+        Debug.Log($"WorldRenderer.RenderChunk: Succesfully rendered chunk {chunk.Position} in \b{stopwatch.ElapsedMilliseconds} ms.");
     }
     public static void RenderChunk(Chunk chunk){
         var stopwatch = new Stopwatch();
@@ -41,7 +41,7 @@ public static class WorldRenderer{
         RenderTileColours(chunk, "debug");
 
         stopwatch.Stop();
-        Debug.Log($"WorldRenderer.RenderChunk: Successfully rendered chunk {chunk.Position}. \n Time taken: {stopwatch.ElapsedMilliseconds} ms.");
+        Debug.Log($"WorldRenderer.RenderChunk: Successfully rendered chunk {chunk.Position} in \b{stopwatch.ElapsedMilliseconds} ms.");
 
         //Draw mods has to be done using save data, which isn't yet implemented.
         //DrawModifications();
@@ -86,30 +86,25 @@ public static class WorldRenderer{
                 // The initialization process needs to be improved.
                 tile.Initialize(tilePos, colours, selectedTile.mainTexture, name);
 
-
                 tiles.Add((tilePos, tile));
             }
         }
 
-        var stopwatch1 = new Stopwatch();
-        stopwatch1.Start();
+        Debug.Log($"WorldRenderer.RenderTileColours: Initialized all tiles in \b{stopwatch.ElapsedMilliseconds} ms");
+
         foreach (var (tilePos, tile) in tiles)
         {
             // This is what's bottlenecking the generation time.
             // Can I send this out to a Unity job?
             chunk.Tilemap.SetTile(tilePos, tile);
-
-            
         }
-        stopwatch1.Stop();
-        Debug.Log($"WorldRenderer.RenderTileColours: Applied tiles to tilemap. \n Time taken: {stopwatch1.ElapsedMilliseconds} ms.");
 
         stopwatch.Stop();
         Debug.Log($"WorldRenderer.RenderTileColours: Tiles rendered and set in \b{stopwatch.ElapsedMilliseconds} ms.");
 
     }
 
-    private static Color[] GetTileNeighbourColours(float[,] temperatureMap, float[,] precipitationMap, int x, int y, Texture2D colourMap, string name){
+    public static Color[] GetTileNeighbourColours(float[,] temperatureMap, float[,] precipitationMap, int x, int y, Texture2D colourMap, string name){
 
         // Cross reference name with dedicated list of tiles requiring colour replacement.
         // If name is not in list, return.
@@ -144,7 +139,7 @@ public static class WorldRenderer{
         }
 
         stopwatch.Stop();
-        Debug.Log($"WorldRenderer.GettileNeighbourColours: Indexed tile neighbour colours. \n Time taken: {stopwatch.ElapsedMilliseconds} ms");
+        Debug.Log($"WorldRenderer.GettileNeighbourColours: Indexed tile neighbour colours in \b{stopwatch.ElapsedMilliseconds} ms");
 
         return tileColours;
     }

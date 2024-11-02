@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class MapGenerator : MonoBehaviour
 {
-
     [Header("Generator")]
     public PerlinGenerator temperatureGenerator;
     public PerlinGenerator precipitationGenerator;
@@ -24,6 +23,7 @@ public class MapGenerator : MonoBehaviour
     private float elevation;
     private float erosion;
 
+
     public void GenerateBiomeMap(){
 
         float[,] temperatureMap = new float[mapWidth, mapHeight];
@@ -42,6 +42,7 @@ public class MapGenerator : MonoBehaviour
                     precipitationMap[x,y]);
             }
         }
+
         MapDisplay display = FindObjectOfType<MapDisplay>();
         display.DrawBiomeMap(biomeMap);
         display.RenderTileColours(temperatureMap, precipitationMap);
